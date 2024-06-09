@@ -1,0 +1,260 @@
+<!doctype html>
+<html>
+
+<body>
+    <canvas width="300" height="300" id="my_Canvas"></canvas>
+
+    <script>
+    /*============= Creating a canvas ==================*/
+    var canvas = document.getElementById('my_Canvas');
+    gl = canvas.getContext('experimental-webgl');
+
+    /*========== Defining and storing the geometry ==========*/
+
+
+    let t = 1;
+    let osc = 1;
+    let rectangles = 0;
+    let rectangle = makeRectangle({
+        c: [0.1, 0.1, 0.5],
+        v: [
+            [-5 + (Math.sin(t * 0.05) * osc), -15 + (Math.cos(t * 0.05) * osc)],
+            [17 + (Math.sin(t * 0.015) * osc), -15 + (Math.cos(t * 0.015) * osc)],
+            [15 + (Math.sin(t * 0.045) * osc), 15 + (Math.cos(t * 0.045) * osc)],
+            [-15 + (Math.sin(t * 0.025) * osc), 15 + (Math.cos(t * 0.025) * osc)]
+        ]
+    });
+
+
+
+
+    var vertices = [-0.75, 0.0, 0.0, -0.5, -0.5, 0.0,
+        0.75, 0.0, 0.0, 0.5, 0.5, 0.0
+    ];
+
+    var colors = [0, 0, 1, 0, 1, 0, 0, 1, 1, 0, 0, 1, 0, 0, 1, 0];
+
+    indices = [3, 2, 1, 3, 1, 0];
+
+    // Create an empty buffer object and store vertex data
+    var vertex_buffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, vertex_buffer);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
+    gl.bindBuffer(gl.ARRAY_BUFFER, null);
+
+    // Create an empty buffer object and store Index data
+    var Index_Buffer = gl.createBuffer();
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, Index_Buffer);
+    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(indices), gl.STATIC_DRAW);
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
+
+    // Create an empty buffer object and store color data
+    var color_buffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, color_buffer);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(colors), gl.STATIC_DRAW);
+
+    /*======================= Shaders =======================*/
+
+    // vertex shader source code
+    var vertCode = 'attribute vec3 coordinates;' +
+        'attribute vec4 color;' +
+        'varying vec4 vColor;' +
+        'void main(void) {' +
+        ' gl_Position = vec4(coordinates, 1.0);' +
+        'vColor = color;' +
+        '}';
+
+    // Create a vertex shader object
+    var vertShader = gl.createShader(gl.VERTEX_SHADER);
+
+    // Attach vertex shader source code
+    gl.shaderSource(vertShader, vertCode);
+
+    // Compile the vertex shader
+    gl.compileShader(vertShader);
+
+
+    // fragment shader source code
+    var fragCode = 'precision mediump float;' +
+        'varying vec4 vColor;' +
+        'void main(void) {' +
+        'gl_FragColor = vColor;' +
+        '}';
+
+    // Create fragment shader object
+    var fragShader = gl.createShader(gl.FRAGMENT_SHADER);
+
+    // Attach fragment shader source code
+    gl.shaderSource(fragShader, fragCode);
+
+    // Compile the fragmentt shader
+    gl.compileShader(fragShader);
+
+    // Create a shader program object to
+    // store the combined shader program
+    var shaderProgram = gl.createProgram();
+
+    // Attach a vertex shader
+    gl.attachShader(shaderProgram, vertShader);
+
+    // Attach a fragment shader
+    gl.attachShader(shaderProgram, fragShader);
+
+    // Link both the programs
+    gl.linkProgram(shaderProgram);
+
+    // Use the combined shader program object
+    gl.useProgram(shaderProgram);
+
+    /* ======== Associating shaders to buffer objects =======*/
+
+    // Bind vertex buffer object
+    gl.bindBuffer(gl.ARRAY_BUFFER, vertex_buffer);
+
+    // Bind index buffer object
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, Index_Buffer);
+
+    // Get the attribute location
+    var coord = gl.getAttribLocation(shaderProgram, "coordinates");
+
+    // point an attribute to the currently bound VBO
+    gl.vertexAttribPointer(coord, 3, gl.FLOAT, false, 0, 0);
+
+    // Enable the attribute
+    gl.enableVertexAttribArray(coord);
+
+    // bind the color buffer
+    gl.bindBuffer(gl.ARRAY_BUFFER, color_buffer);
+
+    // get the attribute location
+    var color = gl.getAttribLocation(shaderProgram, "color");
+
+    // point attribute to the volor buffer object
+    gl.vertexAttribPointer(color, 4, gl.FLOAT, false, 0, 0);
+
+    // enable the color attribute
+    gl.enableVertexAttribArray(color);
+
+    /*============Drawing the Quad====================*/
+
+    // Clear the canvas
+    gl.clearColor(0.0, 0.0, 0.0, 1.0);
+
+    // Enable the depth test
+    gl.enable(gl.DEPTH_TEST);
+
+    // Clear the color buffer bit
+    gl.clear(gl.COLOR_BUFFER_BIT);
+
+
+    // gl.clear(gl.COLOR_BUFFER_BIT);
+    gl.enable(gl.BLEND);
+    // gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+    gl.blendFunc(gl.SRC_ALPHA, gl.DST_ALPHA);
+
+    // Set the view port
+    gl.viewport(0, 0, canvas.width, canvas.height);
+
+    //Draw the triangle
+    gl.drawElements(gl.TRIANGLES, indices.length, gl.UNSIGNED_SHORT, 0);
+
+
+
+    function makeRectangle(r) {
+        let c = {
+            r: r.c[0],
+            g: r.c[1],
+            b: r.c[2]
+        };
+        let v0 = {
+            x: r.v[0][0],
+            y: r.v[0][1]
+        };
+        let v1 = {
+            x: r.v[1][0],
+            y: r.v[1][1]
+        };
+        let v2 = {
+            x: r.v[2][0],
+            y: r.v[2][1]
+        };
+        let v3 = {
+            x: r.v[3][0],
+            y: r.v[3][1]
+        };
+
+        // for (let i = 0; i < a.v.length; i++) {
+        //     ellipse(a.v[i][0], a.v[i][1], 15);
+        // }
+
+
+        // line(v0.x, v0.y, v1.x, v1.y);
+        // line(v0.x, v0.y, v3.x, v3.y);
+        // line(v2.x, v2.y, v1.x, v1.y);
+        // line(v2.x, v2.y, v3.x, v3.y);
+
+        function drawExtension(vec0, vec1, vec2, ext) {
+            var angle = Math.atan2(vec1.y - vec0.y, vec1.x - vec0.x);
+            var angle2 = Math.atan2(vec2.y - vec0.y, vec2.x - vec0.x);
+            let aa = GetAverageAngle(angle, angle2);
+            // console.log(aa);
+            let midAngle = GetAverageAngle(angle, angle2) + Math.PI;
+            var v0e = {
+                x: vec0.x + Math.cos(midAngle) * (40 + aa * 3),
+                y: vec0.y + Math.sin(midAngle) * (40 + aa * 3)
+            };
+            // ellipse(v0e.x, v0e.y, 5);
+            return v0e;
+        }
+        // stroke(255, 0, 0);
+        let v4 = drawExtension(v0, v1, v3, 40);
+        let v5 = drawExtension(v1, v0, v2, 40);
+        let v6 = drawExtension(v2, v1, v3, 40);
+        let v7 = drawExtension(v3, v2, v0, 40);
+        // line(v4.x, v4.y, v5.x, v5.y);
+        // line(v4.x, v4.y, v7.x, v7.y);
+        // line(v6.x, v6.y, v5.x, v5.y);
+        // line(v6.x, v6.y, v7.x, v7.y);
+        let vertices = [
+            v0.x, v0.y, 0,
+            v1.x, v1.y, 0,
+            v2.x, v2.y, 0,
+            v3.x, v3.y, 0,
+            v4.x, v4.y, 0,
+            v5.x, v5.y, 0,
+            v6.x, v6.y, 0,
+            v7.x, v7.y, 0,
+        ];
+        let colors = [];
+        for (let i = 0; i < 4; i++) {
+            colors.push(c.r, c.g, c.b, 1.0);
+        }
+        for (let i = 0; i < 4; i++) {
+            colors.push(c.r, c.g, c.b, 0.0);
+        }
+        return {
+            colors: colors,
+            vertices: vertices
+        };
+    }
+
+
+    function GetAverageAngle(angleA, angleB) {
+        if (angleA > angleB) {
+            var temp = angleA;
+            angleA = angleB;
+            angleB = temp;
+        }
+        if (angleB - angleA > Math.PI) {
+            angleB -= Math.PI * 2;
+        };
+        var finalAngle = (angleB + angleA) / 2;
+        if (finalAngle < 0) {
+            finalAngle += Math.PI * 2;
+        };
+        return finalAngle;
+    }
+    </script>
+</body>
+
+</html>
