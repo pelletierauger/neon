@@ -203,29 +203,31 @@ setShaders = function() {
         // col.r = min(col.r, abs(col.b * 12. * 2. - 6. * 2.) * -1. + 6. * 2.);
         // col.b = 0.0;
         // victoire 1, fin
-        float rr = abs(col.r * 4. - 2.) * -1. + 1.;
-        float bb = abs(col.b * 12. * 1. - 6. * 1.) * -1. + 6. * 1.;
-        col.r = min(rr, bb);
+        float rr = abs(col.r * 4. * 1.3 - 2. * 1.3) * -1. + 1.;
+        float bb = abs(col.b * 12. * 0.55 - 6. * 0.55) * -1. + 6. * 0.55;
+        // col.r = min(rr, bb);
+        float rr2 = abs(col.r * 32. * 3. - 16. * 3.) * -1. + 1.;
+        col.b = map(col.b, 0.0, 1.0, -0.2, 1.2);
+        float bb2 = abs(col.b * 12. * 5.5 - 6. * 5.5) * -1. + 6. * 5.5;
+        // col.r = min(rr2, bb2);
         // col.r = rr;
         // col.r = abs(col.b * 4. - 2.) * -1. + 1.;
-        col.r = 1.0 - length(vec2(rr, min(1.0, bb)) - vec2(1., 1.));
+        float glow = 1.0 - length(vec2(rr, min(1.0, bb)) - vec2(1., 1.));
+        // col.r *= 0.5;
+        float neon = 1.0 - length(vec2(rr2, min(1.0, bb2)) - vec2(1., 1.));
+        // float neon = neon;
+        neon = min(1.0, max(0.0, neon));
+        glow = min(1.0, max(0.0, glow));
+        // neon = smoothstep(0., 1., neon);
+        // glow = smoothstep(0., 1., glow);
+        // neon = neon * 0.6 + (glow * 0.4);
+        neon = neon * 1. + max(0.0, ((glow * 0.7) - 0.25 - (neon * 0.7)));
         // col.r = max(0.0, col.r);
-        // col.r = rr;
-        // col.r = max(col.r, min(rr, bb));
-        // col.r = min(rr, bb) - col.r;
-        // col.b = 0.0;
-        vec2 size = vec2(0.01, 0.01);
-        // vec2 pos = 
-        float d = length(max(abs(uv - vec2(0.5, 0.5)), size) - size) - 0.001;
-        // col.r = smoothstep(0.66, 0.33, d / 10.001);
-        // col.r = roundedRectangle(uv, vec2(0.5, 0.5), size, 0.1, 0.01);
-        // col.r = length(vec2(col.r, col.r));
-        // col.r = smoothstep(0., 1., col.r);
-        col.r = max(0.0, col.r);
-        col.r = col.r * col.r * (3. - 3. * col.r);
+        // col.r *= 0.5;
+        // col.r = col.r * col.r * (3. - 3. * col.r);
         // col.b = 1.0;
         vec3 mm = mix(vec3(1.0, 0.0, 0.0), vec3(0.0, 0.0, 1.0), 0.);
-        gl_FragColor = vec4(vec3(1.0), col.r - (rando * 0.1) - 0.);
+        gl_FragColor = vec4(vec3(1.0, 0.0, 0.), neon - (rando * 0.1) + 0.);
         // float col = uv.x;
         // gl_FragColor.a = 1.0;
         // col = abs(col * 4. - 2.) * -1. + 1.;
@@ -245,6 +247,94 @@ setShaders = function() {
         // gl_FragColor.a = vColor.w - (rando * 0.25);
         // gl_FragColor.rgb *= sin(gl_FragCoord.x * 100.);
         // gl_FragColor.rgb = vec3(1.0) - gl_FragColor.rgb;
+    }
+    // endGLSL
+    `;
+    // Create fragment shader object
+    var fragShader = gl.createShader(gl.FRAGMENT_SHADER);
+    // Attach fragment shader source code
+    gl.shaderSource(fragShader, fragCode);
+    // Compile the fragmentt shader
+    gl.compileShader(fragShader);
+    // Create a shader program object to
+    // store the combined shader program
+    shaderProgram = gl.createProgram();
+    // Attach a vertex shader
+    gl.attachShader(shaderProgram, vertShader);
+    // Attach a fragment shader
+    gl.attachShader(shaderProgram, fragShader);
+    // Link both the programs
+    gl.linkProgram(shaderProgram);
+    // Use the combined shader program object
+    gl.useProgram(shaderProgram);
+}
+
+
+setShaders = function() {
+    /*======================= Shaders =======================*/
+    // vertex shader source code
+    var vertCode = `
+        attribute vec3 coordinates;
+        attribute vec4 color;
+        varying vec4 vColor;
+        void main(void) {
+            gl_Position = vec4(coordinates, 1.0);
+            gl_Position.x = gl_Position.x * (1600.0 / 2560.0);
+        vColor = color;
+    }`;
+    // Create a vertex shader object
+    var vertShader = gl.createShader(gl.VERTEX_SHADER);
+    // Attach vertex shader source code
+    gl.shaderSource(vertShader, vertCode);
+    // Compile the vertex shader
+    gl.compileShader(vertShader);
+    // fragment shader source code
+    var fragCode = `
+    // beginGLSL
+    precision mediump float;
+    varying vec4 vColor;
+    float rand(vec2 co){
+        return fract(sin(dot(co.xy ,vec2(12.9898,78.233))) * 43758.5453 * (2.0 + sin(co.x)));
+    }
+    float roundedRectangle (vec2 uv, vec2 pos, vec2 size, float radius, float thickness) {
+        float d = length(max(abs(uv - pos),size) - size) - radius;
+        return smoothstep(0.66, 0.33, d / thickness * 5.0);
+    }
+    float map(float value, float min1, float max1, float min2, float max2) {
+        return min2 + (value - min1) * (max2 - min2) / (max1 - min1);
+    }
+    void main(void) {
+        vec2 uv = gl_FragCoord.xy / vec2(1600, 1600);
+        vec2 pos = gl_PointCoord;
+        float rando = rand(pos);
+        float r = vColor.x;
+        uv = vColor.rb;
+        vec3 col = vColor.rgb;
+        // victoire 1 
+        // col.r = abs(col.r * 4. - 2.) * -1. + 1.;
+        // col.r = min(col.r, abs(col.b * 12. * 2. - 6. * 2.) * -1. + 6. * 2.);
+        // col.b = 0.0;
+        // victoire 1, fin
+        float rr = abs(col.r * 4. * 0.125 - 2. * 0.125) * -1. + 1.;
+        float bb = abs(col.b * 12. * 0.55 - 6. * 0.55) * -1. + 6. * 0.55;
+        // col.r = min(rr, bb);
+        float rr2 = abs(col.r * 32. * 0.5 - 16. * 0.5) * -1. + 1.;
+        col.b = map(col.b, 0.0, 1.0, -0.2, 1.2);
+        float bb2 = abs(col.b * 12. * 5.5 - 6. * 5.5) * -1. + 6. * 5.5;
+        // col.r = min(rr2, bb2);
+        // col.r = rr;
+        // col.r = abs(col.b * 4. - 2.) * -1. + 1.;
+        float glow = 1.0 - length(vec2(rr, min(1.0, bb)) - vec2(1., 1.));
+        // col.r *= 0.5;
+        float neon = 1.0 - length(vec2(rr2, min(1.0, bb2)) - vec2(1., 1.));
+        // float neon = neon;
+        neon = min(1.0, max(0.0, neon));
+        glow = min(1.0, max(0.0, glow));
+        // neon = smoothstep(0., 1., neon);
+        // glow = smoothstep(0., 1., glow);
+        // neon = neon * 0.6 + (glow * 0.4);
+        neon = neon * 1. + max(0.0, ((glow * 0.7) - 0.25 - (neon * 0.7)));
+        gl_FragColor = vec4(vec3(1.0, 0.0, 0.0), neon - (rando * 0.1) + 0.);
     }
     // endGLSL
     `;
