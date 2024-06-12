@@ -316,7 +316,8 @@ setShaders = function() {
         // col.b = 0.0;
         // victoire 1, fin
         float rr = abs(col.r * 4. * 0.125 - 2. * 0.125) * -1. + 1.;
-        float bb = abs(col.b * 12. * 0.55 - 6. * 0.55) * -1. + 6. * 0.55;
+        float wideb = map(col.b, 0.0, 1.0, 0.05, 0.95);
+        float bb = abs(wideb * 12. * 0.55 - 6. * 0.55) * -1. + 6. * 0.55;
         // col.r = min(rr, bb);
         float rr2 = abs(col.r * 32. * 0.5 - 16. * 0.5) * -1. + 1.;
         col.b = map(col.b, 0.0, 1.0, -0.2, 1.2);
@@ -334,7 +335,7 @@ setShaders = function() {
         // glow = smoothstep(0., 1., glow);
         // neon = neon * 0.6 + (glow * 0.4);
         neon = neon * 1. + max(0.0, ((glow * 0.7) - 0.25 - (neon * 0.7)));
-        gl_FragColor = vec4(vec3(1.0, 0.0, 0.0), neon - (rando * 0.1) + 0.);
+        gl_FragColor = vec4(vec3(1.0, 0.0, 0.0), neon - (rando * 0.1) + 0.5);
     }
     // endGLSL
     `;

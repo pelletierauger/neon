@@ -132,18 +132,19 @@ if (testnew) {
     indices = [];
     vertices = [];
     colors = [];
-    for (let j = 0; j < 20; j++) {
+    for (let j = 0; j < 1; j++) {
         for (let k = 0; k < ii.length; k++) {
             indices.push(ii[k] + (j*4));
         }
-        let nj = Math.PI * 2 / 20 * j;
-        let x1 = -0.5  + Math.cos(j+frameCount*1.5e-3);
-        let y1 = -0.0 + (j/30);
+        let nj = Math.PI * 2 / 1 * j;
+        let x1 = -1.2  + Math.cos(j+frameCount*1.5e-3);
+        let y1 = 1.0 + (j/30);
         let x0 = x1 + 1.75;
         let y0 = y1  + Math.sin(j+frameCount*1.5e-2);
         // x1 = 0.5;
         // y1 = 0;
-        let ml = makeLine(x0, y0 - 0.75, x1, y1 - 0.75, 0.75);
+        // let ml = makeLine(x0, y0 - 0.75, x1, y1 - 0.75, 0.75);
+        let ml = makeLine(x0, y0 - 0.75, x1, y1 - 0.75, 0.125);
         let vv = [
             ml[0], ml[1], 0, 
             ml[2], ml[3], 0,
