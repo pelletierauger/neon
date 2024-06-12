@@ -132,18 +132,18 @@ if (testnew) {
     indices = [];
     vertices = [];
     colors = [];
-    for (let j = 0; j < 50; j++) {
+    for (let j = 0; j < 40; j++) {
         for (let k = 0; k < ii.length; k++) {
             indices.push(ii[k] + (j*4));
         }
-        let nj = Math.PI * 2 / 50 * j;
-        let x1 = -0.25 + Math.cos(nj + frameCount * 1e-2) * 0.5;
-        let y1 = -0.25 + Math.sin(nj + frameCount * 1e-2) * 0.5;
-        let x0 = x1 + 0.5;
-        let y0 = y1 + 0.5;
+        let nj = Math.PI * 2 / 40 * j;
+        let x1 = -0.5  + Math.cos(j+frameCount*5e-3);
+        let y1 = -0.0 + (j/30);
+        let x0 = x1 + 1.75;
+        let y0 = y1  + Math.sin(j+frameCount*5e-2);
         // x1 = 0.5;
         // y1 = 0;
-        let ml = makeLine(x0, y0, x1, y1, 0.0625);
+        let ml = makeLine(x0, y0 - 0.75, x1, y1 - 0.75, 0.25);
         let vv = [
             ml[0], ml[1], 0, 
             ml[2], ml[3], 0,
@@ -174,8 +174,8 @@ if (testnew) {
             let rotateAngle = {x: Math.cos(frameCount * 1e-2), y: Math.sin(frameCount * 1e-2)};
         for (let i = 0; i < vertices.length; i += 3) {
             let newPos = rotate({x: vertices[i], y: vertices[i+1]}, rotateAngle);
-            vertices[i] = newPos[0];
-            vertices[i+1] = newPos[1];
+            // vertices[i] = newPos[0];
+            // vertices[i+1] = newPos[1];
         }
     var vertex_buffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, vertex_buffer);
