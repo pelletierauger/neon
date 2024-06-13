@@ -137,10 +137,10 @@ if (testnew) {
             indices.push(ii[k] + (j*4));
         }
         let nj = Math.PI * 2 / 1 * j;
-        let x1 = -1.2  + Math.cos(j+frameCount*1.5e-3);
+        let x1 = -0.5;
         let y1 = 1.0 + (j/30);
         let x0 = x1 + 1.75;
-        let y0 = y1  + Math.sin(j+frameCount*1.5e-2);
+        let y0 = y1;
         // x1 = 0.5;
         // y1 = 0;
         // let ml = makeLine(x0, y0 - 0.75, x1, y1 - 0.75, 0.75);
