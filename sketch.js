@@ -62,10 +62,21 @@ function setup() {
 }
 let ww;
 
+aj = []; 
+for (let j = 0; j < 30; j++) {
+    aj.push(Math.PI * 2 / 30 * j);
+}
+aj2 = []; 
+for (let j = 0; j < 30; j+=2) {
+    aj2.push(aj[j]);
+} 
+for (let j = 1; j < 30; j+=2) {
+    aj2.push(aj[j]);
+}
 draw = function() {
     // ww = map(sin(frameCount * 0.05), -1, 1, 0.05, 1);
     // rectangles = 0;
-    // let t = frameCount * 5;
+    let t = frameCount;
     // let osc = 0.1;
     // vertices = [];
     // colors = [];
@@ -132,19 +143,20 @@ if (testnew) {
     indices = [];
     vertices = [];
     colors = [];
-    for (let j = 0; j < 40; j++) {
+    for (let j = 0; j < 30; j++) {
         for (let k = 0; k < ii.length; k++) {
             indices.push(ii[k] + (j*4));
         }
-        let nj = Math.PI * 2 / 40 * j;
-        let x1 = -0.5  + Math.cos(j+frameCount*5e-3);
-        let y1 = -0.0 + (j/30);
-        let x0 = x1 + 1.75;
-        let y0 = y1  + Math.sin(j+frameCount*5e-2);
+        let nj = (Math.PI * 2 / 30 * j);
+        nj = aj2[j];
+        let x1 = Math.cos(nj+0+t*-1e-2);
+        let y1 = Math.sin(nj+0+t*-1e-2);
+        let x0 = x1 - Math.cos(nj+0.2+t*-1e-2)+Math.cos(t*1e-2)*0.35;
+        let y0 = y1 - Math.sin(nj+0.2+t*-1e-2)+Math.sin(t*1e-2)*0.35;
         // x1 = 0.5;
         // y1 = 0;
         // let ml = makeLine(x0, y0 - 0.75, x1, y1 - 0.75, 0.75);
-        let ml = makeLine(x0, y0 - 0.75, x1, y1 - 0.75, 0.125);
+        let ml = makeLine(x0, y0, x1, y1, 0.125);
         let vv = [
             ml[0], ml[1], 0, 
             ml[2], ml[3], 0,

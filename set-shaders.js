@@ -317,11 +317,11 @@ setShaders = function() {
         // victoire 1, fin
         float rr = abs(col.r * 4. * 0.3 - 2. * 0.3) * -1. + 1.;
         float wideb = map(col.b, 0.0, 1.0, 0.06, 0.94);
-        float bb = abs(wideb * 12. * 0.55 - 6. * 0.55) * -1. + 6. * 0.55;
+        float bb = abs(wideb * 12. * 0.575 - 6. * 0.575) * -1. + 6. * 0.575;
         // col.r = min(rr, bb);
         float rr2 = abs(col.r * 32. * 0.5 - 16. * 0.5) * -1. + 1.;
         col.b = map(col.b, 0.0, 1.0, -0.08, 1.08);
-        float bb2 = abs(col.b * 12. * 5.5 - 6. * 5.5) * -1. + 6. * 5.5;
+        float bb2 = abs(col.b * 12. * 3. - 6. * 3.) * -1. + 6. * 3.;
         // col.r = min(rr2, bb2);
         // col.r = rr;
         // col.r = abs(col.b * 4. - 2.) * -1. + 1.;
