@@ -127,7 +127,7 @@ draw = function() {
     colors = [];
     widths = [];
     uvs = [];
-    ws = [3, 0.2];
+    ws = [5, 0.2];
     for (let j = 0; j < 2; j++) {
         for (let k = 0; k < ii.length; k++) {
             indices.push(ii[k] + (j*4));

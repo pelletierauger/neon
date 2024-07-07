@@ -66,10 +66,12 @@ setShaders = function() {
         uv -= fwh * 0.5;
         float radius = wh.x;
         vec2 size = fwh * 0.5 - radius;
-        float coll = length(max(abs(uv), size) - size) - radius;
-        coll = min(coll * -1. * (1. / (radius * 0.5)), 1.0);
-        coll = smoothstep(0., 1., coll);
-        gl_FragColor = vec4(vec3(1.0, 0.0, 0.0), coll * 0.75 - (rando * 0.05));
+        float col = length(max(abs(uv), size) - size) - radius;
+        // col = pow(col, 7.);
+        // col = 1.0 - col * 4.;
+        col = min(col * -1. * (1. / (radius * 1.)), 1.0);
+        col = smoothstep(0., 1., col);
+        gl_FragColor = vec4(vec3(1.0, 0.0, 0.0), col * 0.5 - (rando * 0.05));
     }
     // endGLSL
     `;
