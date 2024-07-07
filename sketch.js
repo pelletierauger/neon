@@ -127,8 +127,9 @@ draw = function() {
     colors = [];
     widths = [];
     uvs = [];
-    ws = [5, 0.2];
-    for (let j = 0; j < 2; j++) {
+    ws = [2, 2];
+    let n = 12;
+    for (let j = 0; j < n; j++) {
         for (let k = 0; k < ii.length; k++) {
             indices.push(ii[k] + (j*4));
         }        
@@ -137,9 +138,9 @@ draw = function() {
         }
         let x0 = 0; 
         let y0 = 0;
-        let x1 = Math.cos(drawCount*2e-2) * 0.95; 
-        let y1 = Math.sin(drawCount*2e-2) * 0.95;
-        let w = ws[j];
+        let x1 = Math.cos(drawCount*-2e-2+(j/n*(Math.PI*2))) * 0.75; 
+        let y1 = Math.sin(drawCount*-2e-2+(j/n*(Math.PI*2))) * 0.75;
+        let w = 8;
         let vv = [
             x0, y0, x1, y1,
             x0, y0, x1, y1,
@@ -224,7 +225,9 @@ draw = function() {
     // enable the color attribute
     gl.enableVertexAttribArray(uvAttribLocation);
     resolutionUniformLocation = gl.getUniformLocation(shaderProgram, "resolution");
-    gl.uniform2f(resolutionUniformLocation, cnvs.width, cnvs.height);
+    gl.uniform2f(resolutionUniformLocation, cnvs.width, cnvs.height);    
+    timeUniformLocation = gl.getUniformLocation(shaderProgram, "time");
+    gl.uniform1f(timeUniformLocation, drawCount);
     gl.clear(gl.COLOR_BUFFER_BIT);
     gl.drawElements(gl.TRIANGLES, indices.length, gl.UNSIGNED_SHORT, 0);
     if (exporting && frameCount < maxFrames) {
