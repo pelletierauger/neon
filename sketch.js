@@ -128,7 +128,7 @@ draw = function() {
     widths = [];
     uvs = [];
     ws = [2, 2];
-    let n = 12;
+    let n = 24;
     for (let j = 0; j < n; j++) {
         for (let k = 0; k < ii.length; k++) {
             indices.push(ii[k] + (j*4));
@@ -136,11 +136,11 @@ draw = function() {
         for (let k = 0; k < iii.length; k++) {
             indices2.push(iii[k]);
         }
-        let x0 = 0; 
-        let y0 = 0;
+        let x0 = j/n; 
+        let y0 = j/n;
         let x1 = Math.cos(drawCount*-2e-2+(j/n*(Math.PI*2))) * 0.75; 
         let y1 = Math.sin(drawCount*-2e-2+(j/n*(Math.PI*2))) * 0.75;
-        let w = 8;
+        let w = 4;
         let vv = [
             x0, y0, x1, y1,
             x0, y0, x1, y1,

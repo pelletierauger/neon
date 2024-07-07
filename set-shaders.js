@@ -82,7 +82,7 @@ setShaders = function() {
         float g = pow(col, 24.0) * 0.15;
         col = (pow(col, 24.0) * 0.75) + (col * 0.25);
         col = smoothstep(0., 1., col);
-        col = mix(pow(col, 10.), col, sin(time*0.1+pos.y*1e1)*0.5+0.5);
+        col = mix(pow(col, 10.), col, sin(time*0.1+pos.y*0.5e1)*0.5+0.5);
         gl_FragColor = vec4(vec3(1.0, g, g), col - (rando * 0.05));
     }
     // endGLSL
