@@ -18,8 +18,6 @@ setShaders = function() {
             vec2 pos = vec2(0., 0.);
             vec2 pos0 = coordinates.xy;
             vec2 pos1 = coordinates.zw;
-            // pos0.x /= ratio;
-            // pos1.x /= ratio;
             float a = atan(pos1.y - pos0.y, pos1.x - pos0.x);
             float pi75 = pi * 0.75;
             float pi25 = pi * 0.25;
@@ -33,18 +31,8 @@ setShaders = function() {
             } else if (index == 3.) {
                 pos = pos1 + vec2(cos(a + pi25), sin(a + pi25)) * w;
             }
-            // if (index == 0.) {
-            //     pos = pos0 + vec2(0.0, 0.0) * width;
-            // } else if (index == 1.) {
-            //     pos = pos0 + vec2(0.0, 0.2) * width;
-            // } else if (index == 2.) {
-            //     pos = pos1 + vec2(0., 0.2) * width;
-            // } else if (index == 3.) {
-            //     pos = pos1 + vec2(0., 0.0) * width;
-            // }
             pos.x *= ratio;
             gl_Position = vec4(pos, 0.0, 1.0);
-            // gl_Position.x = gl_Position.x * (1600.0 / 2560.0);
             vColor = color;
             angle = a;
             uvs = uv;
