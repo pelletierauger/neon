@@ -1,4 +1,4 @@
-let looping = true;
+let looping = false;
 let keysActive = true;
 let socket, cnvs, ctx, canvasDOM;
 let fileName = "./frames/sketch";
@@ -9,6 +9,7 @@ let colors = [];
 let indices = [];
 let amountOfLines = 0;
 let drawCount = 0;
+let vertex_buffer, indices2_buffer, Index_Buffer, color_buffer, width_buffer, uv_buffer;
 
 function setup() {
     socket = io.connect('http://localhost:8080');
@@ -24,7 +25,12 @@ function setup() {
 
     // gl = canvasDOM.getContext('webgl', { premultipliedAlpha: false });
 
-
+    vertex_buffer = gl.createBuffer();
+    indices2_buffer = gl.createBuffer();
+    Index_Buffer = gl.createBuffer();
+    color_buffer = gl.createBuffer();
+    width_buffer = gl.createBuffer();
+    uv_buffer = gl.createBuffer();
 
     // gl.colorMask(false, false, false, true);
     // gl.colorMask(false, false, false, true);
@@ -110,69 +116,10 @@ function setup() {
     }, 1);
 
 }
-let ww;
 
-aj = []; 
-for (let j = 0; j < 30; j++) {
-    aj.push(Math.PI * 2 / 30 * j);
-}
-aj2 = []; 
-for (let j = 0; j < 30; j+=2) {
-    aj2.push(aj[j]);
-} 
-for (let j = 1; j < 30; j+=2) {
-    aj2.push(aj[j]);
-}
 draw = function() {
-    // ww = map(sin(frameCount * 0.05), -1, 1, 0.05, 1);
-    // rectangles = 0;
-    let t = frameCount;
-    // let osc = 0.1;
-    // vertices = [];
-    // colors = [];
-    // indices = [];
-    // let rectangle;
-    // rectangle = makeQuad({
-    //     c: [0, 0, 0, 1],
-    //     v: [
-    //         [-2 + (Math.sin(t * 0.05) * osc), -2 + (Math.cos(t * 0.05) * osc)],
-    //         [2 + (Math.sin(t * 0.015) * osc), -2 + (Math.cos(t * 0.015) * osc)],
-    //         [2 + (Math.sin(t * 0.015) * osc), 2 + (Math.cos(t * 0.015) * osc)],
-    //         [-2 + (Math.sin(t * 0.05) * osc), 2 + (Math.cos(t * 0.05) * osc)]
-    //     ]
-    // });
-    // addRectangleToBuffers(rectangle);
-    // setShaders2();
-    // amountOfLines = 0;
-    // for (let i = 0; i < 10; i++) {
-    //     lineOptions.r = 0.5;
-    //     lineOptions.g = 0; lineOptions.b = 0;
-    //     lineOptions.a = 1;
-    //     lineOptions.weight = 0.001;
-    //     lineOptions.blurFactor = 0.075;
-    //     makeLine(0 - 1 + (i * 0.15), -0.2, 0.5 - 1 + (i * 0.15), 0.5);
-    //     amountOfLines++;
-    //     makeLine(0 - 1 + (i * 0.15), 0.2, 0.5 - 1 + (i * 0.15), -0.5);
-    //     amountOfLines++;
-    //     lineOptions.blurFactor = 0.005;
-    //             lineOptions.r = 1;
-    //     lineOptions.a = 1;
-    //     // amountOfLines = 0;
-    //     makeLine(0 - 1 + (i * 0.15), -0.2, 0.5 - 1 + (i * 0.15), 0.5);
-    //     amountOfLines++;
-    //     makeLine(0 - 1 + (i * 0.15), 0.2, 0.5 - 1 + (i * 0.15), -0.5);
-    //     amountOfLines++;
-    // }
-    // let posR = [0, 0, Math.cos(t), Math.sin(t)];
-    // let rotate = function(p, a) {
-    //     return [
-    //         p.x * a.y + p.y * a.x,
-    //         p.y * a.y - p.x * a.x
-    //     ];
-    // };
-    let testnew = true;
-if (testnew) {
-        let makeLine = function(x0, y0, x1, y1, w) {
+    let t = drawCount;
+    let makeLine = function(x0, y0, x1, y1, w) {
         let a0 = Math.atan2(y1 - y0, x1 - x0);
         let halfPI = Math.PI * 0.5;
         let c0 = Math.cos(a0 + halfPI) * w;
@@ -190,19 +137,27 @@ if (testnew) {
         return [xA, yA, xB, yB, xC, yC, xD, yD];
     };
     let ii = [0, 1, 2, 0, 2, 3];
+    let iii = [0, 1, 2, 3];
     indices = [];
+    indices2 = [];
     vertices = [];
     colors = [];
-    for (let j = 0; j < 30; j++) {
+    widths = [];
+    uvs = [];
+    ws = [3, 0.05];
+    for (let j = 0; j < 2; j++) {
         for (let k = 0; k < ii.length; k++) {
             indices.push(ii[k] + (j*4));
+        }        
+        for (let k = 0; k < iii.length; k++) {
+            indices2.push(iii[k]);
         }
-        let nj = (Math.PI * 2 / 30 * j);
-        nj = aj2[j];
-        let x1 = Math.cos(nj+0+t*-1e-2);
-        let y1 = Math.sin(nj+0+t*-1e-2);
-        let x0 = x1 - Math.cos(nj+0.2+t*-1e-2)+Math.cos(t*1e-2)*0.35;
-        let y0 = y1 - Math.sin(nj+0.2+t*-1e-2)+Math.sin(t*1e-2)*0.35;
+        let x0 = 0 + (j*0.25) - 0.5; let y0 = -0.2 + (j*-0.25);
+        let x1 = 0.5 + (j*0.25) - 0.5; let y1 = 0.2*Math.sin(drawCount*1e-1) + (j*-0.25);
+        x0 = 0; y0 = 0;
+        x1 = Math.cos(drawCount*2e-2) * 0.5; y1 = Math.sin(drawCount*2e-2) * 0.5;
+        // x1 = 1; y1=-0.5;
+        let w = ws[j];
         // x1 = 0.5;
         // y1 = 0;
         // let ml = makeLine(x0, y0 - 0.75, x1, y1 - 0.75, 0.75);
@@ -213,46 +168,60 @@ if (testnew) {
             ml[6], ml[7], 0,
             ml[4], ml[5], 0,
         ];
+        vv = [
+            x0, y0, x1, y1,
+            x0, y0, x1, y1,
+            x0, y0, x1, y1,
+            x0, y0, x1, y1
+        ];
         for (let k = 0; k < vv.length; k++) {
             vertices.push(vv[k]);
         }
-        let a = Math.sin(nj - frameCount * -1e-1) * 0.5 + 0.5;
         let cc = [
-            0, 0, 0, a, 
-            1, 0, 0, a, 
-            1, 0, 1, a, 
-            0, 0, 1, a,
+            0, 0, 0, 1, 
+            1, 0, 0, 1, 
+            1, 0, 1, 1, 
+            0, 0, 1, 1,
         ];
         for (let k = 0; k < cc.length; k++) {
             colors.push(cc[k]);
         }
-    }
-}
-        let rotate = function(p, a) {
-        return [
-            p.x * a.y + p.y * a.x,
-            p.y * a.y - p.x * a.x
+        widths.push(w, w, w, w);
+        let uv = [
+            0, 0, 
+            1, 0, 
+            1, 1, 
+            0, 1
         ];
-    };
-            let rotateAngle = {x: Math.cos(frameCount * 1e-2), y: Math.sin(frameCount * 1e-2)};
-        for (let i = 0; i < vertices.length; i += 3) {
-            let newPos = rotate({x: vertices[i], y: vertices[i+1]}, rotateAngle);
-            // vertices[i] = newPos[0];
-            // vertices[i+1] = newPos[1];
+        for (let k = 0; k < uv.length; k++) {
+            uvs.push(uv[k]);
         }
-    var vertex_buffer = gl.createBuffer();
+    }
+    // var vertex_buffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, vertex_buffer);
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
     gl.bindBuffer(gl.ARRAY_BUFFER, null);
+    // var indices2_buffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, indices2_buffer);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(indices2), gl.STATIC_DRAW);
+    gl.bindBuffer(gl.ARRAY_BUFFER, null);
     // Create an empty buffer object and store Index data
-    var Index_Buffer = gl.createBuffer();
+    // var Index_Buffer = gl.createBuffer();
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, Index_Buffer);
     gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(indices), gl.STATIC_DRAW);
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
     // Create an empty buffer object and store color data
-    var color_buffer = gl.createBuffer();
+    // var color_buffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, color_buffer);
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(colors), gl.STATIC_DRAW);
+    // setShaders();    
+    // var width_buffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, width_buffer);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(widths), gl.STATIC_DRAW);
+    // var uv_buffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, uv_buffer);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(uvs), gl.STATIC_DRAW); 
+    gl.bindBuffer(gl.ARRAY_BUFFER, null);
     setShaders();
     /* ======== Associating shaders to buffer objects =======*/
     // Bind vertex buffer object
@@ -262,9 +231,17 @@ if (testnew) {
     // Get the attribute location
     var coord = gl.getAttribLocation(shaderProgram, "coordinates");
     // point an attribute to the currently bound VBO
-    gl.vertexAttribPointer(coord, 3, gl.FLOAT, false, 0, 0);
+    gl.vertexAttribPointer(coord, 4, gl.FLOAT, false, 0, 0);
     // Enable the attribute
     gl.enableVertexAttribArray(coord);
+    // bind the indices2 buffer
+    gl.bindBuffer(gl.ARRAY_BUFFER, indices2_buffer);
+    // get the attribute location
+    var indices2AttribLocation = gl.getAttribLocation(shaderProgram, "index");
+    // point attribute to the volor buffer object
+    gl.vertexAttribPointer(indices2AttribLocation, 1, gl.FLOAT, false, 0, 0);
+    // enable the color attribute
+    gl.enableVertexAttribArray(indices2AttribLocation);
     // bind the color buffer
     gl.bindBuffer(gl.ARRAY_BUFFER, color_buffer);
     // get the attribute location
@@ -273,6 +250,22 @@ if (testnew) {
     gl.vertexAttribPointer(color, 4, gl.FLOAT, false, 0, 0);
     // enable the color attribute
     gl.enableVertexAttribArray(color);
+    // bind the width buffer
+    gl.bindBuffer(gl.ARRAY_BUFFER, width_buffer);
+    // get the attribute location
+    var widthAttribLocation = gl.getAttribLocation(shaderProgram, "width");
+    // point attribute to the volor buffer object
+    gl.vertexAttribPointer(widthAttribLocation, 1, gl.FLOAT, false, 0, 0);
+    // enable the color attribute
+    gl.enableVertexAttribArray(widthAttribLocation);
+    gl.bindBuffer(gl.ARRAY_BUFFER, uv_buffer);
+    var uvAttribLocation = gl.getAttribLocation(shaderProgram, "uv");
+    // point attribute to the volor buffer object
+    gl.vertexAttribPointer(uvAttribLocation, 2, gl.FLOAT, false, 0, 0);
+    // enable the color attribute
+    gl.enableVertexAttribArray(uvAttribLocation);
+    resolutionUniformLocation = gl.getUniformLocation(shaderProgram, "resolution");
+    gl.uniform2f(resolutionUniformLocation, cnvs.width, cnvs.height);
     /*============Drawing the Quad====================*/
     // gl.clear(gl.COLOR_BUFFER_BIT);
     // gl.colorMask(false, false, false, true);
@@ -286,7 +279,15 @@ if (testnew) {
     if (exporting && frameCount < maxFrames) {
         frameExport();
     }
+    drawCount++;
 }
+
+let rotate = function(p, a) {
+    return [
+        p.x * a.y + p.y * a.x,
+        p.y * a.y - p.x * a.x
+    ];
+};
 
 function keyPressed() {
     if (keysActive) {
@@ -310,17 +311,3 @@ function keyPressed() {
         }
     }
 }
-
-const supported = (() => {
-    try {
-        if (typeof WebAssembly === "object" &&
-            typeof WebAssembly.instantiate === "function") {
-            const module = new WebAssembly.Module(Uint8Array.of(0x0, 0x61, 0x73, 0x6d, 0x01, 0x00, 0x00, 0x00));
-            if (module instanceof WebAssembly.Module)
-                return new WebAssembly.Instance(module) instanceof WebAssembly.Instance;
-        }
-    } catch (e) {}
-    return false;
-})();
-
-console.log(supported ? "WebAssembly is supported" : "WebAssembly is not supported");
