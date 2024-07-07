@@ -119,23 +119,6 @@ function setup() {
 
 draw = function() {
     let t = drawCount;
-    let makeLine = function(x0, y0, x1, y1, w) {
-        let a0 = Math.atan2(y1 - y0, x1 - x0);
-        let halfPI = Math.PI * 0.5;
-        let c0 = Math.cos(a0 + halfPI) * w;
-        let c1 = Math.cos(a0 - halfPI) * w;
-        let s0 = Math.sin(a0 + halfPI) * w;
-        let s1 = Math.sin(a0 - halfPI) * w;
-        let xA = x0 + c0;
-        let yA = y0 + s0;
-        let xB = x0 + c1;
-        let yB = y0 + s1;
-        let xC = x1 + c0;
-        let yC = y1 + s0;
-        let xD = x1 + c1;
-        let yD = y1 + s1;
-        return [xA, yA, xB, yB, xC, yC, xD, yD];
-    };
     let ii = [0, 1, 2, 0, 2, 3];
     let iii = [0, 1, 2, 3];
     indices = [];
@@ -152,23 +135,12 @@ draw = function() {
         for (let k = 0; k < iii.length; k++) {
             indices2.push(iii[k]);
         }
-        let x0 = 0 + (j*0.25) - 0.5; let y0 = -0.2 + (j*-0.25);
-        let x1 = 0.5 + (j*0.25) - 0.5; let y1 = 0.2*Math.sin(drawCount*1e-1) + (j*-0.25);
-        x0 = 0; y0 = 0;
-        x1 = Math.cos(drawCount*2e-2) * 0.5; y1 = Math.sin(drawCount*2e-2) * 0.5;
-        // x1 = 1; y1=-0.5;
+        let x0 = 0; 
+        let y0 = 0;
+        let x1 = Math.cos(drawCount*2e-2) * 0.5; 
+        let y1 = Math.sin(drawCount*2e-2) * 0.5;
         let w = ws[j];
-        // x1 = 0.5;
-        // y1 = 0;
-        // let ml = makeLine(x0, y0 - 0.75, x1, y1 - 0.75, 0.75);
-        let ml = makeLine(x0, y0, x1, y1, 0.125);
         let vv = [
-            ml[0], ml[1], 0, 
-            ml[2], ml[3], 0,
-            ml[6], ml[7], 0,
-            ml[4], ml[5], 0,
-        ];
-        vv = [
             x0, y0, x1, y1,
             x0, y0, x1, y1,
             x0, y0, x1, y1,
@@ -197,31 +169,18 @@ draw = function() {
             uvs.push(uv[k]);
         }
     }
-    // var vertex_buffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, vertex_buffer);
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
-    gl.bindBuffer(gl.ARRAY_BUFFER, null);
-    // var indices2_buffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, indices2_buffer);
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(indices2), gl.STATIC_DRAW);
-    gl.bindBuffer(gl.ARRAY_BUFFER, null);
-    // Create an empty buffer object and store Index data
-    // var Index_Buffer = gl.createBuffer();
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, Index_Buffer);
     gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(indices), gl.STATIC_DRAW);
-    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
-    // Create an empty buffer object and store color data
-    // var color_buffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, color_buffer);
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(colors), gl.STATIC_DRAW);
-    // setShaders();    
-    // var width_buffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, width_buffer);
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(widths), gl.STATIC_DRAW);
-    // var uv_buffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, uv_buffer);
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(uvs), gl.STATIC_DRAW); 
-    gl.bindBuffer(gl.ARRAY_BUFFER, null);
     setShaders();
     /* ======== Associating shaders to buffer objects =======*/
     // Bind vertex buffer object
@@ -266,15 +225,7 @@ draw = function() {
     gl.enableVertexAttribArray(uvAttribLocation);
     resolutionUniformLocation = gl.getUniformLocation(shaderProgram, "resolution");
     gl.uniform2f(resolutionUniformLocation, cnvs.width, cnvs.height);
-    /*============Drawing the Quad====================*/
-    // gl.clear(gl.COLOR_BUFFER_BIT);
-    // gl.colorMask(false, false, false, true);
-    // gl.clearColor(0.0, 0.0, 0.0, 1.0);
     gl.clear(gl.COLOR_BUFFER_BIT);
-    // gl.colorMask(true, true, true, true);
-    // gl.enable(gl.BLEND);
-    // gl.blendFunc(gl.SRC_ALPHA, gl.DST_ALPHA);
-    //Draw the triangle
     gl.drawElements(gl.TRIANGLES, indices.length, gl.UNSIGNED_SHORT, 0);
     if (exporting && frameCount < maxFrames) {
         frameExport();
@@ -287,6 +238,24 @@ let rotate = function(p, a) {
         p.x * a.y + p.y * a.x,
         p.y * a.y - p.x * a.x
     ];
+};
+
+let makeLine2 = function(x0, y0, x1, y1, w) {
+    let a0 = Math.atan2(y1 - y0, x1 - x0);
+    let halfPI = Math.PI * 0.5;
+    let c0 = Math.cos(a0 + halfPI) * w;
+    let c1 = Math.cos(a0 - halfPI) * w;
+    let s0 = Math.sin(a0 + halfPI) * w;
+    let s1 = Math.sin(a0 - halfPI) * w;
+    let xA = x0 + c0;
+    let yA = y0 + s0;
+    let xB = x0 + c1;
+    let yB = y0 + s1;
+    let xC = x1 + c0;
+    let yC = y1 + s0;
+    let xD = x1 + c1;
+    let yD = y1 + s1;
+    return [xA, yA, xB, yB, xC, yC, xD, yD];
 };
 
 function keyPressed() {
