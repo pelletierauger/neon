@@ -13,6 +13,7 @@ setShaders = function() {
         varying vec4 vColor;
         varying vec2 uvs;
         varying float angle;
+        varying vec2 wh;
         void main(void) {
             float ratio = (resolution.y / resolution.x);
             vec2 pos = vec2(0., 0.);
@@ -33,6 +34,7 @@ setShaders = function() {
             }
             pos.x *= ratio;
             gl_Position = vec4(pos, 0.0, 1.0);
+            wh = vec2(w * sin(pi75), length(pos1 - pos0));
             vColor = color;
             angle = a;
             uvs = uv;
@@ -43,7 +45,8 @@ setShaders = function() {
     // beginGLSL
     precision mediump float;
     varying vec4 vColor;
-        varying vec2 uvs;
+    varying vec2 uvs;
+    varying vec2 wh;
     varying float angle;
     float rand(vec2 co){
         return fract(sin(dot(co.xy ,vec2(12.9898,78.233))) * 43758.5453 * (2.0 + sin(co.x)));
@@ -56,43 +59,17 @@ setShaders = function() {
         return min2 + (value - min1) * (max2 - min2) / (max1 - min1);
     }
     void main(void) {
-        vec2 uv = gl_FragCoord.xy / vec2(1600, 1600);
         vec2 pos = gl_PointCoord;
         float rando = rand(pos);
-        float r = vColor.x;
-        uv = vColor.rb;
-        vec3 col = vColor.rgb;
-        // victoire 1 
-        // col.r = abs(col.r * 4. - 2.) * -1. + 1.;
-        // col.r = min(col.r, abs(col.b * 12. * 2. - 6. * 2.) * -1. + 6. * 2.);
-        // col.b = 0.0;
-        // victoire 1, fin
-        float rr = abs(col.r * 4. * 0.3 - 2. * 0.3) * -1. + 1.;
-        float wideb = map(col.b, 0.0, 1.0, 0.06, 0.94);
-        float bb = abs(wideb * 12. * 0.575 - 6. * 0.575) * -1. + 6. * 0.575;
-        // col.r = min(rr, bb);
-        float rr2 = abs(col.r * 32. * 0.5 - 16. * 0.5) * -1. + 1.;
-        col.b = map(col.b, 0.0, 1.0, -0.08, 1.08);
-        float bb2 = abs(col.b * 12. * 3. - 6. * 3.) * -1. + 6. * 3.;
-        // col.r = min(rr2, bb2);
-        // col.r = rr;
-        // col.r = abs(col.b * 4. - 2.) * -1. + 1.;
-        float glow = 1.0 - length(vec2(rr, min(1.0, bb)) - vec2(1., 1.));
-        // col.r *= 0.5;
-        float neon = 1.0 - length(vec2(rr2, min(1.0, bb2)) - vec2(1., 1.));
-        // float neon = neon;
-        neon = min(1.0, max(0.0, neon));
-        glow = min(1.0, max(0.0, glow));
-        // neon = smoothstep(0., 1., neon);
-        // glow = smoothstep(0., 1., glow);
-        // neon = neon * 0.6 + (glow * 0.4);
-        neon = neon * 1.2 + max(0.0, ((glow * 0.7) - 0.25 - (neon * 0.7)));
-        gl_FragColor = vec4(vec3(1.0, neon*0.5, neon*0.25), neon - (rando * 0.1) + 0.);
-        gl_FragColor = vec4(1.);
-        gl_FragColor.r = uvs.x;
-        gl_FragColor.g = uvs.y;
-        gl_FragColor.b = 1.0 - uvs.x;
-        // gl_FragColor.rgb = vec3(angle);
+        vec2 fwh = vec2(wh.x*2., wh.y+(wh.x*2.));
+        vec2 uv = uvs * fwh;
+        uv -= fwh * 0.5;
+        float radius = wh.x;
+        vec2 size = fwh * 0.5 - radius;
+        float coll = length(max(abs(uv), size) - size) - radius;
+        coll = min(coll * -1. * (1. / (radius * 0.5)), 1.0);
+        coll = smoothstep(0., 1., coll);
+        gl_FragColor = vec4(vec3(1.0, 0.0, 0.0), coll * 0.75 - (rando * 0.05));
     }
     // endGLSL
     `;
