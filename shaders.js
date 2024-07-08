@@ -77,6 +77,7 @@ smoothLine.fragText = `
         gl_FragColor.g = pow(col, 2.) *  0.2;
         gl_FragColor.b = pow(col, 2.) *  0.2;
         gl_FragColor.a = min(1., gl_FragColor.a + pow(col, 2.) *  0.25);
+        gl_FragColor.rgb = gl_FragColor.gbr;
     }
     // endGLSL
 `;
@@ -179,7 +180,7 @@ smoothDots.fragText = `
         float halo = (1.0 - length(pos - vec2(0.5)) * 2.)*0.5;
         l = smoothstep(0., 1., l);
         float noise = rand(pos - vec2(cos(t), sin(t))) * 0.0625;
-        gl_FragColor = vec4(vec3(1.0, pow(l, 2.)*0.75, 0.25), l+halo-noise);
+        gl_FragColor = vec4(vec3(1.0, pow(l, 2.)*0.75, 0.25), (l+halo-noise)*0.5);
     }
     // endGLSL
 `;

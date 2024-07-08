@@ -126,8 +126,8 @@ function setup() {
         field = [];
         let n = 400;
         for (var i = 0; i < n; i++) {
-            let x = Math.cos(i*i*1e2)*i/n * 0.9;
-            let y = Math.sin(i*i*1e2)*i/n * 0.9;
+            let x = Math.cos(i*1e2*Math.sin(i*1e2)+(Math.random()*1e4))*i/n * 0.9;
+            let y = Math.sin(i*1e2*Math.sin(i*1e2)+(Math.random()*1e4))*i/n * 0.9;
             // x = Math.random()*2-1;
             // y = Math.random()*2-1;
             x *= cnvs.width/cnvs.height;
@@ -148,8 +148,8 @@ makeField = function() {
     field = [];
     let n = 400;
     for (var i = 0; i < n; i++) {
-        let x = Math.cos(i*1e2*Math.sin(i*1e2))*i/n * 0.9;
-        let y = Math.sin(i*1e2*Math.sin(i*1e2))*i/n * 0.9;
+        let x = Math.cos(i*1e2*Math.sin(i*1e2)+(Math.random()*1e4))*i/n * 2;
+        let y = Math.sin(i*1e2*Math.sin(i*1e2)+(Math.random()*1e4))*i/n * 2;
         // x = Math.random()*2-1;
         // y = Math.random()*2-1;
         x *= cnvs.width/cnvs.height;
@@ -225,7 +225,7 @@ draw = function() {
             pairs[i][0][1], 
             pairs[i][1][0], 
             pairs[i][1][1], 
-            1/15,
+            1/5,
             1, 0, 0, 1
         );
     }
