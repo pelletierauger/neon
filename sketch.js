@@ -9,7 +9,7 @@ let colors = [];
 let indices = [];
 let amountOfLines = 0;
 let drawCount = 0;
-let vertex_buffer, indices2_buffer, Index_Buffer, color_buffer, width_buffer, uv_buffer;
+let vertex_buffer, indices2_buffer, Index_Buffer, color_buffer, width_buffer, uv_buffer, dots_buffer;
 let field = [];
 let makeField;
 let reached, unreached;
@@ -34,7 +34,7 @@ function setup() {
     color_buffer = gl.createBuffer();
     width_buffer = gl.createBuffer();
     uv_buffer = gl.createBuffer();
-    dotsVBuf = gl.createBuffer();
+    dots_buffer = gl.createBuffer();
     shadersReadyToInitiate = true;
     initializeShaders();
     currentProgram = getProgram("smooth-line");
@@ -414,7 +414,7 @@ drawAlligatorQuiet = function(selectedProgram) {
         vertices.push(reached[i][0], reached[i][1]);
         num++;
     }
-    gl.bindBuffer(gl.ARRAY_BUFFER, dotsVBuf);
+    gl.bindBuffer(gl.ARRAY_BUFFER, dots_buffer);
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
     // Get the attribute location
     var coord = gl.getAttribLocation(selectedProgram, "coordinates");
