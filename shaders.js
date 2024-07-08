@@ -9,14 +9,18 @@ smoothLine.vertText = `
     attribute float width;
     attribute vec2 uv;
     uniform vec2 resolution;
+    uniform float time;
     varying vec4 c;
     varying vec2 uvs;
     varying vec2 wh;
+    varying float t;
     void main(void) {
         float ratio = (resolution.y / resolution.x);
         vec2 pos = vec2(0., 0.);
         vec2 pos0 = coordinates.xy;
         vec2 pos1 = coordinates.zw;
+        pos0 += vec2(cos(pos0.x*4.+time*0.1), sin(pos1.x*4.+time*0.1))*0.01;
+        pos1 += vec2(cos(pos0.x*4.+time*0.1), sin(pos1.x*4.+time*0.1))*0.01;
         float a = atan(pos1.y - pos0.y, pos1.x - pos0.x);
         float pi75 = pi * 0.75;
         float pi25 = pi * 0.25;
@@ -34,16 +38,17 @@ smoothLine.vertText = `
         wh = vec2(width * sin(pi75), length(pos1 - pos0));
         c = color;
         uvs = uv;
+        t = time;
     }
     // endGLSL
 `;
 smoothLine.fragText = `
     // beginGLSL
     precision mediump float;
-    uniform float time;
     varying vec4 c;
     varying vec2 uvs;
     varying vec2 wh;
+    varying float t;
     float rand(vec2 co){
         return fract(sin(dot(co.xy ,vec2(12.9898,78.233))) * 43758.5453 * (2.0 + sin(co.x)));
     }
@@ -65,6 +70,7 @@ smoothLine.fragText = `
         col = pow(col, 3.) * 0.75 + pow(col, 43.);
         col = smoothstep(0., 1., col);
         // col = mix(pow(col, 10.)*0.25, col, sin(time*0.1+pos.y*0.5e1)*0.5+0.5);
+                col = mix(pow(col, 10.)*0.2, col, sin(t*0.1+pos.y*0.5e1)*0.5+0.5);
         gl_FragColor = vec4(c.rgb, c.a * (max(col, 0.) - (rando * 0.05)));
         gl_FragColor.g = pow(col, 2.) *  0.2;
         gl_FragColor.b = pow(col, 2.) *  0.2;
@@ -75,5 +81,7 @@ smoothLine.fragText = `
 smoothLine.vertText = smoothLine.vertText.replace(/[^\x00-\x7F]/g, "");
 smoothLine.fragText = smoothLine.fragText.replace(/[^\x00-\x7F]/g, "");
 smoothLine.init();
-currentProgram = getProgram("smooth-line");
-gl.useProgram(currentProgram);
+if (shadersReadyToInitiate) {
+    currentProgram = getProgram("smooth-line");
+    gl.useProgram(currentProgram);
+}

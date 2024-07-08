@@ -10,6 +10,9 @@ let indices = [];
 let amountOfLines = 0;
 let drawCount = 0;
 let vertex_buffer, indices2_buffer, Index_Buffer, color_buffer, width_buffer, uv_buffer;
+let field = [];
+let makeField;
+let reached, unreached;
 
 function setup() {
     socket = io.connect('http://localhost:8080');
@@ -118,61 +121,152 @@ function setup() {
             }   
         }, false);
     }, 1);
+    field = [];
+    makeField = function() {
+        let n = 400;
+        for (var i = 0; i < n; i++) {
+            let x = Math.cos(i*i*1e2)*i/n * 0.9;
+            let y = Math.sin(i*i*1e2)*i/n * 0.9;
+            // x = Math.random()*2-1;
+            // y = Math.random()*2-1;
+            x *= cnvs.width/cnvs.height;
+            field.push([x, y]);
+        }
+    };
+    makeField();
+    reached = [];
+    unreached = field.slice();
+    reached.push(unreached[0]);
+    unreached.splice(0, 1);
+    pairs = [];
+}
+
+if (false) {
+
+field = [];
+makeField = function() {
+    let n = 400;
+    for (var i = 0; i < n; i++) {
+        let x = Math.cos(i*i*1e2)*i/n * 0.9;
+        let y = Math.sin(i*i*1e2)*i/n * 0.9;
+        // x = Math.random()*2-1;
+        // y = Math.random()*2-1;
+        x *= cnvs.width/cnvs.height;
+        field.push([x, y]);
+    }
+};
+makeField();
+reached = [];
+unreached = field.slice();
+reached.push(unreached[0]);
+unreached.splice(0, 1);
+pairs = [];
 
 }
 
+makeTree = function() {
+    if (unreached.length > 0) {
+        let record = Infinity;
+        var rIndex;
+        var uIndex;
+        let found = false;
+        for (var i = 0; i < reached.length; i++) {
+          for (var j = 0; j < unreached.length; j++) {
+            var v1 = reached[i];
+            var v2 = unreached[j];
+            var d = dist(v1[0], v1[1], v2[0], v2[1]);
+              if (d < record) {
+              record = d;
+              rIndex = i;
+              uIndex = j;
+              found = true;
+            }
+          }
+        }
+        if (found) {
+            pairs.push([reached[rIndex], unreached[uIndex]]);
+            reached.push(unreached[uIndex]);
+            unreached.splice(uIndex, 1);
+        }
+    }
+};
+
+// makeTree();
+
+// for (let i =0; i < 100; i++) {
+//     makeTree();
+// }
+
 draw = function() {
-    let t = drawCount;
-    let ii = [0, 1, 2, 0, 2, 3];
-    let iii = [0, 1, 2, 3];
+    makeTree();
+    resetLines();
+    // addLine(0, 0, 1, 0, 0.25);
+    // for (let i = 0; i < 100; i++) {
+    //     addLine(field[i][0], field[i][1], field[i+1][0], field[i+1][1], 1/16);
+    // }    
+    for (let i = 0; i < pairs.length; i++) {
+        addLine(pairs[i][0][0], pairs[i][0][1], pairs[i][1][0], pairs[i][1][1], 1/15);
+    }
+    drawLines();
+    if (exporting && frameCount < maxFrames) {
+        frameExport();
+    }
+    drawCount++;
+}
+
+
+resetLines = function() {
     indices = [];
     indices2 = [];
     vertices = [];
     colors = [];
     widths = [];
     uvs = [];
-    let n = 12;
-    for (let j = 0; j < n; j++) {
-        for (let k = 0; k < ii.length; k++) {
-            indices.push(ii[k] + (j*4));
-        }        
-        for (let k = 0; k < iii.length; k++) {
-            indices2.push(iii[k]);
-        }
-        let x0 = j/n; 
-        let y0 = j/n;
-        let x1 = Math.cos(drawCount*-2e-2+(j/n*(Math.PI*2))) * 0.75; 
-        let y1 = Math.sin(drawCount*-2e-2+(j/n*(Math.PI*2))) * 0.75;
-        let w = 0.125;
-        let vv = [
-            x0, y0, x1, y1,
-            x0, y0, x1, y1,
-            x0, y0, x1, y1,
-            x0, y0, x1, y1
-        ];
-        for (let k = 0; k < vv.length; k++) {
-            vertices.push(vv[k]);
-        }
-        let cc = [
-            1, 0, 0, 1, 
-            1, 0, 0, 1, 
-            1, 0, 0, 1, 
-            1, 0, 0, 1,
-        ];
-        for (let k = 0; k < cc.length; k++) {
-            colors.push(cc[k]);
-        }
-        widths.push(w, w, w, w);
-        let uv = [
-            0, 0, 
-            1, 0, 
-            1, 1, 
-            0, 1
-        ];
-        for (let k = 0; k < uv.length; k++) {
-            uvs.push(uv[k]);
-        }
+    lineAmount = 0;
+};
+
+addLine = function(x0, y0, x1, y1, w) {
+    let ii = [0, 1, 2, 0, 2, 3];
+    let iii = [0, 1, 2, 3];
+    for (let k = 0; k < ii.length; k++) {
+        indices.push(ii[k] + (lineAmount*4));
+    }        
+    for (let k = 0; k < iii.length; k++) {
+        indices2.push(iii[k]);
     }
+    let vv = [
+        x0, y0, x1, y1,
+        x0, y0, x1, y1,
+        x0, y0, x1, y1,
+        x0, y0, x1, y1
+    ];
+    for (let k = 0; k < vv.length; k++) {
+        vertices.push(vv[k]);
+    }
+    let cc = [
+        1, 0, 0, 1, 
+        1, 0, 0, 1, 
+        1, 0, 0, 1, 
+        1, 0, 0, 1,
+    ];
+    for (let k = 0; k < cc.length; k++) {
+        colors.push(cc[k]);
+    }
+    widths.push(w, w, w, w);
+    let uv = [
+        0, 0, 
+        1, 0, 
+        1, 1, 
+        0, 1
+    ];
+    for (let k = 0; k < uv.length; k++) {
+        uvs.push(uv[k]);
+    }
+    lineAmount++;
+};
+
+
+drawLines = function() {
     gl.bindBuffer(gl.ARRAY_BUFFER, vertex_buffer);
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
     gl.bindBuffer(gl.ARRAY_BUFFER, indices2_buffer);
@@ -233,15 +327,6 @@ draw = function() {
     gl.uniform1f(timeUniformLocation, drawCount);
     gl.clear(gl.COLOR_BUFFER_BIT);
     gl.drawElements(gl.TRIANGLES, indices.length, gl.UNSIGNED_SHORT, 0);
-    if (exporting && frameCount < maxFrames) {
-        frameExport();
-    }
-    drawCount++;
-}
-
-
-drawLines = function() {
-    
 };
 
 
