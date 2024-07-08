@@ -34,6 +34,7 @@ function setup() {
     color_buffer = gl.createBuffer();
     width_buffer = gl.createBuffer();
     uv_buffer = gl.createBuffer();
+    dotsVBuf = gl.createBuffer();
     shadersReadyToInitiate = true;
     initializeShaders();
     currentProgram = getProgram("smooth-line");
@@ -147,8 +148,8 @@ makeField = function() {
     field = [];
     let n = 400;
     for (var i = 0; i < n; i++) {
-        let x = Math.cos(i*i*1e2)*i/n * 0.9;
-        let y = Math.sin(i*i*1e2)*i/n * 0.9;
+        let x = Math.cos(i*1e2*Math.sin(i*1e2))*i/n * 0.9;
+        let y = Math.sin(i*1e2*Math.sin(i*1e2))*i/n * 0.9;
         // x = Math.random()*2-1;
         // y = Math.random()*2-1;
         x *= cnvs.width/cnvs.height;
@@ -188,6 +189,8 @@ makeTree = function() {
             reached.push(unreached[uIndex]);
             unreached.splice(uIndex, 1);
         }
+    } else {
+        makeField();
     }
 };
 
@@ -206,11 +209,33 @@ draw = function() {
     // for (let i = 0; i < 100; i++) {
     //     addLine(field[i][0], field[i][1], field[i+1][0], field[i+1][1], 1/16);
     // }    
+    // for (let i = 0; i < pairs.length; i++) {
+    //     addLine(
+    //         pairs[i][0][0], 
+    //         pairs[i][0][1], 
+    //         pairs[i][1][0], 
+    //         pairs[i][1][1], 
+    //         1/5,
+    //         1, 0, 0, 0.25
+    //     );
+    // }
     for (let i = 0; i < pairs.length; i++) {
-        addLine(pairs[i][0][0], pairs[i][0][1], pairs[i][1][0], pairs[i][1][1], 1/15);
+        addLine(
+            pairs[i][0][0], 
+            pairs[i][0][1], 
+            pairs[i][1][0], 
+            pairs[i][1][1], 
+            1/15,
+            1, 0, 0, 1
+        );
     }
     // addLine(0.9, 0.9, 0.9, -0.9, 1/15);
+    currentProgram = getProgram("smooth-line");
+    gl.useProgram(currentProgram);
     drawLines();
+    currentProgram = getProgram("smooth-dots");
+    gl.useProgram(currentProgram);
+    drawAlligatorQuiet(currentProgram);
     if (exporting && frameCount < maxFrames) {
         frameExport();
     }
@@ -228,7 +253,7 @@ resetLines = function() {
     lineAmount = 0;
 };
 
-addLine = function(x0, y0, x1, y1, w) {
+addLine = function(x0, y0, x1, y1, w, r, g, b, a) {
     let ii = [0, 1, 2, 0, 2, 3];
     let iii = [0, 1, 2, 3];
     for (let k = 0; k < ii.length; k++) {
@@ -247,10 +272,10 @@ addLine = function(x0, y0, x1, y1, w) {
         vertices.push(vv[k]);
     }
     let cc = [
-        1, 0, 0, 1, 
-        1, 0, 0, 1, 
-        1, 0, 0, 1, 
-        1, 0, 0, 1,
+        r, g, b, a, 
+        r, g, b, a, 
+        r, g, b, a, 
+        r, g, b, a
     ];
     for (let k = 0; k < cc.length; k++) {
         colors.push(cc[k]);
@@ -379,4 +404,27 @@ function keyPressed() {
             redraw();
         }
     }
+}
+
+
+drawAlligatorQuiet = function(selectedProgram) {
+    vertices = [];
+    num=0;
+    for (let i = 0; i < reached.length; i++) {
+        vertices.push(reached[i][0], reached[i][1]);
+        num++;
+    }
+    gl.bindBuffer(gl.ARRAY_BUFFER, dotsVBuf);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
+    // Get the attribute location
+    var coord = gl.getAttribLocation(selectedProgram, "coordinates");
+    // Point an attribute to the currently bound VBO
+    gl.vertexAttribPointer(coord, 2, gl.FLOAT, false, 0, 0);
+    // Enable the attribute
+    gl.enableVertexAttribArray(coord);
+    let timeUniformLocation = gl.getUniformLocation(selectedProgram, "time");
+    gl.uniform1f(timeUniformLocation, drawCount);
+    let resolutionUniformLocation = gl.getUniformLocation(selectedProgram, "resolution");
+    gl.uniform2f(resolutionUniformLocation, cnvs.width, cnvs.height);
+    gl.drawArrays(gl.POINTS, 0, num);
 }
