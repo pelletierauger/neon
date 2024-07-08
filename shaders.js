@@ -19,10 +19,18 @@ smoothLine.vertText = `
         vec2 pos = vec2(0., 0.);
         vec2 pos0 = coordinates.xy;
         vec2 pos1 = coordinates.zw;
-        pos0 += vec2(cos(pos0.x*pos0.y*4.+time*0.1), sin(pos1.x*pos1.y*4.+time*0.1))*0.01;
-        pos1 += vec2(cos(pos0.x*pos0.y*4.+time*0.1), sin(pos1.x*pos1.y*4.+time*0.1))*0.01;
-        pos0 += vec2(cos(pos0.x*pos0.y*40.+time*1.1), sin(pos1.x*pos1.y*40.+time*1.1))*0.005;
-        pos1 += vec2(cos(pos0.x*pos0.y*40.+time*1.1), sin(pos1.x*pos1.y*40.+time*1.1))*0.005;
+        pos0 += vec2(
+            cos(pos0.x*pos0.y*4.+time*0.1*sign(pos0.x*pos0.y*4.)), 
+            sin(pos1.x*pos1.y*4.+time*0.1*sign(pos1.x*pos1.y*4.)))*0.01;
+        pos1 += vec2(
+            cos(pos0.x*pos0.y*4.+time*0.1*sign(pos0.x*pos0.y*4.)), 
+            sin(pos1.x*pos1.y*4.+time*0.1*sign(pos1.x*pos1.y*4.)))*0.01;
+        pos0 += vec2(
+            cos(pos0.x*pos0.y*400.+time*1.1*sign(pos.x*pos0.y*400.)), 
+            sin(pos1.x*pos1.y*400.+time*1.1*sign(pos.x*pos0.y*400.)))*0.0025;
+        pos1 += vec2(
+            cos(pos0.x*pos0.y*400.+time*1.1*sign(pos.x*pos1.y*400.)), 
+            sin(pos1.x*pos1.y*400.+time*1.1*sign(pos.x*pos1.y*400.)))*0.0025;
         float a = atan(pos1.y - pos0.y, pos1.x - pos0.x);
         float pi75 = pi * 0.75;
         float pi25 = pi * 0.25;
@@ -152,8 +160,12 @@ smoothDots.vertText = `
     }
     void main(void) {
         vec2 pos = coordinates.xy;
-        pos += vec2(cos(pos.x*pos.y*4.+time*0.1), sin(pos.x*pos.y*4.+time*0.1))*0.01;
-        pos += vec2(cos(pos.x*pos.y*40.+time*1.1), sin(pos.x*pos.y*40.+time*1.1))*0.005;
+        pos += vec2(
+            cos(pos.x*pos.y*4.+time*0.1*sign(pos.x*pos.y*40.)), 
+            sin(pos.x*pos.y*4.+time*0.1*sign(pos.x*pos.y*40.)))*0.01;
+        pos += vec2(
+            cos(pos.x*pos.y*400.+time*1.1*sign(pos.x*pos.y*400.)), 
+            sin(pos.x*pos.y*400.+time*1.1*sign(pos.x*pos.y*400.)))*0.0025;
         pos.x *= resolution.y / resolution.x;
         gl_Position = vec4(pos.x, pos.y, 0.0, 1.0);
         gl_PointSize = 15.;
