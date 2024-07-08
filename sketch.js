@@ -3,7 +3,7 @@ let keysActive = true;
 let socket, cnvs, ctx, canvasDOM;
 let fileName = "./frames/sketch";
 let maxFrames = 20;
-let gl, shaderProgram;
+let gl, currentProgram;
 let vertices = [];
 let colors = [];
 let indices = [];
@@ -31,6 +31,10 @@ function setup() {
     color_buffer = gl.createBuffer();
     width_buffer = gl.createBuffer();
     uv_buffer = gl.createBuffer();
+    shadersReadyToInitiate = true;
+    initializeShaders();
+    currentProgram = getProgram("smooth-line");
+    gl.useProgram(currentProgram);
 
     // gl.colorMask(false, false, false, true);
     // gl.colorMask(false, false, false, true);
@@ -181,14 +185,14 @@ draw = function() {
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(widths), gl.STATIC_DRAW);
     gl.bindBuffer(gl.ARRAY_BUFFER, uv_buffer);
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(uvs), gl.STATIC_DRAW); 
-    setShaders();
+    // setShaders();
     /* ======== Associating shaders to buffer objects =======*/
     // Bind vertex buffer object
     gl.bindBuffer(gl.ARRAY_BUFFER, vertex_buffer);
     // Bind index buffer object
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, Index_Buffer);
     // Get the attribute location
-    var coord = gl.getAttribLocation(shaderProgram, "coordinates");
+    var coord = gl.getAttribLocation(currentProgram, "coordinates");
     // point an attribute to the currently bound VBO
     gl.vertexAttribPointer(coord, 4, gl.FLOAT, false, 0, 0);
     // Enable the attribute
@@ -196,7 +200,7 @@ draw = function() {
     // bind the indices2 buffer
     gl.bindBuffer(gl.ARRAY_BUFFER, indices2_buffer);
     // get the attribute location
-    var indices2AttribLocation = gl.getAttribLocation(shaderProgram, "index");
+    var indices2AttribLocation = gl.getAttribLocation(currentProgram, "index");
     // point attribute to the volor buffer object
     gl.vertexAttribPointer(indices2AttribLocation, 1, gl.FLOAT, false, 0, 0);
     // enable the color attribute
@@ -204,7 +208,7 @@ draw = function() {
     // bind the color buffer
     gl.bindBuffer(gl.ARRAY_BUFFER, color_buffer);
     // get the attribute location
-    var color = gl.getAttribLocation(shaderProgram, "color");
+    var color = gl.getAttribLocation(currentProgram, "color");
     // point attribute to the volor buffer object
     gl.vertexAttribPointer(color, 4, gl.FLOAT, false, 0, 0);
     // enable the color attribute
@@ -212,20 +216,20 @@ draw = function() {
     // bind the width buffer
     gl.bindBuffer(gl.ARRAY_BUFFER, width_buffer);
     // get the attribute location
-    var widthAttribLocation = gl.getAttribLocation(shaderProgram, "width");
+    var widthAttribLocation = gl.getAttribLocation(currentProgram, "width");
     // point attribute to the volor buffer object
     gl.vertexAttribPointer(widthAttribLocation, 1, gl.FLOAT, false, 0, 0);
     // enable the color attribute
     gl.enableVertexAttribArray(widthAttribLocation);
     gl.bindBuffer(gl.ARRAY_BUFFER, uv_buffer);
-    var uvAttribLocation = gl.getAttribLocation(shaderProgram, "uv");
+    var uvAttribLocation = gl.getAttribLocation(currentProgram, "uv");
     // point attribute to the volor buffer object
     gl.vertexAttribPointer(uvAttribLocation, 2, gl.FLOAT, false, 0, 0);
     // enable the color attribute
     gl.enableVertexAttribArray(uvAttribLocation);
-    resolutionUniformLocation = gl.getUniformLocation(shaderProgram, "resolution");
+    resolutionUniformLocation = gl.getUniformLocation(currentProgram, "resolution");
     gl.uniform2f(resolutionUniformLocation, cnvs.width, cnvs.height);    
-    timeUniformLocation = gl.getUniformLocation(shaderProgram, "time");
+    timeUniformLocation = gl.getUniformLocation(currentProgram, "time");
     gl.uniform1f(timeUniformLocation, drawCount);
     gl.clear(gl.COLOR_BUFFER_BIT);
     gl.drawElements(gl.TRIANGLES, indices.length, gl.UNSIGNED_SHORT, 0);
