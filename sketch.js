@@ -121,8 +121,8 @@ function setup() {
             }   
         }, false);
     }, 1);
-    field = [];
     makeField = function() {
+        field = [];
         let n = 400;
         for (var i = 0; i < n; i++) {
             let x = Math.cos(i*i*1e2)*i/n * 0.9;
@@ -132,19 +132,19 @@ function setup() {
             x *= cnvs.width/cnvs.height;
             field.push([x, y]);
         }
+        reached = [];
+        unreached = field.slice();
+        reached.push(unreached[0]);
+        unreached.splice(0, 1);
+        pairs = [];
     };
     makeField();
-    reached = [];
-    unreached = field.slice();
-    reached.push(unreached[0]);
-    unreached.splice(0, 1);
-    pairs = [];
 }
 
 if (false) {
 
-field = [];
 makeField = function() {
+    field = [];
     let n = 400;
     for (var i = 0; i < n; i++) {
         let x = Math.cos(i*i*1e2)*i/n * 0.9;
@@ -154,13 +154,13 @@ makeField = function() {
         x *= cnvs.width/cnvs.height;
         field.push([x, y]);
     }
+    reached = [];
+    unreached = field.slice();
+    reached.push(unreached[0]);
+    unreached.splice(0, 1);
+    pairs = [];
 };
 makeField();
-reached = [];
-unreached = field.slice();
-reached.push(unreached[0]);
-unreached.splice(0, 1);
-pairs = [];
 
 }
 
@@ -207,6 +207,7 @@ draw = function() {
     for (let i = 0; i < pairs.length; i++) {
         addLine(pairs[i][0][0], pairs[i][0][1], pairs[i][1][0], pairs[i][1][1], 1/15);
     }
+    // addLine(0.9, 0.9, 0.9, -0.9, 1/15);
     drawLines();
     if (exporting && frameCount < maxFrames) {
         frameExport();
@@ -367,7 +368,7 @@ function keyPressed() {
             }
         }
         if (key == 'p' || key == 'P') {
-            frameExport();
+            makeField();
         }
         if (key == 'r' || key == 'R') {
             window.location.reload();
