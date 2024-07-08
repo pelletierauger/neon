@@ -127,8 +127,7 @@ draw = function() {
     colors = [];
     widths = [];
     uvs = [];
-    ws = [2, 2];
-    let n = 24;
+    let n = 12;
     for (let j = 0; j < n; j++) {
         for (let k = 0; k < ii.length; k++) {
             indices.push(ii[k] + (j*4));
@@ -140,7 +139,7 @@ draw = function() {
         let y0 = j/n;
         let x1 = Math.cos(drawCount*-2e-2+(j/n*(Math.PI*2))) * 0.75; 
         let y1 = Math.sin(drawCount*-2e-2+(j/n*(Math.PI*2))) * 0.75;
-        let w = 4;
+        let w = 0.125;
         let vv = [
             x0, y0, x1, y1,
             x0, y0, x1, y1,
@@ -151,10 +150,10 @@ draw = function() {
             vertices.push(vv[k]);
         }
         let cc = [
-            0, 0, 0, 1, 
             1, 0, 0, 1, 
-            1, 0, 1, 1, 
-            0, 0, 1, 1,
+            1, 0, 0, 1, 
+            1, 0, 0, 1, 
+            1, 0, 0, 1,
         ];
         for (let k = 0; k < cc.length; k++) {
             colors.push(cc[k]);
@@ -235,6 +234,12 @@ draw = function() {
     }
     drawCount++;
 }
+
+
+drawLines = function() {
+    
+};
+
 
 let rotate = function(p, a) {
     return [
