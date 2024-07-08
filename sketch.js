@@ -134,7 +134,7 @@ function setup() {
         }
         reached = [];
         unreached = field.slice();
-        reached.push(unreached[0]);
+        reached.push(unreached[Math.floor(Math.random()*unreached.length)]);
         unreached.splice(0, 1);
         pairs = [];
     };
@@ -156,7 +156,7 @@ makeField = function() {
     }
     reached = [];
     unreached = field.slice();
-    reached.push(unreached[0]);
+    reached.push(unreached[Math.floor(Math.random()*unreached.length)]);
     unreached.splice(0, 1);
     pairs = [];
 };
@@ -198,7 +198,9 @@ makeTree = function() {
 // }
 
 draw = function() {
-    makeTree();
+    for (let i = 0; i < 5; i++) {
+        makeTree();  
+    }
     resetLines();
     // addLine(0, 0, 1, 0, 0.25);
     // for (let i = 0; i < 100; i++) {
