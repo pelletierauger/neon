@@ -245,13 +245,13 @@ draw = function() {
                     y * scale, 
                     newXCut * scale, 
                     newYCut * scale, 
-                    1/15,
+                    1/((24-i*0.9)*0.5),
                     1, 0, 0, 1
                 );
-                x = newX;
-                y = newY;
-                a = newA;
-                r = newR;
+                x = newX + Math.cos(i*0.1+drawCount*1e-2)*0.01;
+                y = newY + Math.sin(i*0.1+drawCount*1e-2)*0.01;
+                a = newA + Math.sin(i*0.1+drawCount*1e-2)*0.01;
+                r = newR + Math.sin(i*0.1+drawCount*1e-2)*0.01;
             }
     }
     }
