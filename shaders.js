@@ -14,6 +14,9 @@ smoothLine.vertText = `
     varying vec2 uvs;
     varying vec2 wh;
     varying float t;
+    float map(float value, float min1, float max1, float min2, float max2) {
+        return min2 + (value - min1) * (max2 - min2) / (max1 - min1);
+    }
     mat4 translate(float x, float y, float z) {
         return mat4(
             1.0,  0.0,  0.0,  0.0,
@@ -81,7 +84,8 @@ smoothLine.vertText = `
         vec4 pos4 = vec4(pos.x, pos.y, 1.0, 1.0);
         vec4 midP = vec4(mix(pos0, pos1, 0.5), 1.0, 1.0);
         
-        pos4 = translate(midP.x, midP.y, 0.) * zRotate(time * 5e-2) * translate(-midP.x, -midP.y, 0.) * pos4;
+        // float offset = map(sin(time * 1e-2), -1., 1., 0., 2.) * pi;
+        pos4 = translate(midP.x, midP.y, 0.) * zRotate(time * 5e-2+pi) * translate(-midP.x, -midP.y, 0.) * pos4;
         pos4 = zRotate(time * 5e-3) * pos4;
         pos = pos4.xy;
         pos.x *= ratio;
@@ -113,6 +117,7 @@ smoothLine.fragText = `
         vec2 fwh = vec2(wh.x*2., wh.y+(wh.x*2.));
         vec2 uv = uvs * fwh;
         uv -= fwh * 0.5;
+        float l = length(uv*1.2);
         float radius = wh.x;
         vec2 size = fwh * 0.5 - radius;
         radius *= 2.;
@@ -126,8 +131,9 @@ smoothLine.fragText = `
         gl_FragColor = vec4(c.rgb, c.a * (max(col, 0.) - (rando * 0.05)));
         gl_FragColor.g = pow(col, 2.) *  0.2;
         gl_FragColor.b = pow(col, 2.) *  0.5;
+        gl_FragColor.r = 1.0-pow(l,4.)*1e8;
         // gl_FragColor.a = min(1., gl_FragColor.a + pow(col, 2.) *  0.25);
-        // gl_FragColor.rgb = gl_FragColor.gbr;
+        // gl_FragColor.rgb = gl_FragColor.brg * 2.;
     }
     // endGLSL
 `;

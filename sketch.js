@@ -230,12 +230,12 @@ draw = function() {
     for (let j = Math.PI*2/24*k; j < Math.PI*2 - Math.PI*2/24*0; j+= Math.PI * 2 / 24*2) {
         let x = 0, y = 0;
         let a = j;
-        let r = 1/64;
+        let r = 1/128;
         let inc = Math.PI * 2 / 60;
             for (let i = 0; i < 24; i += 1) {
                 let isc = Math.sin(i*drawCount*4.9e-4);
                 let newA = a + (Math.PI * 1/5) * Math.sin(i*1e2);
-                let newR = r;
+                let newR = r*1.1;
                 let newX = x + Math.cos(newA) * r;
                 let newY = y + Math.sin(newA) * r;
                 let newXCut = x + Math.cos(newA) * r * 1;
