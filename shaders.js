@@ -117,12 +117,15 @@ smoothLine.fragText = `
         vec2 fwh = vec2(wh.x*2., wh.y+(wh.x*2.));
         vec2 uv = uvs * fwh;
         uv -= fwh * 0.5;
-        float l = length(uv*1.2);
+        float l = length(uv*1.2/(vec2(fwh.x*(16./9.),fwh.y)*4.));
         float radius = wh.x;
         vec2 size = fwh * 0.5 - radius;
         radius *= 2.;
         float col = length(max(abs(uv), size) - size) - radius;
         col = min(col * -1. * (1. / radius), 1.0);
+        if (col <= 0.2) {
+            discard;
+        }
         col = pow(col, 3.) * 0.75 + pow(col, 43.);
         col = smoothstep(0., 1., col);
         // col = mix(pow(col, 10.)*0.25, col, sin(time*0.1+pos.y*0.5e1)*0.5+0.5);
@@ -132,6 +135,9 @@ smoothLine.fragText = `
         gl_FragColor.g = pow(col, 2.) *  0.2;
         gl_FragColor.b = pow(col, 2.) *  0.5;
         gl_FragColor.r = 1.0-pow(l,4.)*1e8;
+        // if (gl_FragColor.a <= 0.1) {
+        //     discard;
+        // }
         // gl_FragColor.a = min(1., gl_FragColor.a + pow(col, 2.) *  0.25);
         // gl_FragColor.rgb = gl_FragColor.brg * 2.;
     }
@@ -243,6 +249,9 @@ smoothDots.fragText = `
         float noise = rand(pos - vec2(cos(t), sin(t))) * 0.0625;
         gl_FragColor = vec4(vec3(1.0, pow(l, 2.)*0.5, pow(l, 2.)*1.75)+0.125, (l+halo-noise));
         // gl_FragColor.rgb = gl_FragColor.gbr;
+        if (gl_FragColor.a <= 0.0) {
+            discard;
+        }
     }
     // endGLSL
 `;

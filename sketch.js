@@ -230,7 +230,7 @@ draw = function() {
     for (let j = Math.PI*2/24*k; j < Math.PI*2 - Math.PI*2/24*0; j+= Math.PI * 2 / 24*2) {
         let x = 0, y = 0;
         let a = j;
-        let r = 1/128;
+        let r = 1/256/2;
         let inc = Math.PI * 2 / 60;
             for (let i = 0; i < 24; i += 1) {
                 let isc = Math.sin(i*drawCount*4.9e-4);
@@ -245,13 +245,13 @@ draw = function() {
                     y * scale, 
                     newXCut * scale, 
                     newYCut * scale, 
-                    1/((24-i*0.9)*0.5),
+                    1/((24-i*1)*0.5),
                     1, 0, 0, 1
                 );
-                x = newX + Math.cos(i*0.1+drawCount*1e-2)*0.01;
-                y = newY + Math.sin(i*0.1+drawCount*1e-2)*0.01;
-                a = newA + Math.sin(i*0.1+drawCount*1e-2)*0.01;
-                r = newR + Math.sin(i*0.1+drawCount*1e-2)*0.01;
+                x = newX + (Math.cos(i*0.1+drawCount*0.5e-1)*0.5+0.5)*0.01;
+                y = newY + (Math.sin(i*0.1+drawCount*0.5e-1)*0.5+0.5)*0.01;
+                a = newA + (Math.sin(i*0.1+drawCount*0.5e-1)*0.5+0.5)*0.01;
+                r = newR + (Math.sin(i*0.1+drawCount*0.5e-1)*0.5+0.5)*0.01;
             }
     }
     }
