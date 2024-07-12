@@ -14,11 +14,46 @@ smoothLine.vertText = `
     varying vec2 uvs;
     varying vec2 wh;
     varying float t;
+    mat4 translate(float x, float y, float z) {
+        return mat4(
+            1.0,  0.0,  0.0,  0.0,
+            0.0,  1.0,  0.0,  0.0,
+            0.0,  0.0,  1.0,  0.0,
+            x,      y,    z,  1.0
+        );
+    }
+    mat4 xRotate(float a) {
+        return mat4(
+           1.0, 0.0,        0.0, 0.0,
+           0.0, cos(a), -sin(a), 0.0,
+           0.0, sin(a),  cos(a), 0.0,
+           0.0, 0.0,        0.0, 1.0
+        );
+    }
+    mat4 yRotate(float a) {
+        return mat4(
+           cos(a),  0.0, sin(a), 0.0,
+           0.0,     1.0,    0.0, 0.0,
+           -sin(a), 0.0, cos(a), 0.0,
+           0.0,     0.0,    0.0, 1.0
+        );
+    }
+    mat4 zRotate(float a) {
+        return mat4(
+           cos(a), -sin(a), 0.0, 0.0,
+           sin(a),  cos(a), 0.0, 0.0,
+           0.0,        0.0, 1.0, 0.0,
+           0.0,        0.0, 0.0, 1.0
+        );
+    }
     void main(void) {
         float ratio = (resolution.y / resolution.x);
         vec2 pos = vec2(0., 0.);
         vec2 pos0 = coordinates.xy;
         vec2 pos1 = coordinates.zw;
+        float w = width;
+        w = mix(w*2., w, sin(time*-0.1+length(pos0*vec2(16./9., 1.0))*0.25e1)*0.5+0.5);
+        
         // pos0 += vec2(
         //     cos(pos0.x*pos0.y*4.+time*0.1*sign(pos0.x*pos0.y*4.)), 
         //     sin(pos1.x*pos1.y*4.+time*0.1*sign(pos1.x*pos1.y*4.)))*0.01;
@@ -35,17 +70,23 @@ smoothLine.vertText = `
         float pi75 = pi * 0.75;
         float pi25 = pi * 0.25;
         if (index == 0.) {
-            pos = pos0 + vec2(cos(a + pi75), sin(a + pi75)) * width;
+            pos = pos0 + vec2(cos(a + pi75), sin(a + pi75)) * w;
         } else if (index == 1.) {
-            pos = pos0 + vec2(cos(a - pi75), sin(a - pi75)) * width;
+            pos = pos0 + vec2(cos(a - pi75), sin(a - pi75)) * w;
         } else if (index == 2.) {
-            pos = pos1 + vec2(cos(a - pi25), sin(a - pi25)) * width;
+            pos = pos1 + vec2(cos(a - pi25), sin(a - pi25)) * w;
         } else if (index == 3.) {
-            pos = pos1 + vec2(cos(a + pi25), sin(a + pi25)) * width;
+            pos = pos1 + vec2(cos(a + pi25), sin(a + pi25)) * w;
         }
+        vec4 pos4 = vec4(pos.x, pos.y, 1.0, 1.0);
+        vec4 midP = vec4(mix(pos0, pos1, 0.5), 1.0, 1.0);
+        
+        pos4 = translate(midP.x, midP.y, 0.) * zRotate(time * 5e-2) * translate(-midP.x, -midP.y, 0.) * pos4;
+        pos4 = zRotate(time * 5e-3) * pos4;
+        pos = pos4.xy;
         pos.x *= ratio;
         gl_Position = vec4(pos, 0.0, 1.0);
-        wh = vec2(width * sin(pi75), length(pos1 - pos0));
+        wh = vec2(w * sin(pi75), length(pos1 - pos0));
         c = color;
         uvs = uv;
         t = time;

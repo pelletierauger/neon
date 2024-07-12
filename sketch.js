@@ -224,32 +224,44 @@ draw = function() {
         makeTree();  
     }
     resetLines();
-    let inc = Math.PI * 2 / 60;
-    for (let j = 0; j < 2; j++) {
-        for (let i = j * inc; i < Math.PI * 2; i += inc * 2) {
-            let osc = map(Math.sin(drawCount * 1e-1), -1, 1, -0.125, 0.125);
-            let t = drawCount * -0.125e-1;
-            let x0 = Math.cos(i + t) * 0.5;
-            let y0 = Math.sin(i + t) * 0.5;
-            let x1 = Math.cos(i + t + Math.PI * 1.125) * -0.5;
-            let y1 = Math.sin(i + t + Math.PI * 1.125) * -0.5;
-            addLine(
-                x0, 
-                y0, 
-                x0 * 1.75, 
-                y0 * 1.75, 
-                1/5,
-                1, 0, 0, 1
-            );
-        }
+    let osc = Math.sin(drawCount*1e-2);
+    let scale = 8;
+    for (let k = 0; k < 2; k++) {
+    for (let j = Math.PI*2/24*k; j < Math.PI*2 - Math.PI*2/24*0; j+= Math.PI * 2 / 24*2) {
+        let x = 0, y = 0;
+        let a = j;
+        let r = 1/64;
+        let inc = Math.PI * 2 / 60;
+            for (let i = 0; i < 24; i += 1) {
+                let isc = Math.sin(i*drawCount*4.9e-4);
+                let newA = a + (Math.PI * 1/5) * Math.sin(i*1e2);
+                let newR = r;
+                let newX = x + Math.cos(newA) * r;
+                let newY = y + Math.sin(newA) * r;
+                let newXCut = x + Math.cos(newA) * r * 1;
+                let newYCut = y + Math.sin(newA) * r * 1;
+                addLine(
+                    x * scale, 
+                    y * scale, 
+                    newXCut * scale, 
+                    newYCut * scale, 
+                    1/15,
+                    1, 0, 0, 1
+                );
+                x = newX;
+                y = newY;
+                a = newA;
+                r = newR;
+            }
+    }
     }
     // addLine(0.9, 0.9, 0.9, -0.9, 1/15);
     currentProgram = getProgram("smooth-line");
     gl.useProgram(currentProgram);
     drawLines();
-    currentProgram = getProgram("smooth-dots");
-    gl.useProgram(currentProgram);
-    drawAlligatorQuiet(currentProgram);
+    // currentProgram = getProgram("smooth-dots");
+    // gl.useProgram(currentProgram);
+    // drawAlligatorQuiet(currentProgram);
     if (exporting && frameCount < maxFrames) {
         frameExport();
     }
