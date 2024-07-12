@@ -219,33 +219,29 @@ makeTree = function() {
 // }
 
 draw = function() {
+    gl.clear(gl.COLOR_BUFFER_BIT);
     for (let i = 0; i < 5; i++) {
         makeTree();  
     }
     resetLines();
-    // addLine(0, 0, 1, 0, 0.25);
-    // for (let i = 0; i < 100; i++) {
-    //     addLine(field[i][0], field[i][1], field[i+1][0], field[i+1][1], 1/16);
-    // }    
-    // for (let i = 0; i < pairs.length; i++) {
-    //     addLine(
-    //         pairs[i][0][0], 
-    //         pairs[i][0][1], 
-    //         pairs[i][1][0], 
-    //         pairs[i][1][1], 
-    //         1/5,
-    //         1, 0, 0, 0.25
-    //     );
-    // }
-    for (let i = 0; i < pairs.length; i++) {
-        addLine(
-            pairs[i][0][0], 
-            pairs[i][0][1], 
-            pairs[i][1][0], 
-            pairs[i][1][1], 
-            1/5,
-            1, 0, 0, 1
-        );
+    let inc = Math.PI * 2 / 60;
+    for (let j = 0; j < 2; j++) {
+        for (let i = j * inc; i < Math.PI * 2; i += inc * 2) {
+            let osc = map(Math.sin(drawCount * 1e-1), -1, 1, -0.125, 0.125);
+            let t = drawCount * -0.125e-1;
+            let x0 = Math.cos(i + t) * 0.5;
+            let y0 = Math.sin(i + t) * 0.5;
+            let x1 = Math.cos(i + t + Math.PI * 1.125) * -0.5;
+            let y1 = Math.sin(i + t + Math.PI * 1.125) * -0.5;
+            addLine(
+                x0, 
+                y0, 
+                x0 * 2.5, 
+                y0 * 2.5, 
+                1/5,
+                1, 0, 0, 1
+            );
+        }
     }
     // addLine(0.9, 0.9, 0.9, -0.9, 1/15);
     currentProgram = getProgram("smooth-line");
@@ -371,7 +367,7 @@ drawLines = function() {
     gl.uniform2f(resolutionUniformLocation, cnvs.width, cnvs.height);    
     timeUniformLocation = gl.getUniformLocation(currentProgram, "time");
     gl.uniform1f(timeUniformLocation, drawCount);
-    gl.clear(gl.COLOR_BUFFER_BIT);
+    // gl.clear(gl.COLOR_BUFFER_BIT);
     gl.drawElements(gl.TRIANGLES, indices.length, gl.UNSIGNED_SHORT, 0);
 };
 
@@ -428,8 +424,17 @@ function keyPressed() {
 drawAlligatorQuiet = function(selectedProgram) {
     vertices = [];
     num=0;
-    for (let i = 0; i < reached.length; i++) {
-        vertices.push(reached[i][0], reached[i][1]);
+    // for (let i = 0; i < reached.length; i++) {
+    //     vertices.push(reached[i][0], reached[i][1]);
+    //     num++;
+    // }
+   for (let i = 0; i < 300; i++) {
+       let t = (drawCount + 25000) * -0.0625e-3;
+       let x = Math.cos(Math.pow(i, 1.03) * t) * i * 1.5e-3;
+       let y = Math.sin(Math.pow(i, 1.03) * t) * i * 1.5e-3;
+       
+       
+        vertices.push(x, y);
         num++;
     }
     gl.bindBuffer(gl.ARRAY_BUFFER, dots_buffer);

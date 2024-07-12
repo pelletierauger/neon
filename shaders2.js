@@ -84,8 +84,8 @@ smoothLine.fragText = `
                 col = mix(pow(col, 10.)*0.2, col, sin(t*-0.1+length(pos*vec2(16./9., 1.0))*0.25e1)*0.5+0.5);
         gl_FragColor = vec4(c.rgb, c.a * (max(col, 0.) - (rando * 0.05)));
         gl_FragColor.g = pow(col, 2.) *  0.2;
-        gl_FragColor.b = pow(col, 2.) *  0.5;
-        // gl_FragColor.a = min(1., gl_FragColor.a + pow(col, 2.) *  0.25);
+        gl_FragColor.b = pow(col, 2.) *  0.2;
+        gl_FragColor.a = min(1., gl_FragColor.a + pow(col, 2.) *  0.25);
         // gl_FragColor.rgb = gl_FragColor.gbr;
     }
     // endGLSL
@@ -194,7 +194,7 @@ smoothDots.fragText = `
         l = smoothstep(0., 1., l);
         l = pow(l, 5.);
         float noise = rand(pos - vec2(cos(t), sin(t))) * 0.0625;
-        gl_FragColor = vec4(vec3(1.0, pow(l, 2.)*0.5, pow(l, 2.)*1.75)+0.125, (l+halo-noise));
+        gl_FragColor = vec4(vec3(1.0, pow(l, 2.)*0.75, 0.25), (l+halo-noise));
         // gl_FragColor.rgb = gl_FragColor.gbr;
     }
     // endGLSL
