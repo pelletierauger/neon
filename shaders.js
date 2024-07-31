@@ -14,23 +14,29 @@ smoothLine.vertText = `
     varying vec2 uvs;
     varying vec2 wh;
     varying float t;
+    vec2 rotateUV(vec2 uv, float rotation, float mid) {
+        return vec2(
+          cos(rotation) * (uv.x - mid) + sin(rotation) * (uv.y - mid) + mid,
+          cos(rotation) * (uv.y - mid) - sin(rotation) * (uv.x - mid) + mid
+        );
+    }
     void main(void) {
         float ratio = (resolution.y / resolution.x);
         vec2 pos = vec2(0., 0.);
         vec2 pos0 = coordinates.xy;
         vec2 pos1 = coordinates.zw;
-        pos0 += vec2(
-            cos(pos0.x*pos0.y*4.+time*0.1*sign(pos0.x*pos0.y*4.)), 
-            sin(pos1.x*pos1.y*4.+time*0.1*sign(pos1.x*pos1.y*4.)))*0.01;
-        pos1 += vec2(
-            cos(pos0.x*pos0.y*4.+time*0.1*sign(pos0.x*pos0.y*4.)), 
-            sin(pos1.x*pos1.y*4.+time*0.1*sign(pos1.x*pos1.y*4.)))*0.01;
-        pos0 += vec2(
-            cos(pos0.x*pos0.y*400.+time*1.1*sign(pos.x*pos0.y*400.)), 
-            sin(pos1.x*pos1.y*400.+time*1.1*sign(pos.x*pos0.y*400.)))*0.0025;
-        pos1 += vec2(
-            cos(pos0.x*pos0.y*400.+time*1.1*sign(pos.x*pos1.y*400.)), 
-            sin(pos1.x*pos1.y*400.+time*1.1*sign(pos.x*pos1.y*400.)))*0.0025;
+        // pos0 += vec2(
+        //     cos(pos0.x*pos0.y*4.+time*0.1*sign(pos0.x*pos0.y*4.)), 
+        //     sin(pos1.x*pos1.y*4.+time*0.1*sign(pos1.x*pos1.y*4.)))*0.01;
+        // pos1 += vec2(
+        //     cos(pos0.x*pos0.y*4.+time*0.1*sign(pos0.x*pos0.y*4.)), 
+        //     sin(pos1.x*pos1.y*4.+time*0.1*sign(pos1.x*pos1.y*4.)))*0.01;
+        // pos0 += vec2(
+        //     cos(pos0.x*pos0.y*400.+time*1.1*sign(pos.x*pos0.y*400.)), 
+        //     sin(pos1.x*pos1.y*400.+time*1.1*sign(pos.x*pos0.y*400.)))*0.0025;
+        // pos1 += vec2(
+        //     cos(pos0.x*pos0.y*400.+time*1.1*sign(pos.x*pos1.y*400.)), 
+        //     sin(pos1.x*pos1.y*400.+time*1.1*sign(pos.x*pos1.y*400.)))*0.0025;
         float a = atan(pos1.y - pos0.y, pos1.x - pos0.x);
         float pi75 = pi * 0.75;
         float pi25 = pi * 0.25;
@@ -43,6 +49,7 @@ smoothLine.vertText = `
         } else if (index == 3.) {
             pos = pos1 + vec2(cos(a + pi25), sin(a + pi25)) * width;
         }
+        // pos = rotateUV(pos, time * 1e-2, 0.);
         pos.x *= ratio;
         gl_Position = vec4(pos, 0.0, 1.0);
         wh = vec2(width * sin(pi75), length(pos1 - pos0));
@@ -80,12 +87,13 @@ smoothLine.fragText = `
         col = pow(col, 3.) * 0.75 + pow(col, 43.);
         col = smoothstep(0., 1., col);
         // col = mix(pow(col, 10.)*0.25, col, sin(time*0.1+pos.y*0.5e1)*0.5+0.5);
-                col = mix(pow(col, 10.)*0.2, col, sin(t*0.1+pos.y*0.5e1)*0.5+0.5);
+                // col = mix(pow(col, 10.)*0.2, col, sin(t*0.1+pos.y*0.5e1)*0.5+0.5);
+                col = mix(pow(col, 10.)*0.2, col, sin(-t*0.1+length(pos * vec2(16./9.,1.))*0.5e1)*0.5+0.5);
         gl_FragColor = vec4(c.rgb, c.a * (max(col, 0.) - (rando * 0.05)));
         gl_FragColor.g = pow(col, 2.) *  0.2;
         gl_FragColor.b = pow(col, 2.) *  0.2;
         gl_FragColor.a = min(1., gl_FragColor.a + pow(col, 2.) *  0.25);
-        gl_FragColor.rgb = gl_FragColor.gbr;
+        // gl_FragColor.rgb = gl_FragColor.gbr;
     }
     // endGLSL
 `;
@@ -160,16 +168,16 @@ smoothDots.vertText = `
     }
     void main(void) {
         vec2 pos = coordinates.xy;
-        pos += vec2(
-            cos(pos.x*pos.y*4.+time*0.1*sign(pos.x*pos.y*40.)), 
-            sin(pos.x*pos.y*4.+time*0.1*sign(pos.x*pos.y*40.)))*0.01;
-        pos += vec2(
-            cos(pos.x*pos.y*400.+time*1.1*sign(pos.x*pos.y*400.)), 
-            sin(pos.x*pos.y*400.+time*1.1*sign(pos.x*pos.y*400.)))*0.0025;
+        // pos += vec2(
+        //     cos(pos.x*pos.y*4.+time*0.1*sign(pos.x*pos.y*40.)), 
+        //     sin(pos.x*pos.y*4.+time*0.1*sign(pos.x*pos.y*40.)))*0.01;
+        // pos += vec2(
+        //     cos(pos.x*pos.y*400.+time*1.1*sign(pos.x*pos.y*400.)), 
+        //     sin(pos.x*pos.y*400.+time*1.1*sign(pos.x*pos.y*400.)))*0.0025;
         pos.x *= resolution.y / resolution.x;
         gl_Position = vec4(pos.x, pos.y, 0.0, 1.0);
         gl_PointSize = 15.;
-        gl_PointSize += (sin((coordinates.y*0.02+time*2e-1))*0.5+0.5)*4.;
+        gl_PointSize += (sin((length(coordinates*20.)*0.2-time*2e-1))*0.5+0.5)*14.;
     }
     // endGLSL
 `;
@@ -191,6 +199,7 @@ smoothDots.fragText = `
         l += (distSquared - (l * distSquared));
         float halo = (1.0 - length(pos - vec2(0.5)) * 2.)*0.5;
         l = smoothstep(0., 1., l);
+        l = pow(l, 3.);
         float noise = rand(pos - vec2(cos(t), sin(t))) * 0.0625;
         gl_FragColor = vec4(vec3(1.0, pow(l, 2.)*0.75, 0.25), (l+halo-noise)*0.5);
     }

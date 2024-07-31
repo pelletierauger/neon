@@ -218,10 +218,11 @@ makeTree = function() {
 //     makeTree();
 // }
 
+sc = 0.75;
 draw = function() {
-    for (let i = 0; i < 5; i++) {
-        makeTree();  
-    }
+    // for (let i = 0; i < 5; i++) {
+    //     makeTree();  
+    // }
     resetLines();
     // addLine(0, 0, 1, 0, 0.25);
     // for (let i = 0; i < 100; i++) {
@@ -237,23 +238,142 @@ draw = function() {
     //         1, 0, 0, 0.25
     //     );
     // }
-    for (let i = 0; i < pairs.length; i++) {
+    // for (let i = 0; i < pairs.length; i++) {
+    // let sc = 0.75;
+    sc += 0.001;
+    if (sc > 1) {sc = 0.75};
+    for (let x = 0; x < 1; x += 1/10) {
+        let y = 1;
         addLine(
-            pairs[i][0][0], 
-            pairs[i][0][1], 
-            pairs[i][1][0], 
-            pairs[i][1][1], 
+            (x - 0.5) * 1.5 * sc, 
+            y * 0.75 * sc, 
+            (x - 0.5) * 1.5 * sc, 
+            -y * 0.75 * sc, 
             1/5,
+            1, 0, 0, 0.6
+        );
+        addLine(
+            (x - 0.5) * 1.5 * sc, 
+            y * 0.75 * sc, 
+            (x - 0.5) * 1.5 * sc, 
+            -y * 0.75 * sc, 
+            1/25,
             1, 0, 0, 1
         );
     }
+    for (let y = 0; y < 1; y += 1/10) {
+        let x = 0;
+        addLine(
+            (x - 1) * 0.75 * sc, 
+            (y - 0.5) * 1.5 * sc, 
+            (x + 1) * 0.75 * sc, 
+            (y - 0.5) * 1.5 * sc, 
+            1/5,
+            1, 0, 0, 0.6
+        );
+        addLine(
+            (x - 1) * 0.75 * sc, 
+            (y - 0.5) * 1.5 * sc, 
+            (x + 1) * 0.75 * sc, 
+            (y - 0.5) * 1.5 * sc, 
+            1/25,
+            1, 0, 0, 1
+        );
+    }
+    for (let y = 0; y < 1; y += 1/10) {
+        let x = -0.75;
+        let yy = map(y, 0, 1, 0.75, -0.75);
+        let y2 = map(y, 0, 1, 1.57, -1.57);
+        addLine(
+            x * sc, 
+            (yy) * sc, 
+            (x - 1.75) * sc, 
+            (yy+y2) * sc, 
+            1/5,
+            1, 0, 0, 0.6
+        );
+        addLine(
+            x * sc, 
+            (yy) * sc, 
+            (x - 1.75) * sc, 
+            (yy+y2) * sc, 
+            1/25,
+            1, 0, 0, 1
+        );
+        x = 0.75;
+        addLine(
+            x * sc, 
+            (yy) * sc, 
+            (x + 1.75) * sc, 
+            (yy+y2) * sc, 
+            1/5,
+            1, 0, 0, 0.6
+        );
+        addLine(
+            x * sc, 
+            (yy) * sc, 
+            (x + 1.75) * sc, 
+            (yy+y2) * sc, 
+            1/25,
+            1, 0, 0, 1
+        );
+    }
+    for (let x = 0; x < 1; x += 1/10) {
+        let y = -0.75;
+        let xx = map(x, 0, 1, 0.75, 1.5);
+        xx = Math.pow(xx, 2) + 0.28;
+        let yy = map(x, 0, 1, 0.825, 2);
+        addLine(
+            xx * sc, 
+            (yy) * sc, 
+            xx * sc, 
+            (-yy) * sc, 
+            1/5,
+            1, 0, 0, 0.6
+        );
+        addLine(
+            xx * sc, 
+            (yy) * sc, 
+            xx * sc, 
+            (-yy) * sc, 
+            1/25,
+            1, 0, 0, 1
+        );
+                addLine(
+            -xx * sc, 
+            (yy) * sc, 
+            -xx * sc, 
+            (-yy) * sc, 
+            1/5,
+            1, 0, 0, 0.6
+        );
+        addLine(
+            -xx * sc, 
+            (yy) * sc, 
+            -xx * sc, 
+            (-yy) * sc, 
+            1/25,
+            1, 0, 0, 1
+        );
+    }
+        //     for (let y = 0; y < 1; y += 1/10) {
+        //     addLine(
+        //         x, 
+        //         y, 
+        //         x, 
+        //         x, 
+        //         1/5,
+        //         1, 0, 0, 1
+        //     );
+        // }
+    // }
     // addLine(0.9, 0.9, 0.9, -0.9, 1/15);
     currentProgram = getProgram("smooth-line");
     gl.useProgram(currentProgram);
     drawLines();
-    currentProgram = getProgram("smooth-dots");
-    gl.useProgram(currentProgram);
-    drawAlligatorQuiet(currentProgram);
+    // currentProgram = getProgram("smooth-dots");
+    // gl.useProgram(currentProgram);
+    // drawAlligatorQuiet(currentProgram);
     if (exporting && frameCount < maxFrames) {
         frameExport();
     }
@@ -428,8 +548,10 @@ function keyPressed() {
 drawAlligatorQuiet = function(selectedProgram) {
     vertices = [];
     num=0;
-    for (let i = 0; i < reached.length; i++) {
-        vertices.push(reached[i][0], reached[i][1]);
+    for (let i = 0; i < 500; i++) {
+        let x = Math.cos(i-drawCount) * i * 9e-4 * sc;
+        let y = Math.sin(i-drawCount) * i * 9e-4 * sc;
+        vertices.push(x, y);
         num++;
     }
     gl.bindBuffer(gl.ARRAY_BUFFER, dots_buffer);
