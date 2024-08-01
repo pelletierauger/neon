@@ -240,7 +240,7 @@ draw = function() {
     // }
     // for (let i = 0; i < pairs.length; i++) {
     // let sc = 0.75;
-    sc += 0.001;
+    // sc += 0.001;
     if (sc > 1) {sc = 0.75};
     for (let x = 0; x < 1; x += 1/10) {
         let y = 1;
@@ -280,82 +280,82 @@ draw = function() {
             1, 0, 0, 1
         );
     }
-    for (let y = 0; y < 1; y += 1/10) {
-        let x = -0.75;
-        let yy = map(y, 0, 1, 0.75, -0.75);
-        let y2 = map(y, 0, 1, 1.57, -1.57);
-        addLine(
-            x * sc, 
-            (yy) * sc, 
-            (x - 1.75) * sc, 
-            (yy+y2) * sc, 
-            1/5,
-            1, 0, 0, 0.6
-        );
-        addLine(
-            x * sc, 
-            (yy) * sc, 
-            (x - 1.75) * sc, 
-            (yy+y2) * sc, 
-            1/25,
-            1, 0, 0, 1
-        );
-        x = 0.75;
-        addLine(
-            x * sc, 
-            (yy) * sc, 
-            (x + 1.75) * sc, 
-            (yy+y2) * sc, 
-            1/5,
-            1, 0, 0, 0.6
-        );
-        addLine(
-            x * sc, 
-            (yy) * sc, 
-            (x + 1.75) * sc, 
-            (yy+y2) * sc, 
-            1/25,
-            1, 0, 0, 1
-        );
-    }
-    for (let x = 0; x < 1; x += 1/10) {
-        let y = -0.75;
-        let xx = map(x, 0, 1, 0.75, 1.5);
-        xx = Math.pow(xx, 2) + 0.28;
-        let yy = map(x, 0, 1, 0.825, 2);
-        addLine(
-            xx * sc, 
-            (yy) * sc, 
-            xx * sc, 
-            (-yy) * sc, 
-            1/5,
-            1, 0, 0, 0.6
-        );
-        addLine(
-            xx * sc, 
-            (yy) * sc, 
-            xx * sc, 
-            (-yy) * sc, 
-            1/25,
-            1, 0, 0, 1
-        );
-                addLine(
-            -xx * sc, 
-            (yy) * sc, 
-            -xx * sc, 
-            (-yy) * sc, 
-            1/5,
-            1, 0, 0, 0.6
-        );
-        addLine(
-            -xx * sc, 
-            (yy) * sc, 
-            -xx * sc, 
-            (-yy) * sc, 
-            1/25,
-            1, 0, 0, 1
-        );
-    }
+    // for (let y = 0; y < 1; y += 1/10) {
+    //     let x = -0.75;
+    //     let yy = map(y, 0, 1, 0.75, -0.75);
+    //     let y2 = map(y, 0, 1, 1.57, -1.57);
+    //     addLine(
+    //         x * sc, 
+    //         (yy) * sc, 
+    //         (x - 1.75) * sc, 
+    //         (yy+y2) * sc, 
+    //         1/5,
+    //         1, 0, 0, 0.6
+    //     );
+    //     addLine(
+    //         x * sc, 
+    //         (yy) * sc, 
+    //         (x - 1.75) * sc, 
+    //         (yy+y2) * sc, 
+    //         1/25,
+    //         1, 0, 0, 1
+    //     );
+    //     x = 0.75;
+    //     addLine(
+    //         x * sc, 
+    //         (yy) * sc, 
+    //         (x + 1.75) * sc, 
+    //         (yy+y2) * sc, 
+    //         1/5,
+    //         1, 0, 0, 0.6
+    //     );
+    //     addLine(
+    //         x * sc, 
+    //         (yy) * sc, 
+    //         (x + 1.75) * sc, 
+    //         (yy+y2) * sc, 
+    //         1/25,
+    //         1, 0, 0, 1
+    //     );
+    // }
+    // for (let x = 0; x < 1; x += 1/10) {
+    //     let y = -0.75;
+    //     let xx = map(x, 0, 1, 0.75, 1.5);
+    //     xx = Math.pow(xx, 2) + 0.28;
+    //     let yy = map(x, 0, 1, 0.825, 2);
+    //     addLine(
+    //         xx * sc, 
+    //         (yy) * sc, 
+    //         xx * sc, 
+    //         (-yy) * sc, 
+    //         1/5,
+    //         1, 0, 0, 0.6
+    //     );
+    //     addLine(
+    //         xx * sc, 
+    //         (yy) * sc, 
+    //         xx * sc, 
+    //         (-yy) * sc, 
+    //         1/25,
+    //         1, 0, 0, 1
+    //     );
+    //             addLine(
+    //         -xx * sc, 
+    //         (yy) * sc, 
+    //         -xx * sc, 
+    //         (-yy) * sc, 
+    //         1/5,
+    //         1, 0, 0, 0.6
+    //     );
+    //     addLine(
+    //         -xx * sc, 
+    //         (yy) * sc, 
+    //         -xx * sc, 
+    //         (-yy) * sc, 
+    //         1/25,
+    //         1, 0, 0, 1
+    //     );
+    // }
         //     for (let y = 0; y < 1; y += 1/10) {
         //     addLine(
         //         x, 
