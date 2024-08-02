@@ -998,3 +998,81 @@ smoothDots3D.fragText = `
 smoothDots3D.vertText = smoothDots3D.vertText.replace(/[^\x00-\x7F]/g, "");
 smoothDots3D.fragText = smoothDots3D.fragText.replace(/[^\x00-\x7F]/g, "");
 smoothDots3D.init();
+
+// A version of smoothDots3D that adjusts the dot size according to its Z value
+smoothDots3D.vertText = `
+    // beginGLSL
+    attribute vec3 coordinates;
+    uniform float time;
+    uniform vec2 resolution;
+    varying float t;
+    mat4 translate(float x, float y, float z) {
+        return mat4(
+            1.0,  0.0,  0.0,  0.0,
+            0.0,  1.0,  0.0,  0.0,
+            0.0,  0.0,  1.0,  0.0,
+            x,      y,    z,  1.0
+        );
+    }
+    mat4 xRotate(float a) {
+        return mat4(
+           1.0, 0.0,        0.0, 0.0,
+           0.0, cos(a), -sin(a), 0.0,
+           0.0, sin(a),  cos(a), 0.0,
+           0.0, 0.0,        0.0, 1.0
+        );
+    }
+    mat4 yRotate(float a) {
+        return mat4(
+           cos(a),  0.0, sin(a), 0.0,
+           0.0,     1.0,    0.0, 0.0,
+           -sin(a), 0.0, cos(a), 0.0,
+           0.0,     0.0,    0.0, 1.0
+        );
+    }
+    mat4 zRotate(float a) {
+        return mat4(
+           cos(a), -sin(a), 0.0, 0.0,
+           sin(a),  cos(a), 0.0, 0.0,
+           0.0,        0.0, 1.0, 0.0,
+           0.0,        0.0, 0.0, 1.0
+        );
+    }
+    void main(void) {
+        float ratio = resolution.y / resolution.x;
+        vec4 pos = vec4(coordinates, 1.);
+        pos = translate(0.0, 0., 0.5) * yRotate(time*2e-2) * xRotate(time*2e-2) * translate(0.0, 0., -0.5) * pos;
+        pos.x *= ratio;
+        gl_Position = vec4(pos.x, pos.y, 0.0, pos.z);
+        gl_PointSize = 15. / pos.z;
+        // gl_PointSize += (sin((length(coordinates*20.)*0.2-time*2e-1))*0.5+0.5)*14.;
+    }
+    // endGLSL
+`;
+smoothDots3D.fragText = `
+    // beginGLSL
+    precision mediump float;
+    // uniform float time;
+    varying float t;
+    float rand(vec2 co){
+        return fract(sin(dot(co.xy ,vec2(12.9898,78.233))) * 43758.5453 * (2.0 + sin(co.x)));
+    }
+    void main(void) {
+        vec2 pos = gl_PointCoord;
+        float distSquared = 1.0 - dot(pos - 0.5, pos - 0.5) * 0.5;
+        float l = 1.0 - length(pos - vec2(0.5)) * 4.;
+        // l += (1.0 - length(pos - vec2(0.5)) * 2.) * 0.125;
+        // l += distSquared * 0.25;
+        distSquared -= 1.2;
+        l += (distSquared - (l * distSquared));
+        float halo = (1.0 - length(pos - vec2(0.5)) * 2.)*0.5;
+        l = smoothstep(0., 1., l);
+        l = pow(l, 3.);
+        float noise = rand(pos - vec2(cos(t), sin(t))) * 0.0625;
+        gl_FragColor = vec4(vec3(1.0, pow(l, 2.)*0.25, 0.25), (l+halo-noise)*0.5);
+    }
+    // endGLSL
+`;
+smoothDots3D.vertText = smoothDots3D.vertText.replace(/[^\x00-\x7F]/g, "");
+smoothDots3D.fragText = smoothDots3D.fragText.replace(/[^\x00-\x7F]/g, "");
+smoothDots3D.init();
