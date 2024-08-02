@@ -228,7 +228,7 @@ draw = function() {
     // for (let i = 0; i < 5; i++) {
     //     makeTree();  
     // }
-    resetLines();
+    // resetLines();
     reset3DLines();
     // addLine(0, 0, 1, 0, 0.25);
     // for (let i = 0; i < 100; i++) {
@@ -433,6 +433,9 @@ draw = function() {
     // currentProgram = getProgram("smooth-dots");
     // gl.useProgram(currentProgram);
     // drawAlligatorQuiet(currentProgram);
+    currentProgram = getProgram("smooth-dots-3D");
+    gl.useProgram(currentProgram);
+    draw3DDots(currentProgram);
     if (exporting && frameCount < maxFrames) {
         frameExport();
     }
@@ -762,3 +765,45 @@ drawAlligatorQuiet = function(selectedProgram) {
     gl.uniform2f(resolutionUniformLocation, cnvs.width, cnvs.height);
     gl.drawArrays(gl.POINTS, 0, num);
 }
+
+
+set3DDots = function(selectedProgram) {
+    vertices = [];
+    num = 0;
+    for (let i = 0; i < 1500; i++) {
+        // let x = Math.random();
+        // let y = Math.random();
+        // let z = Math.random();
+        let p = randomPointInSphere();
+        vertices.push(p[0] * 0.5, p[1] * 0.5, p[2] * 0.5);
+        num++;
+    }
+};
+set3DDots();
+
+function randomPointInSphere() {
+    var d, x, y, z;
+    do {
+        x = Math.random() * 2.0 - 1.0;
+        y = Math.random() * 2.0 - 1.0;
+        z = Math.random() * 2.0 - 1.0;
+        d = x * x + y * y + z * z;
+    } while(d > 1.0);
+    return [x, y, z];
+}
+
+draw3DDots = function(selectedProgram) {
+    gl.bindBuffer(gl.ARRAY_BUFFER, dots_buffer);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
+    // Get the attribute location
+    var coord = gl.getAttribLocation(selectedProgram, "coordinates");
+    // Point an attribute to the currently bound VBO
+    gl.vertexAttribPointer(coord, 3, gl.FLOAT, false, 0, 0);
+    // Enable the attribute
+    gl.enableVertexAttribArray(coord);
+    let timeUniformLocation = gl.getUniformLocation(selectedProgram, "time");
+    gl.uniform1f(timeUniformLocation, drawCount);
+    let resolutionUniformLocation = gl.getUniformLocation(selectedProgram, "resolution");
+    gl.uniform2f(resolutionUniformLocation, cnvs.width, cnvs.height);
+    gl.drawArrays(gl.POINTS, 0, num);
+};
