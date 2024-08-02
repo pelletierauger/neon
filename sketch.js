@@ -5,11 +5,14 @@ let fileName = "./frames/sketch";
 let maxFrames = 20;
 let gl, currentProgram;
 let vertices = [];
+let verticesA = [];
+let verticesB = [];
 let colors = [];
 let indices = [];
 let amountOfLines = 0;
 let drawCount = 0;
 let vertex_buffer, indices2_buffer, Index_Buffer, color_buffer, width_buffer, uv_buffer, dots_buffer;
+let vertex_bufferA, vertex_bufferB;
 let field = [];
 let makeField;
 let reached, unreached;
@@ -35,6 +38,8 @@ function setup() {
     width_buffer = gl.createBuffer();
     uv_buffer = gl.createBuffer();
     dots_buffer = gl.createBuffer();
+    vertex_bufferA = gl.createBuffer();
+    vertex_bufferB = gl.createBuffer();
     shadersReadyToInitiate = true;
     initializeShaders();
     currentProgram = getProgram("smooth-line");
@@ -224,6 +229,7 @@ draw = function() {
     //     makeTree();  
     // }
     resetLines();
+    reset3DLines();
     // addLine(0, 0, 1, 0, 0.25);
     // for (let i = 0; i < 100; i++) {
     //     addLine(field[i][0], field[i][1], field[i+1][0], field[i+1][1], 1/16);
@@ -241,45 +247,45 @@ draw = function() {
     // for (let i = 0; i < pairs.length; i++) {
     // let sc = 0.75;
     // sc += 0.001;
-    if (sc > 1) {sc = 0.75};
-    for (let x = 0; x < 1; x += 1/10) {
-        let y = 1;
-        addLine(
-            (x - 0.5) * 1.5 * sc, 
-            y * 0.75 * sc, 
-            (x - 0.5) * 1.5 * sc, 
-            -y * 0.75 * sc, 
-            1/5,
-            1, 0, 0, 0.6
-        );
-        addLine(
-            (x - 0.5) * 1.5 * sc, 
-            y * 0.75 * sc, 
-            (x - 0.5) * 1.5 * sc, 
-            -y * 0.75 * sc, 
-            1/25,
-            1, 0, 0, 1
-        );
-    }
-    for (let y = 0; y < 1; y += 1/10) {
-        let x = 0;
-        addLine(
-            (x - 1) * 0.75 * sc, 
-            (y - 0.5) * 1.5 * sc, 
-            (x + 1) * 0.75 * sc, 
-            (y - 0.5) * 1.5 * sc, 
-            1/5,
-            1, 0, 0, 0.6
-        );
-        addLine(
-            (x - 1) * 0.75 * sc, 
-            (y - 0.5) * 1.5 * sc, 
-            (x + 1) * 0.75 * sc, 
-            (y - 0.5) * 1.5 * sc, 
-            1/25,
-            1, 0, 0, 1
-        );
-    }
+    // if (sc > 1) {sc = 0.75};
+    // for (let x = 0; x < 1; x += 1/10) {
+    //     let y = 1;
+    //     addLine(
+    //         (x - 0.5) * 1.5 * sc, 
+    //         y * 0.75 * sc, 
+    //         (x - 0.5) * 1.5 * sc, 
+    //         -y * 0.75 * sc, 
+    //         1/5,
+    //         1, 0, 0, 0.6
+    //     );
+    //     addLine(
+    //         (x - 0.5) * 1.5 * sc, 
+    //         y * 0.75 * sc, 
+    //         (x - 0.5) * 1.5 * sc, 
+    //         -y * 0.75 * sc, 
+    //         1/25,
+    //         1, 0, 0, 1
+    //     );
+    // }
+    // for (let y = 0; y < 1; y += 1/10) {
+    //     let x = 0;
+    //     addLine(
+    //         (x - 1) * 0.75 * sc, 
+    //         (y - 0.5) * 1.5 * sc, 
+    //         (x + 1) * 0.75 * sc, 
+    //         (y - 0.5) * 1.5 * sc, 
+    //         1/5,
+    //         1, 0, 0, 0.6
+    //     );
+    //     addLine(
+    //         (x - 1) * 0.75 * sc, 
+    //         (y - 0.5) * 1.5 * sc, 
+    //         (x + 1) * 0.75 * sc, 
+    //         (y - 0.5) * 1.5 * sc, 
+    //         1/25,
+    //         1, 0, 0, 1
+    //     );
+    // }
     // for (let y = 0; y < 1; y += 1/10) {
     //     let x = -0.75;
     //     let yy = map(y, 0, 1, 0.75, -0.75);
@@ -368,9 +374,62 @@ draw = function() {
         // }
     // }
     // addLine(0.9, 0.9, 0.9, -0.9, 1/15);
-    currentProgram = getProgram("smooth-line");
+    // currentProgram = getProgram("smooth-line");
+    // gl.useProgram(currentProgram);
+    // drawLines();
+    // add3DLine(
+    //     -1, 0.1, 2,
+    //     1, -0.1, 2,
+    //     1/5,
+    //     1, 0, 0, 1
+    // );
+    for (let x = 0; x < 1; x += 1/10) {
+        let y = 1;
+        add3DLine(
+            (x - 0.5) * 1.5 * sc, 
+            y * 0.75 * sc, 
+            1,
+            (x - 0.5) * 1.5 * sc, 
+            -y * 0.75 * sc, 
+            1,
+            1/5,
+            1, 0, 0, 0.5
+        );
+        add3DLine(
+            (x - 0.5) * 1.5 * sc, 
+            y * 0.75 * sc, 
+            1,
+            (x - 0.5) * 1.5 * sc, 
+            -y * 0.75 * sc, 
+            1,
+            1/25,
+            1, 0, 0, 1
+        );
+        add3DLine(
+            (x - 0.5) * 1.5 * sc, 
+            y * 0.75 * sc, 
+            1,
+            (x - 0.5) * 1.5 * sc, 
+            y * 0.75 * sc, 
+            2,
+            1/5,
+            1, 0, 0, 0.5
+        );
+        add3DLine(
+            (x - 0.5) * 1.5 * sc, 
+            y * 0.75 * sc, 
+            1,
+            (x - 0.5) * 1.5 * sc, 
+            y * 0.75 * sc, 
+            2,
+            1/25,
+            1, 0, 0, 1
+        );
+        
+    }
+    currentProgram = getProgram("smooth-line-3D");
     gl.useProgram(currentProgram);
-    drawLines();
+    draw3DLines();
     // currentProgram = getProgram("smooth-dots");
     // gl.useProgram(currentProgram);
     // drawAlligatorQuiet(currentProgram);
@@ -389,6 +448,141 @@ resetLines = function() {
     widths = [];
     uvs = [];
     lineAmount = 0;
+};
+
+reset3DLines = function() {
+    indices = [];
+    indices2 = [];
+    verticesA = [];
+    verticesB = [];
+    colors = [];
+    widths = [];
+    uvs = [];
+    lineAmount = 0;
+};
+
+add3DLine = function(x0, y0, z0, x1, y1, z1, w, r, g, b, a) {
+    let ii = [0, 1, 2, 0, 2, 3];
+    let iii = [0, 1, 2, 3];
+    for (let k = 0; k < ii.length; k++) {
+        indices.push(ii[k] + (lineAmount*4));
+    }        
+    for (let k = 0; k < iii.length; k++) {
+        indices2.push(iii[k]);
+    }
+    let vv = [
+        x0, y0, z0,
+        x0, y0, z0,
+        x0, y0, z0,
+        x0, y0, z0
+    ];
+    for (let k = 0; k < vv.length; k++) {
+        verticesA.push(vv[k]);
+    }
+    let vvv = [
+        x1, y1, z1,
+        x1, y1, z1,
+        x1, y1, z1,
+        x1, y1, z1
+    ];
+    for (let k = 0; k < vvv.length; k++) {
+        verticesB.push(vvv[k]);
+    }
+    let cc = [
+        r, g, b, a, 
+        r, g, b, a, 
+        r, g, b, a, 
+        r, g, b, a
+    ];
+    for (let k = 0; k < cc.length; k++) {
+        colors.push(cc[k]);
+    }
+    widths.push(w, w, w, w);
+    let uv = [
+        0, 0, 
+        1, 0, 
+        1, 1, 
+        0, 1
+    ];
+    for (let k = 0; k < uv.length; k++) {
+        uvs.push(uv[k]);
+    }
+    lineAmount++;
+};
+
+draw3DLines = function() {
+    gl.bindBuffer(gl.ARRAY_BUFFER, vertex_bufferA);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(verticesA), gl.STATIC_DRAW);
+    gl.bindBuffer(gl.ARRAY_BUFFER, vertex_bufferB);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(verticesB), gl.STATIC_DRAW);
+    gl.bindBuffer(gl.ARRAY_BUFFER, indices2_buffer);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(indices2), gl.STATIC_DRAW);
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, Index_Buffer);
+    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(indices), gl.STATIC_DRAW);
+    gl.bindBuffer(gl.ARRAY_BUFFER, color_buffer);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(colors), gl.STATIC_DRAW);
+    gl.bindBuffer(gl.ARRAY_BUFFER, width_buffer);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(widths), gl.STATIC_DRAW);
+    gl.bindBuffer(gl.ARRAY_BUFFER, uv_buffer);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(uvs), gl.STATIC_DRAW); 
+    // setShaders();
+    /* ======== Associating shaders to buffer objects =======*/
+    // Bind vertex buffer object
+    gl.bindBuffer(gl.ARRAY_BUFFER, vertex_bufferA);
+    // Bind index buffer object
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, Index_Buffer);
+    // Get the attribute location
+    var coordA = gl.getAttribLocation(currentProgram, "coordinatesA");
+    // point an attribute to the currently bound VBO
+    gl.vertexAttribPointer(coordA, 3, gl.FLOAT, false, 0, 0);
+    // Enable the attribute
+    gl.enableVertexAttribArray(coordA);
+    // Bind vertex buffer object
+    gl.bindBuffer(gl.ARRAY_BUFFER, vertex_bufferB);
+    // Bind index buffer object
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, Index_Buffer);
+    // Get the attribute location
+    var coordB = gl.getAttribLocation(currentProgram, "coordinatesB");
+    // point an attribute to the currently bound VBO
+    gl.vertexAttribPointer(coordB, 3, gl.FLOAT, false, 0, 0);
+    // Enable the attribute
+    gl.enableVertexAttribArray(coordB);
+    // bind the indices2 buffer
+    gl.bindBuffer(gl.ARRAY_BUFFER, indices2_buffer);
+    // get the attribute location
+    var indices2AttribLocation = gl.getAttribLocation(currentProgram, "index");
+    // point attribute to the volor buffer object
+    gl.vertexAttribPointer(indices2AttribLocation, 1, gl.FLOAT, false, 0, 0);
+    // enable the color attribute
+    gl.enableVertexAttribArray(indices2AttribLocation);
+    // bind the color buffer
+    gl.bindBuffer(gl.ARRAY_BUFFER, color_buffer);
+    // get the attribute location
+    var color = gl.getAttribLocation(currentProgram, "color");
+    // point attribute to the volor buffer object
+    gl.vertexAttribPointer(color, 4, gl.FLOAT, false, 0, 0);
+    // enable the color attribute
+    gl.enableVertexAttribArray(color);
+    // bind the width buffer
+    gl.bindBuffer(gl.ARRAY_BUFFER, width_buffer);
+    // get the attribute location
+    var widthAttribLocation = gl.getAttribLocation(currentProgram, "width");
+    // point attribute to the volor buffer object
+    gl.vertexAttribPointer(widthAttribLocation, 1, gl.FLOAT, false, 0, 0);
+    // enable the color attribute
+    gl.enableVertexAttribArray(widthAttribLocation);
+    gl.bindBuffer(gl.ARRAY_BUFFER, uv_buffer);
+    var uvAttribLocation = gl.getAttribLocation(currentProgram, "uv");
+    // point attribute to the volor buffer object
+    gl.vertexAttribPointer(uvAttribLocation, 2, gl.FLOAT, false, 0, 0);
+    // enable the color attribute
+    gl.enableVertexAttribArray(uvAttribLocation);
+    resolutionUniformLocation = gl.getUniformLocation(currentProgram, "resolution");
+    gl.uniform2f(resolutionUniformLocation, cnvs.width, cnvs.height);    
+    timeUniformLocation = gl.getUniformLocation(currentProgram, "time");
+    gl.uniform1f(timeUniformLocation, drawCount);
+    gl.clear(gl.COLOR_BUFFER_BIT);
+    gl.drawElements(gl.TRIANGLES, indices.length, gl.UNSIGNED_SHORT, 0);
 };
 
 addLine = function(x0, y0, x1, y1, w, r, g, b, a) {
