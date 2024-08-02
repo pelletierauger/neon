@@ -225,6 +225,7 @@ makeTree = function() {
 
 sc = 0.75;
 draw = function() {
+    gl.clear(gl.COLOR_BUFFER_BIT);
     // for (let i = 0; i < 5; i++) {
     //     makeTree();  
     // }
@@ -584,7 +585,7 @@ draw3DLines = function() {
     gl.uniform2f(resolutionUniformLocation, cnvs.width, cnvs.height);    
     timeUniformLocation = gl.getUniformLocation(currentProgram, "time");
     gl.uniform1f(timeUniformLocation, drawCount);
-    gl.clear(gl.COLOR_BUFFER_BIT);
+    // gl.clear(gl.COLOR_BUFFER_BIT);
     gl.drawElements(gl.TRIANGLES, indices.length, gl.UNSIGNED_SHORT, 0);
 };
 
@@ -688,7 +689,7 @@ drawLines = function() {
     gl.uniform2f(resolutionUniformLocation, cnvs.width, cnvs.height);    
     timeUniformLocation = gl.getUniformLocation(currentProgram, "time");
     gl.uniform1f(timeUniformLocation, drawCount);
-    gl.clear(gl.COLOR_BUFFER_BIT);
+    // gl.clear(gl.COLOR_BUFFER_BIT);
     gl.drawElements(gl.TRIANGLES, indices.length, gl.UNSIGNED_SHORT, 0);
 };
 
