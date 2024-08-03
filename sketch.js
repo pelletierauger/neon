@@ -190,7 +190,7 @@ makeField();
 
 makeField3D = function() {
     field3D = [];
-    let n = 800;
+    let n = 400;
     for (var i = 0; i < n; i++) {
         // let p = randomPointInSphere();
         let p = randomPointOnSphere();
