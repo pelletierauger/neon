@@ -186,11 +186,14 @@ makeField = function() {
 };
 makeField();
 
+}
+
 makeField3D = function() {
     field3D = [];
     let n = 400;
     for (var i = 0; i < n; i++) {
-        let p = randomPointInSphere();
+        // let p = randomPointInSphere();
+        let p = randomPointOnSphere();
         field3D.push(p);
     }
     reached3D = [];
@@ -203,8 +206,6 @@ makeField3D = function() {
 };
 makeField3D();
 
-
-}
 
 makeTree = function() {
     if (unreached.length > 0) {
@@ -499,15 +500,15 @@ draw = function() {
             1, 0, 0, 0.00001
         );
     }
-    currentProgram = getProgram("smooth-line-3D");
-    gl.useProgram(currentProgram);
-    draw3DLines();
     // currentProgram = getProgram("smooth-dots");
     // gl.useProgram(currentProgram);
     // drawAlligatorQuiet(currentProgram);
     currentProgram = getProgram("smooth-dots-3D");
     gl.useProgram(currentProgram);
     draw3DDots(currentProgram);
+        currentProgram = getProgram("smooth-line-3D");
+    gl.useProgram(currentProgram);
+    draw3DLines();
     if (exporting && frameCount < maxFrames) {
         frameExport();
     }
@@ -851,7 +852,7 @@ set3DDots = function(selectedProgram) {
         num++;
     }
 };
-set3DDots();
+// set3DDots();
 
 function randomPointInSphere() {
     var d, x, y, z;
@@ -863,6 +864,15 @@ function randomPointInSphere() {
     } while(d > 1.0);
     return [x, y, z];
 }
+
+function randomPointOnSphere(x0 = 0, y0 = 0, z0 = 0, radius = 1) {
+   var y = Math.random() * 2 - 1;  // random y from -1 to 1
+   var r = Math.sqrt(1 - y*y);     // radius on xz plane at y
+   var long = Math.random() * 2 * Math.PI;  // random longitude
+   return [x0 + radius * r * Math.sin(long),
+           y0 + radius * y,
+           z0 + radius * r * Math.cos(long)];
+};
 
 draw3DDots = function(selectedProgram) {
     gl.bindBuffer(gl.ARRAY_BUFFER, dots_buffer);
