@@ -611,8 +611,14 @@ smoothLine3D.vertText = `
         vec2 pos = vec2(0., 0.);
         vec4 pos0 = vec4(coordinatesA, 1.);
         vec4 pos1 = vec4(coordinatesB, 1.);
-        pos0 = translate(0.0, 0., 1.5) * yRotate(time*2e-2) * xRotate(time*2e-2) * translate(0.0, 0., -1.5) * pos0;
-        pos1 = translate(0.0, 0., 1.5) * yRotate(time*2e-2) * xRotate(time*2e-2) * translate(0.0, 0., -1.5) * pos1;
+        // pos0 = translate(0.0, 0., 1.5) * yRotate(time*2e-2) * xRotate(time*2e-2) * translate(0.0, 0., -1.5) * pos0;
+        // pos1 = translate(0.0, 0., 1.5) * yRotate(time*2e-2) * xRotate(time*2e-2) * translate(0.0, 0., -1.5) * pos1;
+        pos0 = yRotate(-time*0.5e-2) * pos0;
+        // pos0 = xRotate(-time*0.5e-2) * pos0;
+        pos0 = translate(0.0, 0.0, 1.5) * pos0;
+        pos1 = yRotate(-time*0.5e-2) * pos1;
+        // pos1 = xRotate(-time*0.5e-2) * pos1;
+        pos1 = translate(0.0, 0.0, 1.5) * pos1;
         pos0.xy = pos0.xy / pos0.z;
         pos1.xy = pos1.xy / pos1.z;
         float a = atan(pos1.y - pos0.y, pos1.x - pos0.x);
@@ -1041,10 +1047,14 @@ smoothDots3D.vertText = `
     void main(void) {
         float ratio = resolution.y / resolution.x;
         vec4 pos = vec4(coordinates, 1.);
-        pos = translate(0.0, 0., 0.5) * yRotate(time*2e-2) * xRotate(time*2e-2) * translate(0.0, 0., -0.5) * pos;
+        // pos = translate(0.0, 0., 0.5) * yRotate(time*2e-2) * xRotate(time*2e-2) * translate(0.0, 0., -0.5) * pos;
+        pos = yRotate(-time*0.5e-2) * pos;
+        // pos = xRotate(-time*0.5e-2) * pos;
+        pos = translate(0.0, 0.0, 1.5) * pos;
+        // pos = rotate()
         pos.x *= ratio;
         gl_Position = vec4(pos.x, pos.y, 0.0, pos.z);
-        gl_PointSize = 15. / pos.z;
+        gl_PointSize = 45. / pos.z;
         // gl_PointSize += (sin((length(coordinates*20.)*0.2-time*2e-1))*0.5+0.5)*14.;
     }
     // endGLSL

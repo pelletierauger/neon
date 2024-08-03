@@ -186,6 +186,24 @@ makeField = function() {
 };
 makeField();
 
+makeField3D = function() {
+    field3D = [];
+    let n = 400;
+    for (var i = 0; i < n; i++) {
+        let p = randomPointInSphere();
+        field3D.push(p);
+    }
+    reached3D = [];
+    unreached3D = field3D.slice();
+    reached3D.push(unreached3D[Math.floor(Math.random()*unreached3D.length)]);
+    unreached3D.splice(0, 1);
+    pairs3D = [];
+    vertices = [].concat.apply([], field3D);
+    num = n;
+};
+makeField3D();
+
+
 }
 
 makeTree = function() {
@@ -217,6 +235,35 @@ makeTree = function() {
     }
 };
 
+makeTree3D = function() {
+    if (unreached3D.length > 0) {
+        let record = Infinity;
+        var rIndex;
+        var uIndex;
+        let found = false;
+        for (var i = 0; i < reached3D.length; i++) {
+          for (var j = 0; j < unreached3D.length; j++) {
+            var v1 = reached3D[i];
+            var v2 = unreached3D[j];
+            var d = dist(v1[0], v1[1], v1[2], v2[0], v2[1], v2[2]);
+              if (d < record) {
+              record = d;
+              rIndex = i;
+              uIndex = j;
+              found = true;
+            }
+          }
+        }
+        if (found) {
+            pairs3D.push([reached3D[rIndex], unreached3D[uIndex]]);
+            reached3D.push(unreached3D[uIndex]);
+            unreached3D.splice(uIndex, 1);
+        }
+    } else {
+        makeField3D();
+    }
+};
+
 // makeTree();
 
 // for (let i =0; i < 100; i++) {
@@ -227,7 +274,7 @@ sc = 0.75;
 draw = function() {
     gl.clear(gl.COLOR_BUFFER_BIT);
     // for (let i = 0; i < 5; i++) {
-    //     makeTree();  
+    makeTree3D();  
     // }
     // resetLines();
     reset3DLines();
@@ -384,49 +431,73 @@ draw = function() {
     //     1/5,
     //     1, 0, 0, 1
     // );
-    for (let x = 0; x < 1; x += 1/10) {
-        let y = 1;
-        add3DLine(
-            (x - 0.5) * 1.5 * sc, 
-            y * 0.75 * sc, 
-            1,
-            (x - 0.5) * 1.5 * sc, 
-            -y * 0.75 * sc, 
-            1,
-            1/3,
-            1, 0, 0, 0.25
-        );
-        add3DLine(
-            (x - 0.5) * 1.5 * sc, 
-            y * 0.75 * sc, 
-            1,
-            (x - 0.5) * 1.5 * sc, 
-            -y * 0.75 * sc, 
-            1,
-            1/25,
-            1, 0, 0, 1
-        );
-        add3DLine(
-            (x - 0.5) * 1.5 * sc, 
-            y * 0.75 * sc, 
-            1,
-            (x - 0.5) * 1.5 * sc, 
-            y * 0.75 * sc, 
-            2,
-            1/3,
-            1, 0, 0, 0.25
-        );
-        add3DLine(
-            (x - 0.5) * 1.5 * sc, 
-            y * 0.75 * sc, 
-            1,
-            (x - 0.5) * 1.5 * sc, 
-            y * 0.75 * sc, 
-            2,
-            1/25,
-            1, 0, 0, 1
-        );
+//     for (let x = 0; x < 1; x += 1/10) {
+//         let y = 1;
+//         add3DLine(
+//             (x - 0.5) * 1.5 * sc, 
+//             y * 0.75 * sc, 
+//             1,
+//             (x - 0.5) * 1.5 * sc, 
+//             -y * 0.75 * sc, 
+//             1,
+//             1/3,
+//             1, 0, 0, 0.25
+//         );
+//         add3DLine(
+//             (x - 0.5) * 1.5 * sc, 
+//             y * 0.75 * sc, 
+//             1,
+//             (x - 0.5) * 1.5 * sc, 
+//             -y * 0.75 * sc, 
+//             1,
+//             1/25,
+//             1, 0, 0, 1
+//         );
+//         add3DLine(
+//             (x - 0.5) * 1.5 * sc, 
+//             y * 0.75 * sc, 
+//             1,
+//             (x - 0.5) * 1.5 * sc, 
+//             y * 0.75 * sc, 
+//             2,
+//             1/3,
+//             1, 0, 0, 0.25
+//         );
+//         add3DLine(
+//             (x - 0.5) * 1.5 * sc, 
+//             y * 0.75 * sc, 
+//             1,
+//             (x - 0.5) * 1.5 * sc, 
+//             y * 0.75 * sc, 
+//             2,
+//             1/25,
+//             1, 0, 0, 1
+//         );
         
+//     }
+    for (let i = 0; i < pairs3D.length; i++) {
+        add3DLine(
+            pairs3D[i][0][0], 
+            pairs3D[i][0][1], 
+            pairs3D[i][0][2], 
+            pairs3D[i][1][0], 
+            pairs3D[i][1][1], 
+            pairs3D[i][1][2], 
+            1/45,
+            1, 0, 0, 0.25
+        );
+    }
+    for (let i = 0; i < pairs3D.length; i++) {
+        add3DLine(
+            pairs3D[i][0][0], 
+            pairs3D[i][0][1], 
+            pairs3D[i][0][2], 
+            pairs3D[i][1][0], 
+            pairs3D[i][1][1], 
+            pairs3D[i][1][2], 
+            1/5,
+            1, 0, 0, 0.00001
+        );
     }
     currentProgram = getProgram("smooth-line-3D");
     gl.useProgram(currentProgram);
