@@ -568,6 +568,7 @@ smoothLine3D.vertText = `
     varying vec2 uvs;
     varying vec2 wh;
     varying float t;
+    varying float z;
     vec2 rotateUV(vec2 uv, float rotation, float mid) {
         return vec2(
           cos(rotation) * (uv.x - mid) + sin(rotation) * (uv.y - mid) + mid,
@@ -614,13 +615,17 @@ smoothLine3D.vertText = `
         // pos0 = translate(0.0, 0., 1.5) * yRotate(time*2e-2) * xRotate(time*2e-2) * translate(0.0, 0., -1.5) * pos0;
         // pos1 = translate(0.0, 0., 1.5) * yRotate(time*2e-2) * xRotate(time*2e-2) * translate(0.0, 0., -1.5) * pos1;
         pos0 = yRotate(-time*0.5e-2) * pos0;
-        // pos0 = xRotate(-time*0.5e-2) * pos0;
-        pos0 = translate(0.0, 0.0, 1.5) * pos0;
+        pos0 = xRotate(-time*0.5e-2) * pos0;
+        // pos0 = translate(0.0, 0.0, 1.5) * pos0;
         pos1 = yRotate(-time*0.5e-2) * pos1;
-        // pos1 = xRotate(-time*0.5e-2) * pos1;
-        pos1 = translate(0.0, 0.0, 1.5) * pos1;
+        pos1 = xRotate(-time*0.5e-2) * pos1;
+        // pos1 = translate(0.0, 0.0, 1.5) * pos1;
         pos0.xy = pos0.xy / pos0.z;
         pos1.xy = pos1.xy / pos1.z;
+        z = 1.0;
+        if (pos0.z < 0.0 || pos1.z < 0.) {
+            z = 0.0;
+        }
         float a = atan(pos1.y - pos0.y, pos1.x - pos0.x);
         float pi75 = pi * 0.75;
         float pi25 = pi * 0.25;
@@ -649,6 +654,7 @@ smoothLine3D.fragText = `
     varying vec2 uvs;
     varying vec2 wh;
     varying float t;
+    varying float z;
     float rand(vec2 co){
         return fract(sin(dot(co.xy ,vec2(12.9898,78.233))) * 43758.5453 * (2.0 + sin(co.x)));
     }
@@ -656,6 +662,9 @@ smoothLine3D.fragText = `
         return min2 + (value - min1) * (max2 - min2) / (max1 - min1);
     }
     void main(void) {
+        if (z == 0.0) {
+            discard;
+        }
         vec2 fc = gl_FragCoord.xy;
         vec2 pos = gl_PointCoord;
         float rando = rand(pos);
@@ -671,7 +680,7 @@ smoothLine3D.fragText = `
         col = smoothstep(0., 1., col);
         // col = mix(pow(col, 10.)*0.25, col, sin(time*0.1+pos.y*0.5e1)*0.5+0.5);
                 // c2l =x(pow(col, 10.)*0.2, col, sin(t*0.1+pos.y*0.5e1)*0.5+0.5);
-                // col = mix(pow(col, 10.)*0.2, col, sin(-t*0.1+length(pos * vec2(16./9.,1.))*0.5e1)*0.5+0.5);
+                col = mix(pow(col, 10.)*0.2, col, sin(-t*0.1+length(pos * vec2(16./9.,1.))*0.5e1)*0.5+0.5);
         gl_FragColor = vec4(c.rgb, c.a * (max(col, 0.) - (rando * 0.05)));
         gl_FragColor.g = pow(col, 2.) *  0.2;
         gl_FragColor.b = pow(col, 2.) *  0.2;
@@ -1055,8 +1064,8 @@ smoothDots3D.vertText = `
         vec4 pos = vec4(coordinates, 1.);
         // pos = translate(0.0, 0., 0.5) * yRotate(time*2e-2) * xRotate(time*2e-2) * translate(0.0, 0., -0.5) * pos;
         pos = yRotate(-time*0.5e-2) * pos;
-        // pos = xRotate(-time*0.5e-2) * pos;
-        pos = translate(0.0, 0.0, 1.5) * pos;
+        pos = xRotate(-time*0.5e-2) * pos;
+        // pos = translate(0.0, 0.0, 1.5) * pos;
         // pos = rotate()
         pos.x *= ratio;
         gl_Position = vec4(pos.x, pos.y, 0.0, pos.z);
