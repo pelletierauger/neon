@@ -16,6 +16,7 @@ let vertex_bufferA, vertex_bufferB;
 let field = [];
 let makeField;
 let reached, unreached;
+let hexasphere;
 
 function setup() {
     socket = io.connect('http://localhost:8080');
@@ -23,7 +24,8 @@ function setup() {
     // cnvs = createCanvas(windowWidth, windowWidth / 16 * 9, WEBGL);
     noCanvas();
     cnvs = document.getElementById('my_Canvas');
-    gl = cnvs.getContext('webgl', { preserveDrawingBuffer: true });
+    // gl = cnvs.getContext('webgl', { preserveDrawingBuffer: true });
+    gl = cnvs.getContext('webgl', {antialias: false, depth: false});
     // canvasDOM = document.getElementById('my_Canvas');
     // canvasDOM = document.getElementById('defaultCanvas0');
     // gl = canvasDOM.getContext('webgl');
@@ -144,7 +146,19 @@ function setup() {
         unreached.splice(0, 1);
         pairs = [];
     };
-    makeField();
+    // makeField();
+    let radius = 15;        // Radius used to calculate position of tiles
+    let subDivisions = 5;   // Divide each edge of the icosohedron into this many segments
+    let tileWidth = 0.5;    // Add padding (1.0 = no padding; 0.1 = mostly padding)
+
+    hexasphere = new Hexasphere(radius, subDivisions, tileWidth);
+    // makeField3D();
+    // // let lastTime = Date.now();
+    // for (let i = 0; i < 500; i++) {
+    //     makeTree3D();
+    //     // lastTime = Date.now() - lastTime;
+    //     console.log(i);
+    // }
 }
 
 if (false) {
@@ -190,11 +204,25 @@ makeField();
 
 makeField3D = function() {
     field3D = [];
-    let n = 400;
+    let n = 1400;
     for (var i = 0; i < n; i++) {
         // let p = randomPointInSphere();
-        let p = randomPointOnSphere();
+        let p = randomPointOnSphere(0, 0, 0, 14.92331122774031);
         field3D.push(p);
+    }
+    for (let i = 0; i < hexasphere.tiles.length; i++) {
+       // hexasphere.tiles[i].centerPoint contains x,y,z of the tile
+        let c = hexasphere.tiles[i].centerPoint;
+        if (Math.random() < 0.9) {
+            // field3D.push([c.x, c.y, c.z]);
+        }
+        let n = hexasphere.tiles[i].boundary;
+        for (let j = 0; j < n.length; j++) {
+            let b0 = n[j];
+            if (Math.random() < 0.9) {
+                field3D.push([b0.x, b0.y, b0.z]);
+            }
+    }
     }
     reached3D = [];
     unreached3D = field3D.slice();
@@ -204,7 +232,7 @@ makeField3D = function() {
     vertices = [].concat.apply([], field3D);
     num = n;
 };
-makeField3D();
+
 
 
 makeTree = function() {
@@ -275,10 +303,15 @@ sc = 0.75;
 draw = function() {
     gl.clear(gl.COLOR_BUFFER_BIT);
     // for (let i = 0; i < 5; i++) {
-    makeTree3D();  
+    // makeTree3D();  
     // }
     // resetLines();
+    if (drawCount == 0) {
     reset3DLines();
+    vertices = [];
+    // for (let i = 0; i < field3D.length; i++) {
+    //     vertices.push(field3D[i][0], field3D[i][1], field3D[i][2]);
+    // }
     // addLine(0, 0, 1, 0, 0.25);
     // for (let i = 0; i < 100; i++) {
     //     addLine(field[i][0], field[i][1], field[i+1][0], field[i+1][1], 1/16);
@@ -473,8 +506,7 @@ draw = function() {
 //             2,
 //             1/25,
 //             1, 0, 0, 1
-//         );
-        
+//         );  
 //     }
     for (let i = 0; i < pairs3D.length; i++) {
         add3DLine(
@@ -485,10 +517,8 @@ draw = function() {
             pairs3D[i][1][1], 
             pairs3D[i][1][2], 
             1/45,
-            1, 0, 0, 0.25
+            1, 0, 0, 0.5
         );
-    }
-    for (let i = 0; i < pairs3D.length; i++) {
         add3DLine(
             pairs3D[i][0][0], 
             pairs3D[i][0][1], 
@@ -499,20 +529,74 @@ draw = function() {
             1/5,
             1, 0, 0, 0.00001
         );
+        vertices.push(
+            pairs3D[i][0][0], 
+            pairs3D[i][0][1], 
+            pairs3D[i][0][2]
+        );
+        vertices.push(
+            pairs3D[i][1][0], 
+            pairs3D[i][1][1], 
+            pairs3D[i][1][2]
+        );
     }
     // currentProgram = getProgram("smooth-dots");
     // gl.useProgram(currentProgram);
     // drawAlligatorQuiet(currentProgram);
+    for (let i = 0; i < hexasphere.tiles.length; i++) {
+       // hexasphere.tiles[i].centerPoint contains x,y,z of the tile
+       let c = hexasphere.tiles[i].centerPoint;
+       vertices.push(c.x, c.y, c.z);
+       // hexasphere.tiles[i].boundary contains an ordered array of the boundary points
+       // hexasphere.tiles[i].neighbors contains a list of all the neighboring tiles
+        let n = hexasphere.tiles[i].boundary;
+        for (let j = 0; j < n.length; j++) {
+            let b0 = n[j];
+            vertices.push(b0.x, b0.y, b0.z);
+            let b1 = n[(j+1) % n.length];
+            add3DLine(
+                b0.x, 
+                b0.y, 
+                b0.z,
+                b1.x, 
+                b1.y, 
+                b1.z,
+                1/5,
+            1, 0, 1, 0.0125
+            );
+            // add3DLine(
+            //     b0.x, 
+            //     b0.y, 
+            //     b0.z,
+            //     c.x, 
+            //     c.y, 
+            //     c.z,
+            //     1/5,
+            // 1, 0, 0, 0.025
+            // );
+            // add3DLine(
+            //     b0.x, 
+            //     b0.y, 
+            //     b0.z,
+            //     b1.x, 
+            //     b1.y, 
+            //     b1.z,
+            //     1/125,
+            // 1, 0, 0, 1
+            // );
+        }
+    }
+    }
     currentProgram = getProgram("smooth-dots-3D");
     gl.useProgram(currentProgram);
     draw3DDots(currentProgram);
-        currentProgram = getProgram("smooth-line-3D");
+    currentProgram = getProgram("smooth-line-3D");
     gl.useProgram(currentProgram);
     draw3DLines();
     if (exporting && frameCount < maxFrames) {
         frameExport();
     }
-    drawCount++;
+    drawCount+=2;
 }
 
 
@@ -587,6 +671,7 @@ add3DLine = function(x0, y0, z0, x1, y1, z1, w, r, g, b, a) {
 };
 
 draw3DLines = function() {
+    if (drawCount == 0) {
     gl.bindBuffer(gl.ARRAY_BUFFER, vertex_bufferA);
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(verticesA), gl.STATIC_DRAW);
     gl.bindBuffer(gl.ARRAY_BUFFER, vertex_bufferB);
@@ -601,7 +686,8 @@ draw3DLines = function() {
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(widths), gl.STATIC_DRAW);
     gl.bindBuffer(gl.ARRAY_BUFFER, uv_buffer);
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(uvs), gl.STATIC_DRAW); 
-    // setShaders();
+    }
+        // setShaders();
     /* ======== Associating shaders to buffer objects =======*/
     // Bind vertex buffer object
     gl.bindBuffer(gl.ARRAY_BUFFER, vertex_bufferA);
@@ -887,5 +973,5 @@ draw3DDots = function(selectedProgram) {
     gl.uniform1f(timeUniformLocation, drawCount);
     let resolutionUniformLocation = gl.getUniformLocation(selectedProgram, "resolution");
     gl.uniform2f(resolutionUniformLocation, cnvs.width, cnvs.height);
-    gl.drawArrays(gl.POINTS, 0, num);
+    gl.drawArrays(gl.POINTS, 0, vertices.length / 3);
 };
