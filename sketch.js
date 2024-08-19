@@ -152,7 +152,7 @@ function setup() {
     let tileWidth = 0.5;    // Add padding (1.0 = no padding; 0.1 = mostly padding)
 
     hexasphere = new Hexasphere(radius, subDivisions, tileWidth);
-    // makeField3D();
+    makeField3D();
     // // let lastTime = Date.now();
     // for (let i = 0; i < 500; i++) {
     //     makeTree3D();
@@ -204,7 +204,7 @@ makeField();
 
 makeField3D = function() {
     field3D = [];
-    let n = 1400;
+    let n = 5400;
     for (var i = 0; i < n; i++) {
         // let p = randomPointInSphere();
         let p = randomPointOnSphere(0, 0, 0, 14.92331122774031);
@@ -309,9 +309,9 @@ draw = function() {
     if (drawCount == 0) {
     reset3DLines();
     vertices = [];
-    // for (let i = 0; i < field3D.length; i++) {
-    //     vertices.push(field3D[i][0], field3D[i][1], field3D[i][2]);
-    // }
+    for (let i = 0; i < field3D.length; i++) {
+        vertices.push(field3D[i][0], field3D[i][1], field3D[i][2]);
+    }
     // addLine(0, 0, 1, 0, 0.25);
     // for (let i = 0; i < 100; i++) {
     //     addLine(field[i][0], field[i][1], field[i+1][0], field[i+1][1], 1/16);
@@ -508,38 +508,38 @@ draw = function() {
 //             1, 0, 0, 1
 //         );  
 //     }
-    for (let i = 0; i < pairs3D.length; i++) {
-        add3DLine(
-            pairs3D[i][0][0], 
-            pairs3D[i][0][1], 
-            pairs3D[i][0][2], 
-            pairs3D[i][1][0], 
-            pairs3D[i][1][1], 
-            pairs3D[i][1][2], 
-            1/45,
-            1, 0, 0, 0.5
-        );
-        add3DLine(
-            pairs3D[i][0][0], 
-            pairs3D[i][0][1], 
-            pairs3D[i][0][2], 
-            pairs3D[i][1][0], 
-            pairs3D[i][1][1], 
-            pairs3D[i][1][2], 
-            1/5,
-            1, 0, 0, 0.00001
-        );
-        vertices.push(
-            pairs3D[i][0][0], 
-            pairs3D[i][0][1], 
-            pairs3D[i][0][2]
-        );
-        vertices.push(
-            pairs3D[i][1][0], 
-            pairs3D[i][1][1], 
-            pairs3D[i][1][2]
-        );
-    }
+    // for (let i = 0; i < pairs3D.length; i++) {
+    //     add3DLine(
+    //         pairs3D[i][0][0], 
+    //         pairs3D[i][0][1], 
+    //         pairs3D[i][0][2], 
+    //         pairs3D[i][1][0], 
+    //         pairs3D[i][1][1], 
+    //         pairs3D[i][1][2], 
+    //         1/45,
+    //         1, 0, 0, 0.5
+    //     );
+    //     add3DLine(
+    //         pairs3D[i][0][0], 
+    //         pairs3D[i][0][1], 
+    //         pairs3D[i][0][2], 
+    //         pairs3D[i][1][0], 
+    //         pairs3D[i][1][1], 
+    //         pairs3D[i][1][2], 
+    //         1/5,
+    //         1, 0, 0, 0.00001
+    //     );
+    //     vertices.push(
+    //         pairs3D[i][0][0], 
+    //         pairs3D[i][0][1], 
+    //         pairs3D[i][0][2]
+    //     );
+    //     vertices.push(
+    //         pairs3D[i][1][0], 
+    //         pairs3D[i][1][1], 
+    //         pairs3D[i][1][2]
+    //     );
+    // }
     // currentProgram = getProgram("smooth-dots");
     // gl.useProgram(currentProgram);
     // drawAlligatorQuiet(currentProgram);
@@ -554,16 +554,16 @@ draw = function() {
             let b0 = n[j];
             vertices.push(b0.x, b0.y, b0.z);
             let b1 = n[(j+1) % n.length];
-            add3DLine(
-                b0.x, 
-                b0.y, 
-                b0.z,
-                b1.x, 
-                b1.y, 
-                b1.z,
-                1/5,
-            1, 0, 1, 0.0125
-            );
+            // add3DLine(
+            //     b0.x, 
+            //     b0.y, 
+            //     b0.z,
+            //     b1.x, 
+            //     b1.y, 
+            //     b1.z,
+            //     1/5,
+            // 1, 0, 1, 0.0125
+            // );
             // add3DLine(
             //     b0.x, 
             //     b0.y, 
