@@ -274,7 +274,8 @@ makeTree3D = function() {
 
 blades = [];
 for (let i = 0; i < 1500; i++) {
-    let x = (Math.random() * 2 - 1) * 1;
+    let x = Math.random() * 2 - 1;
+    do {x = Math.random() * 2 - 1} while (Math.abs(x) < 0.1);
     let y = 0.5 * Math.random() + 0.05;
     let z = Math.random() * 1.5;
     blades.push([x, y, z])
@@ -293,14 +294,16 @@ draw = function() {
     // );
     vertices = [];
     for (let i = 0; i < blades.length; i++) {
-        blades[i][2] -= 0.005;
-        if (blades[i][2] < 0.1) {
+        blades[i][2] -= 0.0025;
+        if (blades[i][2] < -0.01) {
             blades[i][2] = 1.5;
-            blades[i][0] = (Math.random() * 2 - 1);
+            let x = Math.random() * 2 - 1;
+            do {x = Math.random() * 2 - 1} while (Math.abs(x) < 0.1);
+            blades[i][0] = x;
         }
     }
     blades.sort((a, b) => b[2] - a[2]);
-    for (let i = 700; i < blades.length; i++) {
+    for (let i = 500; i < blades.length; i++) {
         let b = blades[i];
         let alpha = map(b[2], 5, 0, 0.0, 1);
         let width = map(b[2], 5, 0, 1/50, 1/30);
