@@ -293,7 +293,7 @@ draw = function() {
     // );
     vertices = [];
     for (let i = 0; i < blades.length; i++) {
-        blades[i][2] -= 0.01;
+        blades[i][2] -= 0.005;
         if (blades[i][2] < 0.1) {
             blades[i][2] = 1.5;
             blades[i][0] = (Math.random() * 2 - 1);
