@@ -569,6 +569,7 @@ smoothLine3D.vertText = `
     varying vec2 wh;
     varying float t;
     varying vec3 posUnit;
+    varying float discarded;
     float map(float value, float min1, float max1, float min2, float max2) {
         return min2 + (value - min1) * (max2 - min2) / (max1 - min1);
     }
@@ -615,6 +616,7 @@ smoothLine3D.vertText = `
         vec2 pos = vec2(0., 0.);
         vec4 pos0 = vec4(coordinatesA, 1.);
         vec4 pos1 = vec4(coordinatesB, 1.);
+        posUnit = pos0.xyz;
         pos0 = translate(0.0, 0., 1.5) * xRotate(pi*0.125) * translate(0.0, 0., -1.5) * pos0;
         pos1 = translate(0.0, 0., 1.5) * xRotate(pi*0.125) * translate(0.0, 0., -1.5) * pos1;
         // pos0.xyz *= map(sin(time *1e-1+pos0.y*2.), -1., 1., 0.95, 1.0);
@@ -623,31 +625,36 @@ smoothLine3D.vertText = `
         // pos1.xyz *= 0.1;
         // pos0 = yRotate(-time*0.5e-2) * pos0;
         // pos0 = xRotate(-time*0.5e-2) * pos0;
-        // pos0 = translate(0.0, 0.0, 1.5) * pos0;
+        // pos0 = translate(0.0, map(sin(time*1e-1),-1.,1.,0.,-0.05), 0.0) * pos0;
         // pos1 = yRotate(-time*0.5e-2) * pos1;
         // pos1 = xRotate(-time*0.5e-2) * pos1;
-        // pos1 = translate(0.0, 0.0, 1.5) * pos1;
+        // pos1 = translate(0.0, map(sin(time*1e-1),-1.,1.,0.,-0.05), 0.0) * pos1;
         pos0.xy = pos0.xy / pos0.z;
         pos1.xy = pos1.xy / pos1.z;
         float a = atan(pos1.y - pos0.y, pos1.x - pos0.x);
         float pi75 = pi * 0.75;
         float pi25 = pi * 0.25;
+        float w = min(1.0, width / pos1.z / 3.);
         if (index == 0.) {
-            pos = pos0.xy + vec2(cos(a + pi75), sin(a + pi75)) * width;
+            pos = pos0.xy + vec2(cos(a + pi75), sin(a + pi75)) * w;
         } else if (index == 1.) {
-            pos = pos0.xy + vec2(cos(a - pi75), sin(a - pi75)) * width;
+            pos = pos0.xy + vec2(cos(a - pi75), sin(a - pi75)) * w;
         } else if (index == 2.) {
-            pos = pos1.xy + vec2(cos(a - pi25), sin(a - pi25)) * width;
+            pos = pos1.xy + vec2(cos(a - pi25), sin(a - pi25)) * w;
         } else if (index == 3.) {
-            pos = pos1.xy + vec2(cos(a + pi25), sin(a + pi25)) * width;
+            pos = pos1.xy + vec2(cos(a + pi25), sin(a + pi25)) * w;
         }
         pos.x *= ratio;
         gl_Position = vec4(pos.x, pos.y, 0.0, 1.);
-        posUnit = pos0.xyz;
-        wh = vec2(width * sin(pi75), length(pos1.xy - pos0.xy));
+        wh = vec2(w * sin(pi75), length(pos1.xy - pos0.xy));
         c = color;
         uvs = uv;
         t = time;
+        if (pos0.z < 0.01 || pos1.z < 0.01) {
+            discarded = 1.0; 
+        } else {
+            discarded = 0.0;
+        }
     }
     // endGLSL
 `;
@@ -659,6 +666,7 @@ smoothLine3D.fragText = `
     varying vec2 wh;
     varying float t;
     varying vec3 posUnit;
+    varying float discarded;
     float rand(vec2 co){
         return fract(sin(dot(co.xy ,vec2(12.9898,78.233))) * 43758.5453 * (2.0 + sin(co.x)));
     }
@@ -666,6 +674,9 @@ smoothLine3D.fragText = `
         return min2 + (value - min1) * (max2 - min2) / (max1 - min1);
     }
     void main(void) {
+        if (discarded == 1.0) {
+            discard;
+        }
         vec2 fc = gl_FragCoord.xy;
         vec2 pos = gl_PointCoord;
         float rando = rand(pos);
@@ -679,8 +690,8 @@ smoothLine3D.fragText = `
         col = min(col * -1. * (1. / radius), 1.0);
         col = pow(col, 3.) * 0.75 + pow(col, 43.);
         col = smoothstep(0., 1., col);
-        col = smoothstep(0., 1., col);
-        col = smoothstep(0., 1., col);
+        // col = smoothstep(0., 1., col);
+        // col = smoothstep(0., 1., col);
         // col = mix(pow(col, 10.)*0.25, col, sin(time*0.1+pos.y*0.5e1)*0.5+0.5);
                 // c2l =x(pow(col, 10.)*0.2, col, sin(t*0.1+pos.y*0.5e1)*0.5+0.5);
                 // col = mix(pow(col, 10.)*0.2, col, sin(-t*0.1+length(pos * vec2(16./9.,1.))*0.5e1)*0.5+0.5);
@@ -689,12 +700,15 @@ smoothLine3D.fragText = `
         gl_FragColor.b = pow(col, 2.) *  0.2;
         gl_FragColor.b += 0.05;
         // gl_FragColor.rgb *= 1.0-length(posUnit+vec2(0.0, 0.75)) * 1.;
-        vec3 light = posUnit - vec3(0.0, -1.1, 0.0);
-        float distSquared = 1.0 - dot(light, light) * 0.5;
+        vec3 light = posUnit - vec3(0.0, 0.1, 0.);
+        float distSquared = 1.0 - dot(light, light) * 1.5;
         // gl_FragColor.rgb *= 1.0 - posUnit.z;
+        distSquared = mix(distSquared, pow(max(0.0, distSquared), 4.0) * 2., 0.5);
         gl_FragColor.rgb *= distSquared;
+        // gl_FragColor.a *= smoothstep(0.2, 0.3, posUnit.z);
         // gl_FragColor.a = min(1., gl_FragColor.a + pow(col, 2.) *  0.25);
         gl_FragColor.rgb = gl_FragColor.gbr;
+        // gl_FragColor.a = pow(gl_FragColor.a, 0.5);
     }
     // endGLSL
 `;

@@ -300,22 +300,20 @@ draw = function() {
         }
     }
     blades.sort((a, b) => b[2] - a[2]);
-    for (let i = 0; i < blades.length; i++) {
+    for (let i = 700; i < blades.length; i++) {
         let b = blades[i];
         let alpha = map(b[2], 5, 0, 0.0, 1);
         let width = map(b[2], 5, 0, 1/50, 1/30);
         let sway = (Math.sin(drawCount*5e-2+b[1]*1e-3))*0.05;
-        if (i > 500) {
         add3DLine(
             b[0], 0,    b[2],
-            b[0]+sway, b[1], b[2],
-            1/5,
+            b[0], b[1], b[2],
+            1/4,
             1, 0, 0, 0.35
         );
-        }
         add3DLine(
             b[0], 0,    b[2],
-            b[0]+sway, b[1], b[2],
+            b[0], b[1], b[2],
             1/32,
             1, 0, 0, 1
         );
