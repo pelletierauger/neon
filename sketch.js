@@ -282,10 +282,30 @@ for (let i = 0; i < 1500; i++) {
 }
 blades.sort((a, b) => b[2] - a[2]);
 
+flakes = [];
+maps = function(n,sa1,so1,sa2,so2) {
+    return (n-sa1)/(so1-sa1)*(so2-sa2)+sa2;
+}
+for (let i = 0; i < 1500; i++) {
+    let x = Math.random() * 2 - 1;
+    // do {x = Math.random() * 2 - 1} while (Math.abs(x) < 0.1);
+    let y = maps(Math.random(), 0, 1, -0.5, 1);
+    let z = Math.random() * 1.5;
+    flakes.push([x, y, z, i])
+}
+flakes.sort((a, b) => b[2] - a[2]);
+
 sc = 0.75;
+clearPath = true;
+clearPathCounter = 0;
 draw = function() {
     gl.clear(gl.COLOR_BUFFER_BIT);
     reset3DLines();
+    clearPathCounter++;
+    if (clearPathCounter > 500) {
+        clearPath = !clearPath;
+        clearPathCounter = 0;
+    }
     // add3DLine(
     //     0, 0, 2,
     //     0, 0.5, 2,
@@ -298,13 +318,39 @@ draw = function() {
         if (blades[i][2] < -0.01) {
             blades[i][2] = 1.5;
             let x = Math.random() * 2 - 1;
-            do {x = Math.random() * 2 - 1} while (Math.abs(x) < 0.1);
+            if (clearPath) {
+                do {x = Math.random() * 2 - 1} while (Math.abs(x) < 0.1);
+            }
             blades[i][0] = x;
+        }
+        
+        flakes[i][2] -= 0.005;
+        flakes[i][1] -= 0.0025;
+        flakes[i][0] += Math.sin(flakes[i][3]*1e1)*0.5e-3;
+//         if (flakes[i][2] < -0.1) {
+//             flakes[i][2] = 2;
+//             let x = Math.random() * 2 - 1;
+//             flakes[i][0] = x;
+//         }
+//         if (flakes[i][1] < -0.5) {
+//             let y = 0.75;
+//             flakes[i][1] = y;
+            
+//         }
+        if (flakes[i][2] < -0.1 || flakes[i][1] < -0.5) {
+            flakes[i][2] = 1.5;
+            let x = Math.random() * 2 - 1;
+            flakes[i][0] = x;
+            let y = map(Math.random(), 0, 1, 0.5, 1.5);
+            flakes[i][1] = y;
+            
         }
     }
     blades.sort((a, b) => b[2] - a[2]);
-    for (let i = 500; i < blades.length; i++) {
+    flakes.sort((a, b) => b[2] - a[2]);
+    for (let i = 700; i < blades.length; i++) {
         let b = blades[i];
+        let f = flakes[i];
         let alpha = map(b[2], 5, 0, 0.0, 1);
         let width = map(b[2], 5, 0, 1/50, 1/30);
         let sway = (Math.sin(drawCount*5e-2+b[1]*1e-3))*0.05;
@@ -320,14 +366,17 @@ draw = function() {
             1/32,
             1, 0, 0, 1
         );
-        // vertices.push(b[0]+(Math.sin(drawCount*5e-2+i*1e-3))*0.01, b[1], b[2]);
+    }
+    for (let i = 400; i < flakes.length; i++) {
+        let f = flakes[i];
+        vertices.push(f[0], f[1], f[2]);
     }
     currentProgram = getProgram("smooth-line-3D");
     gl.useProgram(currentProgram);
     draw3DLines();
-    // currentProgram = getProgram("smooth-dots-3D");
-    // gl.useProgram(currentProgram);
-    // draw3DDots(currentProgram);
+    currentProgram = getProgram("smooth-dots-3D");
+    gl.useProgram(currentProgram);
+    draw3DDots(currentProgram);
     if (exporting && frameCount < maxFrames) {
         frameExport();
     }
@@ -706,5 +755,5 @@ draw3DDots = function(selectedProgram) {
     gl.uniform1f(timeUniformLocation, drawCount);
     let resolutionUniformLocation = gl.getUniformLocation(selectedProgram, "resolution");
     gl.uniform2f(resolutionUniformLocation, cnvs.width, cnvs.height);
-    gl.drawArrays(gl.POINTS, 0, num);
+    gl.drawArrays(gl.POINTS, 0, vertices.length / 3);
 };
