@@ -621,15 +621,15 @@ smoothLine3D.vertText = `
         pos1 = translate(0.0, 0., 1.5) * xRotate(pi*0.125) * translate(0.0, 0., -1.5) * pos1;
         // pos0 = translate(0.0, 0., 1.5) * xRotate(pi*0.1) * translate(0.0, 0., -1.5) * pos0;
         // pos1 = translate(0.0, 0., 1.5) * xRotate(pi*0.1) * translate(0.0, 0., -1.5) * pos1;
-        // pos0 = translate(0.0, -0.1, 0.0) * pos0;
-        // pos1 = translate(0.0, -0.1, 0.0) * pos1;
+        pos0 = translate(0.0, 0.4, 0.0) * pos0;
+        pos1 = translate(0.0, 0.4, 0.0) * pos1;
         // pos1 = translate(0.0, map(sin(time*1e-1),-1.,1.,0.,-0.05), 0.0) * pos1;
         pos0.xy = pos0.xy / pos0.z;
         pos1.xy = pos1.xy / pos1.z;
         float a = atan(pos1.y - pos0.y, pos1.x - pos0.x);
         float pi75 = pi * 0.75;
         float pi25 = pi * 0.25;
-        float w = min(1.0, width / pos1.z / 3.);
+        float w = min(1.0, width / pos1.z / 5.);
         if (index == 0.) {
             pos = pos0.xy + vec2(cos(a + pi75), sin(a + pi75)) * w;
         } else if (index == 1.) {

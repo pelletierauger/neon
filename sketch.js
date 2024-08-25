@@ -286,8 +286,8 @@ flakes = [];
 maps = function(n,sa1,so1,sa2,so2) {
     return (n-sa1)/(so1-sa1)*(so2-sa2)+sa2;
 };
-for (let i = 0; i < 1500; i++) {
-    let x = Math.random() * 2 - 1;
+for (let i = 0; i < 3500; i++) {
+    let x = Math.random() * 2 - 1.5;
     // do {x = Math.random() * 2 - 1} while (Math.abs(x) < 0.1);
     let y = maps(Math.random(), 0, 1, -0.5, 1);
     let z = Math.random() * 1.5;
@@ -298,6 +298,7 @@ flakes.sort((a, b) => b[2] - a[2]);
 sc = 0.75;
 clearPath = true;
 clearPathCounter = 0;
+windCount = 0;
 draw = function() {
     gl.clear(gl.COLOR_BUFFER_BIT);
     reset3DLines();
@@ -306,6 +307,7 @@ draw = function() {
         clearPath = !clearPath;
         clearPathCounter = 0;
     }
+    clearPath = true;
     // add3DLine(
     //     0, 0, 2,
     //     0, 0.5, 2,
@@ -314,6 +316,8 @@ draw = function() {
     // );
     vertices = [];
     for (let i = 0; i < blades.length; i++) {
+        let osc2 = (Math.sin(Math.abs(blades[i][0])*1+1+drawCount*0.5e-1)*0.5+0.5)*0.125;
+        
         blades[i][2] -= 0.0025 * 0.75;
         if (blades[i][2] < -0.01) {
             blades[i][2] = 1.5;
@@ -324,9 +328,16 @@ draw = function() {
             blades[i][0] = x;
         }
         
+    }
+    let wind = noise(drawCount * 1e-2);
+    windCount += wind;
+    for (let i = 0; i < flakes.length; i++) {
+        let osc2 = (Math.sin(Math.abs(flakes[i][0])*1+1+(windCount-24)*0.75e-1)*0.5+0.5)*0.125;
+        // osc2 = wind * 0.5;
         flakes[i][2] -= 0.005 * 0.75;
         flakes[i][1] -= 0.0025 * 0.75;
         flakes[i][0] += Math.sin(flakes[i][3]*1e1)*0.5e-3;
+        flakes[i][0] += osc2 * 0.05;
 //         if (flakes[i][2] < -0.1) {
 //             flakes[i][2] = 2;
 //             let x = Math.random() * 2 - 1;
@@ -337,9 +348,9 @@ draw = function() {
 //             flakes[i][1] = y;
             
 //         }
-        if (flakes[i][2] < -0.1 || flakes[i][1] < -0.5) {
+        if (flakes[i][2] < -0.1 || flakes[i][1] < -0.5 || flakes[i][0] > 1) {
             flakes[i][2] = 1.5;
-            let x = Math.random() * 2 - 1;
+            let x = Math.random() * 2 - 2;
             flakes[i][0] = x;
             let y = map(Math.random(), 0, 1, 0.5, 1.25);
             flakes[i][1] = y;
@@ -354,16 +365,22 @@ draw = function() {
         // let alpha = map(b[2], 5, 0, 0.0, 1);
         // let width = map(b[2], 5, 0, 1/50, 1/30);
         // let sway = (Math.sin(drawCount*5e-2+b[1]*1e-3))*0.05;
+        // let y = (Math.cos(Math.abs(b[0])*5+1+drawCount*0.5e-1)*0.5+0.5)*0.125;
+        // let x = (Math.sin(Math.abs(b[0])*5+1+drawCount*0.5e-1)*0.5+0.5)*0.125;
+        let x = Math.cos(Math.PI * (0.25 + (map(Math.cos(b[0]*2 + windCount*0.75e-1),-1,1,-0.2,0.2)))) * 0.35 * b[1];
+        let y = Math.sin(Math.PI * (0.25 + (map(Math.cos(b[0]*2 + windCount*0.75e-1),-1,1,-0.2,0.2)))) * 0.35 * b[1];
+        // x = Math.cos(Math.PI * (0.25 + (map(wind,0,1,0,-0.4)))+b[0]) * 0.35 * b[1];
+        // y = Math.sin(Math.PI * (0.25 + (map(wind,0,1,0,-0.4)))+b[0]) * 0.35 * b[1];
         if (Math.abs(b[0]) < 0.7) {
             add3DLine(
                 b[0], 0,    b[2],
-                b[0], b[1], b[2],
+                b[0]+x, y, b[2],
                 0.25,
                 1, 0, 0, 0.35
             );
             add3DLine(
                 b[0], 0,    b[2],
-                b[0], b[1], b[2],
+                b[0]+x, y, b[2],
                 0.03125,
                 1, 0, 0, 1
             );
