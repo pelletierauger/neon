@@ -285,7 +285,7 @@ blades.sort((a, b) => b[2] - a[2]);
 flakes = [];
 maps = function(n,sa1,so1,sa2,so2) {
     return (n-sa1)/(so1-sa1)*(so2-sa2)+sa2;
-}
+};
 for (let i = 0; i < 1500; i++) {
     let x = Math.random() * 2 - 1;
     // do {x = Math.random() * 2 - 1} while (Math.abs(x) < 0.1);
@@ -314,7 +314,7 @@ draw = function() {
     // );
     vertices = [];
     for (let i = 0; i < blades.length; i++) {
-        blades[i][2] -= 0.0025;
+        blades[i][2] -= 0.0025 * 0.75;
         if (blades[i][2] < -0.01) {
             blades[i][2] = 1.5;
             let x = Math.random() * 2 - 1;
@@ -324,8 +324,8 @@ draw = function() {
             blades[i][0] = x;
         }
         
-        flakes[i][2] -= 0.005;
-        flakes[i][1] -= 0.0025;
+        flakes[i][2] -= 0.005 * 0.75;
+        flakes[i][1] -= 0.0025 * 0.75;
         flakes[i][0] += Math.sin(flakes[i][3]*1e1)*0.5e-3;
 //         if (flakes[i][2] < -0.1) {
 //             flakes[i][2] = 2;
@@ -350,26 +350,27 @@ draw = function() {
     flakes.sort((a, b) => b[2] - a[2]);
     for (let i = 700; i < blades.length; i++) {
         let b = blades[i];
-        let f = flakes[i];
-        let alpha = map(b[2], 5, 0, 0.0, 1);
-        let width = map(b[2], 5, 0, 1/50, 1/30);
-        let sway = (Math.sin(drawCount*5e-2+b[1]*1e-3))*0.05;
-        add3DLine(
-            b[0], 0,    b[2],
-            b[0], b[1], b[2],
-            1/4,
-            1, 0, 0, 0.35
-        );
-        add3DLine(
-            b[0], 0,    b[2],
-            b[0], b[1], b[2],
-            1/32,
-            1, 0, 0, 1
-        );
+        // let f = flakes[i];
+        // let alpha = map(b[2], 5, 0, 0.0, 1);
+        // let width = map(b[2], 5, 0, 1/50, 1/30);
+        // let sway = (Math.sin(drawCount*5e-2+b[1]*1e-3))*0.05;
+        if (Math.abs(b[0]) < 0.7) {
+            add3DLine(
+                b[0], 0,    b[2],
+                b[0], b[1], b[2],
+                0.25,
+                1, 0, 0, 0.35
+            );
+            add3DLine(
+                b[0], 0,    b[2],
+                b[0], b[1], b[2],
+                0.03125,
+                1, 0, 0, 1
+            );
+        }
     }
     for (let i = 400; i < flakes.length; i++) {
-        let f = flakes[i];
-        vertices.push(f[0], f[1], f[2]);
+        vertices.push(flakes[i][0], flakes[i][1], flakes[i][2]);
     }
     currentProgram = getProgram("smooth-line-3D");
     gl.useProgram(currentProgram);
@@ -381,7 +382,7 @@ draw = function() {
         frameExport();
     }
     drawCount++;
-}
+};
 
 
 resetLines = function() {
