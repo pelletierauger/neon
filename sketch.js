@@ -341,7 +341,7 @@ draw = function() {
             flakes[i][2] = 1.5;
             let x = Math.random() * 2 - 1;
             flakes[i][0] = x;
-            let y = map(Math.random(), 0, 1, 0.5, 1.5);
+            let y = map(Math.random(), 0, 1, 0.5, 1.25);
             flakes[i][1] = y;
             
         }
