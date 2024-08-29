@@ -14,6 +14,7 @@ smoothLine.vertText = `
     varying vec2 uvs;
     varying vec2 wh;
     varying float t;
+    varying float a;
     vec2 rotateUV(vec2 uv, float rotation, float mid) {
         return vec2(
           cos(rotation) * (uv.x - mid) + sin(rotation) * (uv.y - mid) + mid,
@@ -37,7 +38,7 @@ smoothLine.vertText = `
         // pos1 += vec2(
         //     cos(pos0.x*pos0.y*400.+time*1.1*sign(pos.x*pos1.y*400.)), 
         //     sin(pos1.x*pos1.y*400.+time*1.1*sign(pos.x*pos1.y*400.)))*0.0025;
-        float a = atan(pos1.y - pos0.y, pos1.x - pos0.x);
+        a = atan(pos1.y - pos0.y, pos1.x - pos0.x);
         float pi75 = pi * 0.75;
         float pi25 = pi * 0.25;
         if (index == 0.) {
@@ -62,10 +63,12 @@ smoothLine.vertText = `
 smoothLine.fragText = `
     // beginGLSL
     precision mediump float;
+    #define pi 3.1415926535897932384626433832795
     varying vec4 c;
     varying vec2 uvs;
     varying vec2 wh;
     varying float t;
+    varying float a;
     float rand(vec2 co){
         return fract(sin(dot(co.xy ,vec2(12.9898,78.233))) * 43758.5453 * (2.0 + sin(co.x)));
     }
@@ -88,11 +91,13 @@ smoothLine.fragText = `
         col = smoothstep(0., 1., col);
         // col = mix(pow(col, 10.)*0.25, col, sin(time*0.1+pos.y*0.5e1)*0.5+0.5);
                 // col = mix(pow(col, 10.)*0.2, col, sin(t*0.1+pos.y*0.5e1)*0.5+0.5);
-                col = mix(pow(col, 10.)*0.2, col, sin(-t*0.1+length(pos * vec2(16./9.,1.))*0.5e1)*0.5+0.5);
+        col *= mix(0.25, 1., sin(-t*0.05+length(pos * vec2(16./9.,1.))*0.5e1)*0.5+0.5);
+        // float cc = mix(0.25, 1., sin(-t*5e-2+length(pos * vec2(16./9.,1.))*0.5e1)*0.5+0.5);
+        // cc = map(sin(abs(a)*2.+ t * 0.025),-1.,1.,0.125,1.);
         gl_FragColor = vec4(c.rgb, c.a * (max(col, 0.) - (rando * 0.05)));
-        gl_FragColor.g = pow(col, 2.) *  0.2;
-        gl_FragColor.b = pow(col, 2.) *  0.2;
-        gl_FragColor.a = min(1., gl_FragColor.a + pow(col, 2.) *  0.25);
+        // gl_FragColor.g = 0.2;
+        // gl_FragColor.b = 0.2;
+        // gl_FragColor.a = min(1., gl_FragColor.a + pow(col, 2.) *  0.25);
         // gl_FragColor.rgb = gl_FragColor.gbr;
     }
     // endGLSL
@@ -177,7 +182,8 @@ smoothDots.vertText = `
         pos.x *= resolution.y / resolution.x;
         gl_Position = vec4(pos.x, pos.y, 0.0, 1.0);
         gl_PointSize = 15.;
-        gl_PointSize += (sin((length(coordinates*20.)*0.2-time*2e-1))*0.5+0.5)*14.;
+        gl_PointSize += (sin((length(coordinates*20.)*0.2-time*1e-1))*0.5+0.5)*14.;
+        gl_PointSize /= 1.0 - length(pos * vec2(resolution.x / resolution.y, 1.)) * 0.35;
     }
     // endGLSL
 `;

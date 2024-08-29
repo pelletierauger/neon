@@ -20,7 +20,8 @@ function setup() {
     // cnvs = createCanvas(windowWidth, windowWidth / 16 * 9, WEBGL);
     noCanvas();
     cnvs = document.getElementById('my_Canvas');
-    gl = cnvs.getContext('webgl', { preserveDrawingBuffer: true });
+    // gl = cnvs.getContext('webgl', { preserveDrawingBuffer: true });
+    gl = cnvs.getContext('webgl', {antialias: false, depth: false});
     // canvasDOM = document.getElementById('my_Canvas');
     // canvasDOM = document.getElementById('defaultCanvas0');
     // gl = canvasDOM.getContext('webgl');
@@ -220,154 +221,62 @@ makeTree = function() {
 
 sc = 0.75;
 draw = function() {
-    // for (let i = 0; i < 5; i++) {
-    //     makeTree();  
-    // }
+        gl.clear(gl.COLOR_BUFFER_BIT);
     resetLines();
-    // addLine(0, 0, 1, 0, 0.25);
-    // for (let i = 0; i < 100; i++) {
-    //     addLine(field[i][0], field[i][1], field[i+1][0], field[i+1][1], 1/16);
-    // }    
-    // for (let i = 0; i < pairs.length; i++) {
-    //     addLine(
-    //         pairs[i][0][0], 
-    //         pairs[i][0][1], 
-    //         pairs[i][1][0], 
-    //         pairs[i][1][1], 
-    //         1/5,
-    //         1, 0, 0, 0.25
-    //     );
-    // }
-    // for (let i = 0; i < pairs.length; i++) {
-    // let sc = 0.75;
-    sc += 0.001;
-    if (sc > 1) {sc = 0.75};
-    for (let x = 0; x < 1; x += 1/10) {
-        let y = 1;
-        addLine(
-            (x - 0.5) * 1.5 * sc, 
-            y * 0.75 * sc, 
-            (x - 0.5) * 1.5 * sc, 
-            -y * 0.75 * sc, 
-            1/5,
-            1, 0, 0, 0.6
-        );
-        addLine(
-            (x - 0.5) * 1.5 * sc, 
-            y * 0.75 * sc, 
-            (x - 0.5) * 1.5 * sc, 
-            -y * 0.75 * sc, 
-            1/25,
-            1, 0, 0, 1
-        );
+    dotPositions = [];
+    let increment = (Math.PI * 2) / 1500;
+    let t = drawCount;
+    let k = 0;
+    let curve = map(Math.sin(drawCount * 0.025), -1, 1, 0.95, 1.05);
+    let otherLines = [];
+    for (let i = 0; i < (Math.PI * 2) - increment; i += increment) {
+        r = map(Math.sin(i * 5), -1, 1, curve, 1) * 50;
+        x = Math.cos(i) * r;
+        y = Math.sin(i) * r;
+        if (k % 10 == 0) {
+            let j = i + increment;
+            let r2 = map(Math.sin(j * 5), -1, 1, curve, 1) * 50;
+            let x2 = Math.cos(j) * r2;
+            let y2 = Math.sin(j) * r2;
+            let slope = (y2 - y) / (x2 - x);
+            let scale = 0.5e-2;
+            let offset = 750;
+            let x0 = (x - offset) * scale;
+            let x3 = (x2 + offset) * scale;
+            let y0 = (y - offset * slope) * scale;
+            let y3 = (y2 + offset * slope) * scale;
+            // addLine(
+            //     x0, y0, x3, y3, 1/5,
+            //     1, 0, 0, 0.1
+            // );
+            // otherLines.push(x0, y0, x3, y3);
+            // addLine(
+            //     x0, y0, x3, y3, 1/25,
+            //     1, 0.2, 0.2, 1
+            // );
+            // for (let ii = 0; ii < 100; ii++) {
+            //     let l = ii / 100;
+            //     let x00 = lerp(x0, x3, l);
+            //     let y00 = lerp(y0, y3, l);
+            //     dotPositions.push(x00, y00);
+            // }
+            addLine(
+                x0, y0, x3, y3, 1/45,
+                1, 0.1, 0.1, 1
+            );
+        }
+        // vertices.push(x, y);
+        k++;
     }
-    for (let y = 0; y < 1; y += 1/10) {
-        let x = 0;
-        addLine(
-            (x - 1) * 0.75 * sc, 
-            (y - 0.5) * 1.5 * sc, 
-            (x + 1) * 0.75 * sc, 
-            (y - 0.5) * 1.5 * sc, 
-            1/5,
-            1, 0, 0, 0.6
-        );
-        addLine(
-            (x - 1) * 0.75 * sc, 
-            (y - 0.5) * 1.5 * sc, 
-            (x + 1) * 0.75 * sc, 
-            (y - 0.5) * 1.5 * sc, 
-            1/25,
-            1, 0, 0, 1
-        );
-    }
-    for (let y = 0; y < 1; y += 1/10) {
-        let x = -0.75;
-        let yy = map(y, 0, 1, 0.75, -0.75);
-        let y2 = map(y, 0, 1, 1.57, -1.57);
-        addLine(
-            x * sc, 
-            (yy) * sc, 
-            (x - 1.75) * sc, 
-            (yy+y2) * sc, 
-            1/5,
-            1, 0, 0, 0.6
-        );
-        addLine(
-            x * sc, 
-            (yy) * sc, 
-            (x - 1.75) * sc, 
-            (yy+y2) * sc, 
-            1/25,
-            1, 0, 0, 1
-        );
-        x = 0.75;
-        addLine(
-            x * sc, 
-            (yy) * sc, 
-            (x + 1.75) * sc, 
-            (yy+y2) * sc, 
-            1/5,
-            1, 0, 0, 0.6
-        );
-        addLine(
-            x * sc, 
-            (yy) * sc, 
-            (x + 1.75) * sc, 
-            (yy+y2) * sc, 
-            1/25,
-            1, 0, 0, 1
-        );
-    }
-    for (let x = 0; x < 1; x += 1/10) {
-        let y = -0.75;
-        let xx = map(x, 0, 1, 0.75, 1.5);
-        xx = Math.pow(xx, 2) + 0.28;
-        let yy = map(x, 0, 1, 0.825, 2);
-        addLine(
-            xx * sc, 
-            (yy) * sc, 
-            xx * sc, 
-            (-yy) * sc, 
-            1/5,
-            1, 0, 0, 0.6
-        );
-        addLine(
-            xx * sc, 
-            (yy) * sc, 
-            xx * sc, 
-            (-yy) * sc, 
-            1/25,
-            1, 0, 0, 1
-        );
-                addLine(
-            -xx * sc, 
-            (yy) * sc, 
-            -xx * sc, 
-            (-yy) * sc, 
-            1/5,
-            1, 0, 0, 0.6
-        );
-        addLine(
-            -xx * sc, 
-            (yy) * sc, 
-            -xx * sc, 
-            (-yy) * sc, 
-            1/25,
-            1, 0, 0, 1
-        );
-    }
-        //     for (let y = 0; y < 1; y += 1/10) {
-        //     addLine(
-        //         x, 
-        //         y, 
-        //         x, 
-        //         x, 
-        //         1/5,
-        //         1, 0, 0, 1
-        //     );
-        // }
-    // }
-    // addLine(0.9, 0.9, 0.9, -0.9, 1/15);
+//     for (let i = 0; i < otherLines.length; i+=4) {
+//         let l = otherLines[i];
+        
+//         addLine(
+//             otherLines[i], otherLines[i+1], 
+//             otherLines[i+2], otherLines[i+3], 1/45,
+//             1, 0.1, 0.1, 1 
+//         );
+//     }
     currentProgram = getProgram("smooth-line");
     gl.useProgram(currentProgram);
     drawLines();
@@ -491,7 +400,6 @@ drawLines = function() {
     gl.uniform2f(resolutionUniformLocation, cnvs.width, cnvs.height);    
     timeUniformLocation = gl.getUniformLocation(currentProgram, "time");
     gl.uniform1f(timeUniformLocation, drawCount);
-    gl.clear(gl.COLOR_BUFFER_BIT);
     gl.drawElements(gl.TRIANGLES, indices.length, gl.UNSIGNED_SHORT, 0);
 };
 
@@ -546,16 +454,16 @@ function keyPressed() {
 
 
 drawAlligatorQuiet = function(selectedProgram) {
-    vertices = [];
-    num=0;
-    for (let i = 0; i < 500; i++) {
-        let x = Math.cos(i-drawCount) * i * 9e-4 * sc;
-        let y = Math.sin(i-drawCount) * i * 9e-4 * sc;
-        vertices.push(x, y);
-        num++;
-    }
+    // vertices = [];
+    // num=0;
+    // for (let i = 0; i < 500; i++) {
+    //     let x = Math.cos(i-drawCount) * i * 9e-4 * sc;
+    //     let y = Math.sin(i-drawCount) * i * 9e-4 * sc;
+    //     vertices.push(x, y);
+    //     num++;
+    // }
     gl.bindBuffer(gl.ARRAY_BUFFER, dots_buffer);
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(dotPositions), gl.STATIC_DRAW);
     // Get the attribute location
     var coord = gl.getAttribLocation(selectedProgram, "coordinates");
     // Point an attribute to the currently bound VBO
@@ -566,5 +474,5 @@ drawAlligatorQuiet = function(selectedProgram) {
     gl.uniform1f(timeUniformLocation, drawCount);
     let resolutionUniformLocation = gl.getUniformLocation(selectedProgram, "resolution");
     gl.uniform2f(resolutionUniformLocation, cnvs.width, cnvs.height);
-    gl.drawArrays(gl.POINTS, 0, num);
+    gl.drawArrays(gl.POINTS, 0, dotPositions.length/2);
 }
