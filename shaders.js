@@ -180,10 +180,11 @@ smoothDots.vertText = `
         //     cos(pos.x*pos.y*400.+time*1.1*sign(pos.x*pos.y*400.)), 
         //     sin(pos.x*pos.y*400.+time*1.1*sign(pos.x*pos.y*400.)))*0.0025;
         pos.x *= resolution.y / resolution.x;
+        // pos *= 5.;
         gl_Position = vec4(pos.x, pos.y, 0.0, 1.0);
-        gl_PointSize = 15.;
-        gl_PointSize += (sin((length(coordinates*20.)*0.2-time*1e-1))*0.5+0.5)*14.;
-        gl_PointSize /= 1.0 - length(pos * vec2(resolution.x / resolution.y, 1.)) * 0.35;
+        gl_PointSize = 25.;
+        // gl_PointSize += (sin((length(coordinates*20.)*0.2-time*1e-1))*0.5+0.5)*14.;
+        // gl_PointSize /= 1.0 - length(pos * vec2(resolution.x / resolution.y, 1.)) * 0.35;
     }
     // endGLSL
 `;

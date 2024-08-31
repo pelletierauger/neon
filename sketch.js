@@ -16,6 +16,7 @@ let reached, unreached;
 
 function setup() {
     socket = io.connect('http://localhost:8080');
+    socket.on('receiveOSC', receiveOSC);
     pixelDensity(1);
     // cnvs = createCanvas(windowWidth, windowWidth / 16 * 9, WEBGL);
     noCanvas();
@@ -73,15 +74,15 @@ function setup() {
     if (!looping) {
         noLoop();
     }
-    setTimeout(function() {
-        scdConsoleArea.setAttribute("style", "display:block;");
-        scdArea.style.display = "none";
-        scdConsoleArea.setAttribute("style", "display:none;");
-        jsCmArea.style.height = "685px";
-        jsArea.style.display = "block";
-        displayMode = "js";
-        javaScriptEditor.cm.refresh();
-    }, 1);
+    // setTimeout(function() {
+    //     scdConsoleArea.setAttribute("style", "display:block;");
+    //     scdArea.style.display = "none";
+    //     scdConsoleArea.setAttribute("style", "display:none;");
+    //     jsCmArea.style.height = "685px";
+    //     jsArea.style.display = "block";
+    //     displayMode = "js";
+    //     javaScriptEditor.cm.refresh();
+    // }, 1);
     setTimeout( function() {
         keysControl.addEventListener("mouseenter", function(event) {
             document.body.style.cursor = "none";
@@ -123,170 +124,53 @@ function setup() {
             }   
         }, false);
     }, 1);
-    makeField = function() {
-        field = [];
-        let n = 400;
-        for (var i = 0; i < n; i++) {
-            let x = Math.cos(i*1e2*Math.sin(i*1e2)+(Math.random()*1e4))*i/n * 2;
-            let y = Math.sin(i*1e2*Math.sin(i*1e2)+(Math.random()*1e4))*i/n * 2;
-            // x = Math.random()*2-1;
-            // y = Math.random()*2-1;
-            x *= cnvs.width/cnvs.height;
-            field.push([x, y]);
-        }
-        reached = [];
-        unreached = field.slice();
-        reached.push(unreached[Math.floor(Math.random()*unreached.length)]);
-        unreached.splice(0, 1);
-        pairs = [];
-    };
-    makeField();
+}
+
+receiveOSC = function(data) {
+    // console.log("yooooo!");
+    // console.log(data);
+    // console.log([data.args[0].value, data.args[1].value]);
+    // dotPositions.push(data.args[0].value, data.args[1].value);
+    for (let i = 0; i < data.args.length; i += 2) {
+        dotPositions.push(data.args[i].value, data.args[i+1].value);
+    }
+    // if (data.address == "/dot") {
+    //     amplitude = data.args[0].value;
+    // } else if (data.address == "/amplitude2") {
+    //     amplitude2 = data.args[0].value;
+    // }
+    // console.log(dotPositions.length/2);
+    // draw();
+    requestAnimationFrame(draw);
+    // console.log(data.address);
 }
 
 if (false) {
 
-makeField = function() {
-    field = [];
-    for (let x = -(16/9); x < (16/9); x+= 0.075) {
-        for (let y = -1; y < 1; y += 0.075) {
-            if (Math.random() < 0.25) {
-               field.push([x, y]); 
-            }
-            
-        }
-    }
-    reached = [];
-    unreached = field.slice();
-    reached.push(unreached[Math.floor(Math.random()*unreached.length)]);
-    unreached.splice(0, 1);
-    pairs = [];
-};
-makeField();
-
-makeField = function() {
-    field = [];
-    let n = 400;
-    for (var i = 0; i < n; i++) {
-        let x = Math.cos(i*1e2*Math.sin(i*1e2)+(Math.random()*1e4))*i/n * 2;
-        let y = Math.sin(i*1e2*Math.sin(i*1e2)+(Math.random()*1e4))*i/n * 2;
-        // x = Math.random()*2-1;
-        // y = Math.random()*2-1;
-        x *= cnvs.width/cnvs.height;
-        field.push([x, y]);
-    }
-    reached = [];
-    unreached = field.slice();
-    reached.push(unreached[Math.floor(Math.random()*unreached.length)]);
-    unreached.splice(0, 1);
-    pairs = [];
-};
-makeField();
+socket.off('receiveOSC');
+socket.on('receiveOSC', receiveOSC);
 
 }
 
-makeTree = function() {
-    if (unreached.length > 0) {
-        let record = Infinity;
-        var rIndex;
-        var uIndex;
-        let found = false;
-        for (var i = 0; i < reached.length; i++) {
-          for (var j = 0; j < unreached.length; j++) {
-            var v1 = reached[i];
-            var v2 = unreached[j];
-            var d = dist(v1[0], v1[1], v2[0], v2[1]);
-              if (d < record) {
-              record = d;
-              rIndex = i;
-              uIndex = j;
-              found = true;
-            }
-          }
-        }
-        if (found) {
-            pairs.push([reached[rIndex], unreached[uIndex]]);
-            reached.push(unreached[uIndex]);
-            unreached.splice(uIndex, 1);
-        }
-    } else {
-        makeField();
-    }
-};
-
-// makeTree();
-
-// for (let i =0; i < 100; i++) {
-//     makeTree();
-// }
-
-sc = 0.75;
+dotPositions = [];
 draw = function() {
-        gl.clear(gl.COLOR_BUFFER_BIT);
+    gl.clear(gl.COLOR_BUFFER_BIT);
     resetLines();
-    dotPositions = [];
-    let increment = (Math.PI * 2) / 1500;
-    let t = drawCount;
-    let k = 0;
-    let curve = map(Math.sin(drawCount * 0.025), -1, 1, 0.95, 1.05);
-    let otherLines = [];
-    for (let i = 0; i < (Math.PI * 2) - increment; i += increment) {
-        r = map(Math.sin(i * 5), -1, 1, curve, 1) * 50;
-        x = Math.cos(i) * r;
-        y = Math.sin(i) * r;
-        if (k % 10 == 0) {
-            let j = i + increment;
-            let r2 = map(Math.sin(j * 5), -1, 1, curve, 1) * 50;
-            let x2 = Math.cos(j) * r2;
-            let y2 = Math.sin(j) * r2;
-            let slope = (y2 - y) / (x2 - x);
-            let scale = 0.5e-2;
-            let offset = 750;
-            let x0 = (x - offset) * scale;
-            let x3 = (x2 + offset) * scale;
-            let y0 = (y - offset * slope) * scale;
-            let y3 = (y2 + offset * slope) * scale;
-            // addLine(
-            //     x0, y0, x3, y3, 1/5,
-            //     1, 0, 0, 0.1
-            // );
-            // otherLines.push(x0, y0, x3, y3);
-            // addLine(
-            //     x0, y0, x3, y3, 1/25,
-            //     1, 0.2, 0.2, 1
-            // );
-            // for (let ii = 0; ii < 100; ii++) {
-            //     let l = ii / 100;
-            //     let x00 = lerp(x0, x3, l);
-            //     let y00 = lerp(y0, y3, l);
-            //     dotPositions.push(x00, y00);
-            // }
-            addLine(
-                x0, y0, x3, y3, 1/45,
-                1, 0.1, 0.1, 1
-            );
-        }
-        // vertices.push(x, y);
-        k++;
-    }
-//     for (let i = 0; i < otherLines.length; i+=4) {
-//         let l = otherLines[i];
-        
-//         addLine(
-//             otherLines[i], otherLines[i+1], 
-//             otherLines[i+2], otherLines[i+3], 1/45,
-//             1, 0.1, 0.1, 1 
-//         );
-//     }
-    currentProgram = getProgram("smooth-line");
-    gl.useProgram(currentProgram);
-    drawLines();
-    // currentProgram = getProgram("smooth-dots");
+    // currentProgram = getProgram("smooth-line");
     // gl.useProgram(currentProgram);
-    // drawAlligatorQuiet(currentProgram);
+    // drawLines();
+    // console.log(dotPositions.length/2);
+    // dotPositions.push(Math.cos(drawCount), Math.sin(drawCount));
+    currentProgram = getProgram("smooth-dots");
+    gl.useProgram(currentProgram);
+    drawDots(currentProgram);
+    dotPositions = [];
     if (exporting && frameCount < maxFrames) {
         frameExport();
     }
     drawCount++;
+    // console.log(((Date.now() - t) / 1000));
+    // t = Date.now();
 }
 
 
@@ -453,15 +337,7 @@ function keyPressed() {
 }
 
 
-drawAlligatorQuiet = function(selectedProgram) {
-    // vertices = [];
-    // num=0;
-    // for (let i = 0; i < 500; i++) {
-    //     let x = Math.cos(i-drawCount) * i * 9e-4 * sc;
-    //     let y = Math.sin(i-drawCount) * i * 9e-4 * sc;
-    //     vertices.push(x, y);
-    //     num++;
-    // }
+drawDots = function(selectedProgram) {
     gl.bindBuffer(gl.ARRAY_BUFFER, dots_buffer);
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(dotPositions), gl.STATIC_DRAW);
     // Get the attribute location
