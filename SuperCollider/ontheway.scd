@@ -1227,3 +1227,59 @@ BufWr.ar(sig, b, Phasor.ar(0, BufRateScale.kr(b), 0, BufFrames.kr(b)));
 }.play;
 )
 (0..5)
+
+
+
+(
+x.free;
+x = {
+    var t = Impulse.ar(1);
+    var t2 = Impulse.ar(8);
+    var b = t2 * Demand.ar(t2, 0, Dseq([1, 0, 0, 1, 0, 0, 1, 0], inf));
+    var b2 = t2 * Demand.ar(t2, 0, Dseq([1, 0, 1, 1], inf));
+    var dd = Demand.ar(t2, 0, Drand([0.01, 0.05], inf));
+    var env = EnvGen.ar(Env([0, 1, 0], [0.001, dd], -6), gate: [b, b2]);
+    var snare = [WhiteNoise.ar(env[0]), PinkNoise.ar(env[1])*2];
+    var d = Demand.ar(t, 0, Dseq((1..12), inf)).lag(0.8);
+    var i = Phasor.ar(0, 1/(220))*2pi;
+    var osc = sin(i*d).range(0.5, 1);
+    var sig = [cos(i), sin(i)] * osc * 0.9;
+    sig = sig + snare;
+    BufWr.ar(sig, b, Phasor.ar(0, BufRateScale.kr(b), 0, BufFrames.kr(b)));
+    0.0;
+}.play;
+)
+
+
+(
+x.free;
+x = {
+    var t = Impulse.ar(220);
+    var t2 = Impulse.ar(2);
+    var t3 = Impulse.ar(8);
+    var b = t3 * Demand.ar(t3, 0, Dseq([1, 0, 0, 1, 0, 0, 1, 0], inf));
+    var b2 = t3 * Demand.ar(t3, 0, Dseq([1, 0, 1, 1], inf));
+    var dd = Demand.ar(t2, 0, Drand([0.01, 0.05], inf));
+    var env = EnvGen.ar(Env([0, 1, 0], [0.001, dd], -6), gate: [b, b2]);
+    var snare = [WhiteNoise.ar(env[0]), PinkNoise.ar(env[1])*2];
+    var d = Demand.ar(t, 0, Dseq((0..5).linlin(0,5,-1,1), inf));
+    var d2 = Demand.ar(t2, 0, Dseq([0, 3, 5, 7, 0, 3, 7, 5].midiratio, inf)).lag(0.1);
+    var d3 = Demand.ar(t, 0, Dseq([1, 2, 3, 5, 7, 8], inf)).lag(0.1);
+    var sig = [d, SinOsc.ar(110*d2)] * 0.9;
+    // sig[0] = sig[0] + ((floor(sig[1]*5)%5)*WhiteNoise.ar(0.05));
+    var x = sig[1];
+    var cut = 0.4;
+    var slice = max(0, (x*2+SinOsc.ar(0.0005).range(0,500))%1-(1-cut))*(1/cut);
+    var dir = ((x*2+SinOsc.ar(0.0005).range(0,500))% 2) * 2 - 3;
+    var y = sig[1];
+    slice = pow(slice, 4);
+    sig[0] = sig[0] + (slice*0.2*SinOsc.ar(0.4)*dir);
+    // sig[0] = dir;
+    sig[0] = sig[0] * (1.0-(y*0.5+0.5*0.5 * SinOsc.ar(0.1)))*1.5;
+    // sig[0] = SinOsc.ar(220+sig[0]*1000);
+    // sig = LPF.ar(sig, 5500);
+    sig = sig + snare;
+    BufWr.ar(sig, b, Phasor.ar(0, BufRateScale.kr(b), 0, BufFrames.kr(b)));
+    0.0;
+}.play;
+)
