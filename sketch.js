@@ -319,16 +319,16 @@ draw = function() {
     currentProgram = getProgram("holy-hills");
     gl.useProgram(currentProgram);
     drawRectangle(currentProgram, -1, -1, 1, 1);
-    currentProgram = getProgram("smooth-dots-3D");
-    gl.useProgram(currentProgram);
-    draw3DDots(currentProgram);
-    // console.log(lineAmount);
+   // console.log(lineAmount);
     if (indices.length) {
         currentProgram = getProgram("smooth-line-3D");
         gl.useProgram(currentProgram);
         draw3DLines();
     }
-    if (exporting && frameCount < maxFrames) {
+    currentProgram = getProgram("smooth-dots-3D");
+    gl.useProgram(currentProgram);
+    draw3DDots(currentProgram);
+     if (exporting && frameCount < maxFrames) {
         frameExport();
     }
     drawCount++;
