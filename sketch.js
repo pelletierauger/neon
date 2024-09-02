@@ -147,10 +147,11 @@ function setup() {
         unreached.splice(0, 1);
         pairs = [];
     };
-    makeField();
+    // makeField();
     // for (let i = 0; i < 10; i++) {
     //     makeTree3D();
     // }
+    makeField3D();
     do {
         makeTree3D();
     } while(unreached3D.length > 0.0);
@@ -207,13 +208,14 @@ makeField3D = function() {
     }
     reached3D = [];
     unreached3D = field3D.slice();
-    reached3D.push(unreached3D[Math.floor(Math.random()*unreached3D.length)]);
-    unreached3D.splice(0, 1);
+    let firstReached = Math.floor(Math.random()*unreached3D.length);
+    reached3D.push(unreached3D[firstReached]);
+    unreached3D.splice(firstReached, 1);
     pairs3D = [];
     vertices = [].concat.apply([], field3D);
     num = n;
 };
-makeField3D();
+// makeField3D();
 
 
 makeTree = function() {
