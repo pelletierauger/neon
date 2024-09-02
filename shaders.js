@@ -616,9 +616,11 @@ smoothLine3D.vertText = `
         vec2 pos = vec2(0., 0.);
         vec4 pos0 = vec4(coordinatesA, 1.);
         vec4 pos1 = vec4(coordinatesB, 1.);
-        posUnit = pos0.xyz;
         // pos0.xyz *= map(sin(time *1e-1+pos0.y*2.), -1., 1., 0.95, 1.0);
         // pos1.xyz *= map(sin(time *1e-1+pos1.y*2.), -1., 1., 0.95, 1.0);
+        pos0.xyz *= map(sin(pos0.y*5.-time*0.5e-1)*0.5+0.5, 0., 1., 1.0, 0.95);
+        pos1.xyz *= map(sin(pos1.y*5.-time*0.5e-1)*0.5+0.5, 0., 1., 1.0, 0.95);
+        posUnit = pos0.xyz;
         // pos0.xyz *= 0.15
         // pos1.xyz *= 0.1;
         pos0 = yRotate(-time*0.25e-2) * pos0;
@@ -685,8 +687,8 @@ smoothLine3D.fragText = `
         radius *= 2. - (1. - shimmer);
         float col = length(max(abs(uv), size) - size) - radius;
         col = min(col * -1. * (1. / radius), 1.0);
-        // col = pow(col, 3.) * 0.75 + pow(col, 43.);
-        col = pow(col, 3.) * 0.75 * (1.0 + shimmer) + pow(col, 43.);
+        col = pow(col, 3.) * 0.75 + pow(col, 43.);
+        // col = pow(col, 3.) * 0.75 * (1.0 + shimmer) + pow(col, 43.);
         col = smoothstep(0., 1., col);
         col = smoothstep(0., 1., col);
         // col = mix(pow(col, 10.)*0.25, col, sin(time*0.1+pos.y*0.5e1)*0.5+0.5);
@@ -1084,6 +1086,7 @@ smoothDots3D.vertText = `
         // pos = translate(0.0, 0., 0.5) * yRotate(time*2e-2) * xRotate(time*2e-2) * translate(0.0, 0., -0.5) * pos;
         // pos.xyz *= map(sin(time *1e-1+pos.y*2.), -1., 1., 0.95, 1.0);
         // pos.xyz *= 1.25;
+        pos.xyz *= map(sin(pos.y*5.-time*0.5e-1)*0.5+0.5, 0., 1., 1.0, 0.95);
         posUnit = pos.xyz;
         pos = yRotate(-time*0.25e-2) * pos;
         pos = xRotate(time*0.25e-2) * pos;
@@ -1111,6 +1114,9 @@ smoothDots3D.fragText = `
         return fract(sin(dot(co.xy ,vec2(12.9898,78.233))) * 43758.5453 * (2.0 + sin(co.x)));
     }
     void main(void) {
+        if (posUnit2.z > 2.5) {
+            discard;
+        }
         vec2 fc = gl_FragCoord.xy;
         vec2 pos = gl_PointCoord;
         float distSquared = 1.0 - dot(pos - 0.5, pos - 0.5) * 0.5;

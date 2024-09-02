@@ -147,10 +147,11 @@ function setup() {
         unreached.splice(0, 1);
         pairs = [];
     };
-    makeField();
+    // makeField();
     // for (let i = 0; i < 10; i++) {
     //     makeTree3D();
     // }
+    makeField3D();
     do {
         makeTree3D();
     } while(unreached3D.length > 0.0);
@@ -212,9 +213,31 @@ makeField3D = function() {
     unreached3D.splice(firstReached, 1);
     pairs3D = [];
     vertices = [].concat.apply([], field3D);
+    vertices3 = [].concat.apply([], vertices);
+    verticesAlt = [];
+    for (let i = 0; i < vertices.length; i++) {
+        vertices3.push(vertices[i] * 1.2);
+        verticesAlt.push(vertices[i] * 1.2);
+    }
+    for (let i = 0; i < vertices.length; i++) {
+        vertices3.push(vertices[i] * 1.4);
+        verticesAlt.push(vertices[i] * 1.4);
+    }
+    newPairs3D = [];
+    do {
+        let r0 = Math.floor(Math.random()*verticesAlt.length/3);
+        let r1; 
+        do {r1 = Math.floor(Math.random()*verticesAlt.length/3)} while (r1 == r0);
+        let a = [verticesAlt[r0*3], verticesAlt[r0*3+1], verticesAlt[r0*3+2]];
+        let b = [verticesAlt[r1*3], verticesAlt[r1*3+1], verticesAlt[r1*3+2]];
+        let d = dist(a[0], a[1], a[2], b[0], b[1], b[2]);
+        if (d < 0.15) { 
+            newPairs3D.push([a, b]);
+        }
+    } while(newPairs3D.length < 300);
     num = n;
 };
-makeField3D();
+
 
 
 makeTree = function() {
@@ -297,6 +320,21 @@ draw = function() {
             pairs3D[i][1][0], 
             pairs3D[i][1][1], 
             pairs3D[i][1][2], 
+            1/15,
+            1, 0, 0, 1
+        );
+    // }
+    }
+        for (let i = 0; i < newPairs3D.length; i++) {
+    // if (pairs3D.length > 12) {
+    // for (let i = 2; i < 3; i++) {
+        add3DLine(
+            newPairs3D[i][0][0], 
+            newPairs3D[i][0][1], 
+            newPairs3D[i][0][2], 
+            newPairs3D[i][1][0], 
+            newPairs3D[i][1][1], 
+            newPairs3D[i][1][2], 
             1/15,
             1, 0, 0, 1
         );
@@ -700,7 +738,7 @@ function randomPointOnSphere(x0 = 0, y0 = 0, z0 = 0, radius = 1) {
 
 draw3DDots = function(selectedProgram) {
     gl.bindBuffer(gl.ARRAY_BUFFER, dots_buffer);
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices3), gl.STATIC_DRAW);
     // Get the attribute location
     var coord = gl.getAttribLocation(selectedProgram, "coordinates");
     // Point an attribute to the currently bound VBO
@@ -711,7 +749,7 @@ draw3DDots = function(selectedProgram) {
     gl.uniform1f(timeUniformLocation, drawCount);
     let resolutionUniformLocation = gl.getUniformLocation(selectedProgram, "resolution");
     gl.uniform2f(resolutionUniformLocation, cnvs.width, cnvs.height);
-    gl.drawArrays(gl.POINTS, 0, num);
+    gl.drawArrays(gl.POINTS, 0, vertices3.length/3);
 };
 
 drawRectangle = function(selectedProgram, x0, y0, x1, y1) {
