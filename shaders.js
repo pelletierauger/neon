@@ -701,7 +701,8 @@ smoothLine3D.fragText = `
         // gl_FragColor.rgb = gl_FragColor.gbr;
         // gl_FragColor.rgb = vec3(0.);
         gl_FragColor.a *= 1.0-posUnit2.z*0.4;
-        gl_FragColor.rgb *= shimmer;
+        // gl_FragColor.rgb *= shimmer;
+        gl_FragColor.a *= shimmer;
     }
     // endGLSL
 `;

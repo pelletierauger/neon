@@ -311,8 +311,6 @@ draw = function() {
     // makeTree3D();
     reset3DLines();
     for (let i = 0; i < pairs3D.length; i++) {
-    // if (pairs3D.length > 12) {
-    // for (let i = 2; i < 3; i++) {
         add3DLine(
             pairs3D[i][0][0], 
             pairs3D[i][0][1], 
@@ -320,14 +318,11 @@ draw = function() {
             pairs3D[i][1][0], 
             pairs3D[i][1][1], 
             pairs3D[i][1][2], 
-            1/15,
-            1, 0, 0, 1
+            1/6,
+            1, 0, 0, 0.5
         );
-    // }
     }
-        for (let i = 0; i < newPairs3D.length; i++) {
-    // if (pairs3D.length > 12) {
-    // for (let i = 2; i < 3; i++) {
+    for (let i = 0; i < newPairs3D.length; i++) {
         add3DLine(
             newPairs3D[i][0][0], 
             newPairs3D[i][0][1], 
@@ -335,10 +330,33 @@ draw = function() {
             newPairs3D[i][1][0], 
             newPairs3D[i][1][1], 
             newPairs3D[i][1][2], 
-            1/15,
+            1/6,
+            1, 0, 0, 0.5
+        );
+    }
+    for (let i = 0; i < pairs3D.length; i++) {
+        add3DLine(
+            pairs3D[i][0][0], 
+            pairs3D[i][0][1], 
+            pairs3D[i][0][2], 
+            pairs3D[i][1][0], 
+            pairs3D[i][1][1], 
+            pairs3D[i][1][2], 
+            1/45,
             1, 0, 0, 1
         );
-    // }
+    }
+    for (let i = 0; i < newPairs3D.length; i++) {
+        add3DLine(
+            newPairs3D[i][0][0], 
+            newPairs3D[i][0][1], 
+            newPairs3D[i][0][2], 
+            newPairs3D[i][1][0], 
+            newPairs3D[i][1][1], 
+            newPairs3D[i][1][2], 
+            1/45,
+            1, 0, 0, 1
+        );
     }
     // for (let i = 0; i < pairs3D.length; i++) {
         // add3DLine(
