@@ -207,8 +207,9 @@ makeField3D = function() {
     }
     reached3D = [];
     unreached3D = field3D.slice();
-    reached3D.push(unreached3D[Math.floor(Math.random()*unreached3D.length)]);
-    unreached3D.splice(0, 1);
+    let firstReached = Math.floor(Math.random()*unreached3D.length);
+    reached3D.push(unreached3D[firstReached]);
+    unreached3D.splice(firstReached, 1);
     pairs3D = [];
     vertices = [].concat.apply([], field3D);
     num = n;
@@ -286,7 +287,7 @@ draw = function() {
     gl.clear(gl.COLOR_BUFFER_BIT);
     // makeTree3D();
     reset3DLines();
-    for (let i = 2; i < pairs3D.length; i++) {
+    for (let i = 0; i < pairs3D.length; i++) {
     // if (pairs3D.length > 12) {
     // for (let i = 2; i < 3; i++) {
         add3DLine(
