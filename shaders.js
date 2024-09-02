@@ -673,16 +673,21 @@ smoothLine3D.fragText = `
     void main(void) {
         vec2 fc = gl_FragCoord.xy;
         vec2 pos = gl_PointCoord;
+        float shimmer = sin(posUnit.y*2.-t*0.5e-1)*0.5+0.5;
+        shimmer = smoothstep(0., 1., shimmer);
+        shimmer = smoothstep(0., 1., shimmer);
         float rando = rand(pos);
         vec2 fwh = vec2(wh.x*2., wh.y+(wh.x*2.));
         vec2 uv = uvs * fwh;
         uv -= fwh * 0.5;
         float radius = wh.x;
         vec2 size = fwh * 0.5 - radius;
-        radius *= 2.;
+        radius *= 2. - (1. - shimmer);
         float col = length(max(abs(uv), size) - size) - radius;
         col = min(col * -1. * (1. / radius), 1.0);
-        col = pow(col, 3.) * 0.75 + pow(col, 43.);
+        // col = pow(col, 3.) * 0.75 + pow(col, 43.);
+        col = pow(col, 3.) * 0.75 * (1.0 + shimmer) + pow(col, 43.);
+        col = smoothstep(0., 1., col);
         col = smoothstep(0., 1., col);
         // col = mix(pow(col, 10.)*0.25, col, sin(time*0.1+pos.y*0.5e1)*0.5+0.5);
                 // c2l =x(pow(col, 10.)*0.2, col, sin(t*0.1+pos.y*0.5e1)*0.5+0.5);
@@ -693,8 +698,8 @@ smoothLine3D.fragText = `
         // gl_FragColor.a = min(1., gl_FragColor.a + pow(col, 2.) *  0.25);
         // gl_FragColor.rgb = gl_FragColor.gbr;
         // gl_FragColor.rgb = vec3(0.);
-        gl_FragColor.a *= 1.0-posUnit2.z*0.35;
-        gl_FragColor.rgb *= sin(posUnit.y*2.-t*0.5e-1)*0.5+0.5;
+        gl_FragColor.a *= 1.0-posUnit2.z*0.4;
+        gl_FragColor.rgb *= shimmer;
     }
     // endGLSL
 `;
@@ -1088,7 +1093,7 @@ smoothDots3D.vertText = `
         // pos = translate(0.0, 0.9, 1.5) * pos;
         pos.x *= ratio;
         gl_Position = vec4(pos.x, pos.y, 0.0, pos.z);
-        gl_PointSize = 8.;
+        gl_PointSize = 8./pos.z;
         t = time;
         // gl_PointSize += (sin((length(coordinates*20.)*0.2-time*2e-1))*0.5+0.5)*14.;
         posUnit2 = pos.xyz;
@@ -1120,8 +1125,11 @@ smoothDots3D.fragText = `
         float noise = rand(pos - vec2(cos(t), sin(t))) * 0.0625;
         gl_FragColor = vec4(vec3(1.0, pow(l, 2.)*0.25, 0.25), (l+halo-noise)*0.5);
         // gl_FragColor.rgb = vec3(0.0);
-        gl_FragColor.a *= 1.0-posUnit2.z*0.3;
-        gl_FragColor.rgb *= sin(posUnit.y*5.-t*0.5e-1)*0.5+0.5;
+        gl_FragColor.a *= 1.0-posUnit2.z*0.4;
+        float shimmer = sin(posUnit.y*5.-t*0.5e-1)*0.5+0.5;
+        shimmer = smoothstep(0., 1., shimmer);
+        shimmer = smoothstep(0., 1., shimmer);
+        gl_FragColor.rgb *= shimmer;
     }
     // endGLSL
 `;
