@@ -67,6 +67,8 @@ holyHills.fragText = `
     void main() {
         vec2 uv = gl_FragCoord.xy / resolution + vec2(0., -0.);
         // uv -= 0.5;
+        uv *= 0.5;
+        uv.y += 0.51;
         vec2 muv = uv;
         // uv.x += time * 1e-3;
         // muv.x += time * 3e-3;

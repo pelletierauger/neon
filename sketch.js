@@ -296,7 +296,7 @@ draw = function() {
             pairs3D[i][1][0], 
             pairs3D[i][1][1], 
             pairs3D[i][1][2], 
-            1/150,
+            1/15,
             1, 0, 0, 1
         );
     // }
