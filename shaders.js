@@ -694,7 +694,7 @@ smoothLine3D.fragText = `
         // col = mix(pow(col, 10.)*0.25, col, sin(time*0.1+pos.y*0.5e1)*0.5+0.5);
                 // c2l =x(pow(col, 10.)*0.2, col, sin(t*0.1+pos.y*0.5e1)*0.5+0.5);
                 // col = mix(pow(col, 10.)*0.2, col, sin(-t*0.1+length(pos * vec2(16./9.,1.))*0.5e1)*0.5+0.5);
-        gl_FragColor = vec4(c.rgb, c.a * (max(col, 0.) - (rando * 0.05)));
+        gl_FragColor = vec4(vec3(1.0, 0.0, 0.0), c.a * (max(col, 0.) - (rando * 0.05)));
         gl_FragColor.g = pow(col, 2.) *  0.2;
         gl_FragColor.b = pow(col, 2.) *  0.2;
         // gl_FragColor.a = min(1., gl_FragColor.a + pow(col, 2.) *  0.25);
@@ -702,7 +702,8 @@ smoothLine3D.fragText = `
         // gl_FragColor.rgb = vec3(0.);
         gl_FragColor.a *= 1.0-posUnit2.z*0.4;
         // gl_FragColor.rgb *= shimmer;
-        gl_FragColor.a *= shimmer;
+        gl_FragColor.a *= shimmer + c.b;
+        // gl_FragColor.a *= map(c.b,0.,1.,1., 1.5);
     }
     // endGLSL
 `;
