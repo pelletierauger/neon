@@ -153,10 +153,12 @@ Walker.prototype.sing = function() {
     this.singing = true;
     let rotateX = drawCount*0.25e-2 * -1;
     let rotateY = -drawCount*0.25e-2 * -1;
-    let point;
-    point = yRotate(this.v.pos.x, this.v.pos.y, this.v.pos.z, rotateY);
-    point = xRotate(point.x, point.y, point.z, rotateX);
-    let d = dist(0, 0, -1.5, point.x, point.y, point.z);
+    let pos = {x: this.v.pos.x, y: this.v.pos.y, z: this.v.pos.z};
+    let scalar = map(Math.sin(pos.y * 5. - drawCount * 0.5e-1) * 0.5 + 0.5, 0., 1., 1.0, 0.95);
+    pos = {x: pos.x * scalar, y: pos.y * scalar, z: pos.z * scalar};
+    pos = yRotate(pos.x, pos.y, pos.z, rotateY);
+    pos = xRotate(pos.x, pos.y, pos.z, rotateX);
+    let d = dist(0, 0, -1.5, pos.x, pos.y, pos.z);
     // console.log(d);
     // socket.emit('note', this.v.note);
     socket.emit('note', d);
