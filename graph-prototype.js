@@ -116,8 +116,9 @@ Walker.prototype.startWalking = function() {
         }
         if (chosen) {
             this.goalV = chosen;
-            
-            this.e.fire = 1;
+            if (this.e) {
+                this.e.fire = 1;
+            }
             this.e = chosenEdge;
         }
     }
