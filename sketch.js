@@ -219,21 +219,21 @@ draw = function() {
     gl.clear(gl.COLOR_BUFFER_BIT);
     reset3DLines();
     walkerVertices = [];
-        let ce;
-    for (let i = 0; i < g.edges.length; i++) {
-        if (g.edges[i] === g.walkers[0].e) {
-            ce = i;
-        }
-    }
     for (let i = 0; i < g.walkers.length; i++) {
         let gw = g.walkers[i];
         // gw.speed = map(Math.sin(drawCount*1e-3), -1, 1, 0.01, 0.001);
-        gw.show();
         if (!gw.walking && !gw.sleeping) {
             gw.startWalking();
         }
         if (gw.walking) {
             gw.walk();
+        }
+        gw.show();
+    }
+    let ce;
+    for (let i = 0; i < g.edges.length; i++) {
+        if (g.edges[i] === g.walkers[0].e) {
+            ce = i;
         }
     }
     for (let i = 0; i < pairs3D.length; i++) {
