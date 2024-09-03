@@ -83,6 +83,7 @@ Walker.prototype.teleport = function() {
     this.goalV = null;
     this.distanceToWalk = null;
     this.walking = false;
+    this.singing = false;
     this.speed = 0.0075;
     this.extraVelocity = 0;
 };
@@ -145,7 +146,9 @@ Walker.prototype.walk = function() {
 Walker.prototype.sing = function() {
     // let osc = song.getFrequency(this.v.freq);
     // if (Math.random() < 0.1) {
-            socket.emit('note', this.v.note);
+    
+    this.singing = true;
+    socket.emit('note', this.v.note);
     // }
     // for (let i = 0; i < this.v.edges.length; i++) {
     //     let e = this.v.edges[i];
@@ -172,6 +175,13 @@ Walker.prototype.sw = function() {
 };
 
 Walker.prototype.show = function() {
+    let size;
+    if (this.singing) {
+        size = 8;
+        this.singing = false;
+    } else {
+        size = 2;
+    }
     if (!this.walking) {
         if (!this.sleeping) {
             walkerVertices.push(this.v.pos.x, this.v.pos.y, this.v.pos.z, 8);
@@ -181,7 +191,7 @@ Walker.prototype.show = function() {
         let x = lerp(this.v.pos.x, this.goalV.pos.x, d);
         let y = lerp(this.v.pos.y, this.goalV.pos.y, d);
         let z = lerp(this.v.pos.z, this.goalV.pos.z, d);
-        walkerVertices.push(x, y, z, 2);
+        walkerVertices.push(x, y, z, size);
         add3DLine(
             this.v.pos.x, this.v.pos.y, this.v.pos.z,
             x, y, z,
