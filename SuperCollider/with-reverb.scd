@@ -55,7 +55,7 @@ SynthDef.new(\pulseTest, {
 
 (
 SynthDef.new(\pulseTest, {
-    arg note = 0;
+    arg note = 0, x = 0;
     var sig, env, shift, z;
     z = note;
     env = EnvGen.kr(
@@ -70,6 +70,7 @@ SynthDef.new(\pulseTest, {
     sig = sig * 2 * env;
     // sig = sig + (~v.(sig, 3000, 0, 5) * z * 4);
     sig = sig[0] * 0.5 + sig[1] * (1 + (z*2));
-    Out.ar(~reverbBus, sig!2);
+    sig = Pan2.ar(sig, x * 0.5);
+    Out.ar(~reverbBus, sig);
 }).add;
 )

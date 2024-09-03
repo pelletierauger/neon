@@ -164,13 +164,13 @@ OSCdef.new(
     {
         arg msg, time, addr, port;
         // [msg, time, addr, port].postln;
-        // msg[1].postln;
         var note = msg[1];
         // var z = (note - 0.5) * -0.5;
         var z = ~map.(note, 2.5, 0.5, 0.0, 1.0);
         // z.postln;
+        // msg.postln;
         // d = Synth.new(\pinkTest, [\frequency, msg[1] * 2]);
-        d = Synth.new(\pulseTest, [\note, z]);
+        d = Synth.new(\pulseTest, [\note, z, \x, msg[2]]);
     },
     '/hello/from/oscjs'
 );
