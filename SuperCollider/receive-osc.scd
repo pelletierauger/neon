@@ -152,15 +152,55 @@ SynthDef.new(\pulseTest, {
 )
 
 (
+~map = {
+    |n, start1, stop1, start2, stop2|
+    (n - start1) / (stop1 - start1) * (stop2 - start2) + start2;
+};
+)
+
+(
 OSCdef.new(
     \fromnode,
     {
         arg msg, time, addr, port;
         // [msg, time, addr, port].postln;
         // msg[1].postln;
+        var note = msg[1];
+        // var z = (note - 0.5) * -0.5;
+        var z = ~map.(note, 2.5, 0.5, 0.0, 1.0);
+        // z.postln;
         // d = Synth.new(\pinkTest, [\frequency, msg[1] * 2]);
-        d = Synth.new(\pulseTest, [\note, msg[1]]);
+        d = Synth.new(\pulseTest, [\note, z]);
     },
     '/hello/from/oscjs'
 );
+)
+
+
+(
+OSCdef.new(
+    \receiveFrame,
+    {
+        arg msg, time, addr, port;
+        var frame = msg[1];
+        // frame.postln;
+        var pulsationPhase = ~map.(sin(frame * -0.5e-1 + (pi*0.25))*0.5+0.5, 0.0, 1.0, 1.0, 0.2);
+        // ~pulsation.set(\ph, pulsationPhase);
+    },
+    '/frame'
+);
+)
+~pulsation.set(\ph, 0.2)
+(
+~pulsation.free;
+~pulsation = {
+    var phase = \ph.kr(0.2, 0.1);
+    var sig = MiBraids.ar(
+    ~toMidi.("C#6") + 0, 
+    timbre: 1, color: phase, model:[44]
+    );
+    // sig = ~v.(sig, 3000, 0, 5) * 2;
+    sig = sig * 0.1!2 * phase;
+    Out.ar(~reverbBus, sig);
+}.play;
 )

@@ -140,7 +140,9 @@ Walker.prototype.walk = function() {
         this.v.lastVisited = drawCount;
         this.goalV = null;
         this.sing();
-        this.startWalking();
+        if (!this.sleeping) {
+            this.startWalking();
+        }
     }
 };
 
@@ -149,7 +151,15 @@ Walker.prototype.sing = function() {
     // if (Math.random() < 0.1) {
     
     this.singing = true;
-    socket.emit('note', this.v.note);
+    let rotateX = drawCount*0.25e-2 * -1;
+    let rotateY = -drawCount*0.25e-2 * -1;
+    let point;
+    point = yRotate(this.v.pos.x, this.v.pos.y, this.v.pos.z, rotateY);
+    point = xRotate(point.x, point.y, point.z, rotateX);
+    let d = dist(0, 0, -1.5, point.x, point.y, point.z);
+    // console.log(d);
+    // socket.emit('note', this.v.note);
+    socket.emit('note', d);
     // }
     // for (let i = 0; i < this.v.edges.length; i++) {
     //     let e = this.v.edges[i];
@@ -184,9 +194,9 @@ Walker.prototype.show = function() {
         size = 2;
     }
     if (!this.walking) {
-        if (!this.sleeping) {
-            walkerVertices.push(this.v.pos.x, this.v.pos.y, this.v.pos.z, 8);
-        }
+        // if (!this.sleeping) {
+            walkerVertices.push(this.v.pos.x, this.v.pos.y, this.v.pos.z, size);
+        // }
     } else {
         let d = map(this.walked, 0, this.distanceToWalk, 0, 1);
         let x = lerp(this.v.pos.x, this.goalV.pos.x, d);

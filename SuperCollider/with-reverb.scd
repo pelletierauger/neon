@@ -37,16 +37,39 @@ SynthDef.new(\pulseTest, {
 (
 SynthDef.new(\pulseTest, {
     arg note = 0;
-    var sig, env, shift;
+    var sig, env, shift, z;
     env = EnvGen.kr(
     Env([0,1,0.4,0], [0.001,0.2,0.01]),
     doneAction:2);
     shift = round(Rand(0,2))*12;
+    z = note.linlin(-1, 1, 0.65, 1);
     sig = MiBraids.ar(
-    ~toMidi.("C#2") + note, 
-    timbre: [0.85, 1], color: [0.65, Rand(0,1)], model:[42,45]);
+    ~toMidi.("C#2") + 0, 
+    timbre: [0.85, 1], color: [z, Rand(0,1)], model:[42,45]);
     sig = sig * 2 * env;
     sig = sig[0] * 0.5 + sig[1];
+    Out.ar(~reverbBus, sig!2);
+}).add;
+)
+
+
+(
+SynthDef.new(\pulseTest, {
+    arg note = 0;
+    var sig, env, shift, z;
+    z = note;
+    env = EnvGen.kr(
+    Env([0,1,0.4,0], [0.001,0.2+z,0.01]),
+    doneAction:2);
+    shift = round(Rand(0,2))*12;
+    // z = note.linlin(2.5, 0.5, 0.0, 1.0);
+    // z = (note - 0.5) * -0.5;
+    sig = MiBraids.ar(
+    ~toMidi.("C#2") + 0, 
+    timbre: [0.85, z], color: [0.65, Rand(0,1)], model:[42,45]);
+    sig = sig * 2 * env;
+    // sig = sig + (~v.(sig, 3000, 0, 5) * z * 4);
+    sig = sig[0] * 0.5 + sig[1] * (1 + (z*2));
     Out.ar(~reverbBus, sig!2);
 }).add;
 )

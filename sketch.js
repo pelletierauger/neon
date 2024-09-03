@@ -259,7 +259,7 @@ draw = function() {
             newPairs3D[i][1][1], 
             newPairs3D[i][1][2], 
             1/6,
-            1, 0, g.edges[i].fire, 0.5
+            1, 0, 0, 0.5
         );
     }
     for (let i = 0; i < pairs3D.length; i++) {
@@ -285,7 +285,7 @@ draw = function() {
             newPairs3D[i][1][1], 
             newPairs3D[i][1][2], 
             1/45,
-            1, 0, g.edges[i].fire, 1
+            1, 0, 0, 1
         );
     }
     currentProgram = getProgram("holy-hills");
@@ -308,6 +308,14 @@ draw = function() {
      if (exporting && frameCount < maxFrames) {
         frameExport();
     }
+    // let msg = {
+    //     address: "/frame",
+    //     args: [{
+    //         type: "f",
+    //         value: drawCount
+    //     }]
+    // };
+    // socket.emit('msgToSCD', msg);
     drawCount++;
 };
 
@@ -509,6 +517,23 @@ draw3DDots = function(selectedProgram) {
     gl.drawArrays(gl.POINTS, 0, vertices3.length/3);
 };
 
+if (false) {
+
+draw = function() {
+    gl.clear(gl.COLOR_BUFFER_BIT);
+    reset3DLines();
+    walkerVertices = [];
+    let p = {x: 1, y: 0, z: 2};
+    // p = yRotate(p.x, p.y, p.z, Math.PI*-0.25);
+    p = xRotate(p.x, p.y, p.z, Math.PI*0.25);
+    walkerVertices.push(p.x, p.y, p.z, 5);
+    currentProgram = getProgram("smooth-walker-3D");
+    gl.useProgram(currentProgram);
+    drawWalker(currentProgram);
+};
+
+}
+
 drawWalker = function(selectedProgram) {
     gl.bindBuffer(gl.ARRAY_BUFFER, walker_buffer);
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(walkerVertices), gl.STATIC_DRAW);
@@ -539,4 +564,20 @@ drawRectangle = function(selectedProgram, x0, y0, x1, y1) {
     gl.uniform2f(resolutionUniformLocation, cnvs.width, cnvs.height);
     gl.drawArrays(gl.TRIANGLES, 0, 6);
     // console.log(cnvs.width, cnvs.height);
+};
+
+yRotate = function(x, y, z, a) {
+    return {
+        x: x * Math.cos(a) + z * Math.sin(a),
+        y: y,
+        z: -x * Math.sin(a) + z * Math.cos(a)
+    }
+};
+
+xRotate = function(x, y, z, a) {
+    return {
+        x: x,
+        y: y * Math.cos(a) - z * Math.sin(a),
+        z: y * Math.sin(a) + z * Math.cos(a)
+    }
 };
