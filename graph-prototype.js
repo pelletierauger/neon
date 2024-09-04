@@ -159,7 +159,7 @@ Walker.prototype.sing = function() {
     pos = yRotate(pos.x, pos.y, pos.z, rotateY);
     pos = xRotate(pos.x, pos.y, pos.z, rotateX);
     let d = dist(0, 0, -1.5, pos.x, pos.y, pos.z);
-    console.log(pos.x);
+    // console.log(pos.x);
     // socket.emit('note', this.v.note);
     // socket.emit('note', d);
     var msg = {
