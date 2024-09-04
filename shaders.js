@@ -1245,13 +1245,13 @@ smoothDots3D.fragText = `
         halo = 1.0 - dot(pos - 0.5, pos - 0.5) * 4.9;
         halo = smoothstep(0., 1., halo);
         // l = smoothstep(0., 1., l);
-        l *= map(shimmer,0.,1., 0., 1.5);
+        l *= map(shimmer,0.,1., 1.5, 1.5);
         // l = pow(l, 1.);
         float noise = rand(pos - vec2(cos(t), sin(t))) * 0.0625;
         gl_FragColor = vec4(vec3(1.0, pow(l, 2.)*0.25, 0.25), (l+halo-noise)*1.);
         // gl_FragColor.rgb = vec3(0.0);
         gl_FragColor.a *= 1.0-posUnit2.z*0.4;
-        gl_FragColor.rgb *= shimmer;
+        // gl_FragColor.rgb *= shimmer;
     }
     // endGLSL
 `;
