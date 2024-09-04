@@ -218,6 +218,7 @@ makeTree3D = function() {
 draw = function() {
     gl.clear(gl.COLOR_BUFFER_BIT);
     reset3DLines();
+    makeTree3D();
     walkerVertices = [];
     for (let i = 0; i < g.walkers.length; i++) {
         let gw = g.walkers[i];
@@ -237,7 +238,7 @@ draw = function() {
         }
     }
     for (let i = 0; i < pairs3D.length; i++) {
-        if (i !== ce) {
+        // if (i !== ce) {
             add3DLine(
                 pairs3D[i][0][0], 
                 pairs3D[i][0][1], 
@@ -248,22 +249,22 @@ draw = function() {
                 1/6,
                 1, 0, g.edges[i].fire, 0.5
             );
-        }
+        // }
     }
-    for (let i = 0; i < newPairs3D.length; i++) {
-        add3DLine(
-            newPairs3D[i][0][0], 
-            newPairs3D[i][0][1], 
-            newPairs3D[i][0][2], 
-            newPairs3D[i][1][0], 
-            newPairs3D[i][1][1], 
-            newPairs3D[i][1][2], 
-            1/6,
-            1, 0, 0, 0.5
-        );
-    }
+    // for (let i = 0; i < newPairs3D.length; i++) {
+    //     add3DLine(
+    //         newPairs3D[i][0][0], 
+    //         newPairs3D[i][0][1], 
+    //         newPairs3D[i][0][2], 
+    //         newPairs3D[i][1][0], 
+    //         newPairs3D[i][1][1], 
+    //         newPairs3D[i][1][2], 
+    //         1/6,
+    //         1, 0, 0, 0.5
+    //     );
+    // }
     for (let i = 0; i < pairs3D.length; i++) {
-        if (i !== ce) {
+        // if (i !== ce) {
         add3DLine(
             pairs3D[i][0][0], 
             pairs3D[i][0][1], 
@@ -274,23 +275,23 @@ draw = function() {
             1/45,
             1, 0, g.edges[i].fire, 1
         );
-        }
+        // }
     }
-    for (let i = 0; i < newPairs3D.length; i++) {
-        add3DLine(
-            newPairs3D[i][0][0], 
-            newPairs3D[i][0][1], 
-            newPairs3D[i][0][2], 
-            newPairs3D[i][1][0], 
-            newPairs3D[i][1][1], 
-            newPairs3D[i][1][2], 
-            1/45,
-            1, 0, 0, 1
-        );
-    }
+    // for (let i = 0; i < newPairs3D.length; i++) {
+    //     add3DLine(
+    //         newPairs3D[i][0][0], 
+    //         newPairs3D[i][0][1], 
+    //         newPairs3D[i][0][2], 
+    //         newPairs3D[i][1][0], 
+    //         newPairs3D[i][1][1], 
+    //         newPairs3D[i][1][2], 
+    //         1/45,
+    //         1, 0, 0, 1
+    //     );
+    // }
     currentProgram = getProgram("holy-hills");
     gl.useProgram(currentProgram);
-    drawRectangle(currentProgram, -1, -1, 1, 1);
+    // drawRectangle(currentProgram, -1, -1, 1, 1);
     if (indices.length) {
         currentProgram = getProgram("smooth-line-3D");
         gl.useProgram(currentProgram);
@@ -301,7 +302,7 @@ draw = function() {
     draw3DDots(currentProgram);
     currentProgram = getProgram("smooth-walker-3D");
     gl.useProgram(currentProgram);
-    drawWalker(currentProgram);
+    // drawWalker(currentProgram);
     for (let i = 0; i < g.edges.length; i++) {
         g.edges[i].fire *= 0.99;
     }

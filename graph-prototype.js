@@ -68,7 +68,7 @@ let Walker = function(v, g) {
     this.goalV = null;
     this.distanceToWalk = null;
     this.walking = false;
-    this.speed = 0.01;
+    this.speed = 0.001;
     this.graph.walkers.push(this);
     this.extraVelocity = 0;
     this.sleeping = false;

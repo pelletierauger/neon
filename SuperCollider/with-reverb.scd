@@ -81,7 +81,7 @@ SynthDef.new(\pulseTest, {
     var sig, env, shift, z;
     z = note;
     env = EnvGen.kr(
-    Env([0,1,0.4,0], [0.001,0.1,1.11]),
+    Env([0,1,0.4,0], [0.001,0.1,4], -6),
     doneAction:2);
     shift = round(Rand(0,2))*12;
     // z = note.linlin(2.5, 0.5, 0.0, 1.0);
@@ -91,8 +91,11 @@ SynthDef.new(\pulseTest, {
     timbre: [0.85, z], color: [0.65, Rand(0,1)], model:[42,45]);
     sig = sig * 2 * env;
     // sig = sig + (~v.(sig, 3000, 0, 5) * z * 4);
-    sig = sig[0] * 0.5 + sig[1] * (1 + (pow(z,4)*4));
-    sig = Pan2.ar(sig, x * 0.5);
+    sig = (sig[0] * 0.125 + sig[1]) ! 2;
+    // sig = Pan2.ar(sig, x);
+    sig = Balance2.ar(sig[0], sig[1], x * 0.9) * 16;
     Out.ar(~reverbBus, sig);
+    Out.ar(0, sig * (pow(z,4)*4));
+    // Out.ar(0, sig);
 }).add;
 )
