@@ -36,6 +36,7 @@ let Edge = function(a, b, g) {
     this.a = a;
     this.b = b;
     this.fire = 0;
+    this.index = g.edges.length;
     a.addEdge(this);
     b.addEdge(this);
     g.edges.push(this);

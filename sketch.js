@@ -218,7 +218,7 @@ makeTree3D = function() {
 draw = function() {
     gl.clear(gl.COLOR_BUFFER_BIT);
     reset3DLines();
-    makeTree3D();
+    // makeTree3D();
     walkerVertices = [];
     for (let i = 0; i < g.walkers.length; i++) {
         let gw = g.walkers[i];
@@ -238,7 +238,7 @@ draw = function() {
         }
     }
     for (let i = 0; i < pairs3D.length; i++) {
-        // if (i !== ce) {
+        if (i !== ce && g.edges[i].fire > 0.1) {
             add3DLine(
                 pairs3D[i][0][0], 
                 pairs3D[i][0][1], 
@@ -249,7 +249,21 @@ draw = function() {
                 1/6,
                 1, 0, g.edges[i].fire, 0.5
             );
-        // }
+        }
+    }
+    for (let i = 0; i < pairs3D.length; i++) {
+        if (i !== ce && g.edges[i].fire > 0.1) {
+        add3DLine(
+            pairs3D[i][0][0], 
+            pairs3D[i][0][1], 
+            pairs3D[i][0][2], 
+            pairs3D[i][1][0], 
+            pairs3D[i][1][1], 
+            pairs3D[i][1][2], 
+            1/45,
+            1, 0, g.edges[i].fire, 1
+        );
+        }
     }
     // for (let i = 0; i < newPairs3D.length; i++) {
     //     add3DLine(
@@ -263,20 +277,6 @@ draw = function() {
     //         1, 0, 0, 0.5
     //     );
     // }
-    for (let i = 0; i < pairs3D.length; i++) {
-        // if (i !== ce) {
-        add3DLine(
-            pairs3D[i][0][0], 
-            pairs3D[i][0][1], 
-            pairs3D[i][0][2], 
-            pairs3D[i][1][0], 
-            pairs3D[i][1][1], 
-            pairs3D[i][1][2], 
-            1/45,
-            1, 0, g.edges[i].fire, 1
-        );
-        // }
-    }
     // for (let i = 0; i < newPairs3D.length; i++) {
     //     add3DLine(
     //         newPairs3D[i][0][0], 
@@ -297,14 +297,47 @@ draw = function() {
         gl.useProgram(currentProgram);
         draw3DLines();
     }
+    vertices = [];
+    for (let i = 0; i < field3D.length; i++) {
+        let p = field3D[i].pos;
+        let f = 0;
+        for (let j = 0; j < field3D[i].edges.length; j++) {
+            if (field3D[i] === g.walkers[0].v) {
+                f += 1;
+            } else {
+                f += field3D[i].edges[j].fire;
+            }
+        }
+        f /= field3D[i].edges.length;
+        f *= 2;
+        if (f > 0.01) {
+            vertices.push(p.x, p.y, p.z, 0.0625*f);
+        }
+    }
+    for (let i = 0; i < field3D.length; i++) {
+        let p = field3D[i].pos;
+        let f = 0;
+        for (let j = 0; j < field3D[i].edges.length; j++) {
+            if (field3D[i] === g.walkers[0].v) {
+                f += 1;
+            } else {
+                f += field3D[i].edges[j].fire;
+            }
+        }
+        f /= field3D[i].edges.length;
+        f *= 2;
+        if (f > 0.01) {
+            vertices.push(p.x, p.y, p.z, 1*f);
+        }
+    }
     currentProgram = getProgram("smooth-dots-3D");
     gl.useProgram(currentProgram);
     draw3DDots(currentProgram);
     currentProgram = getProgram("smooth-walker-3D");
     gl.useProgram(currentProgram);
-    // drawWalker(currentProgram);
+    drawWalker(currentProgram);
     for (let i = 0; i < g.edges.length; i++) {
-        g.edges[i].fire *= 0.99;
+        g.edges[i].fire *= 0.999;
     }
      if (exporting && frameCount < maxFrames) {
         frameExport();
@@ -504,18 +537,18 @@ function randomPointOnSphere(x0 = 0, y0 = 0, z0 = 0, radius = 1) {
 
 draw3DDots = function(selectedProgram) {
     gl.bindBuffer(gl.ARRAY_BUFFER, dots_buffer);
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices3), gl.STATIC_DRAW);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
     // Get the attribute location
     var coord = gl.getAttribLocation(selectedProgram, "coordinates");
     // Point an attribute to the currently bound VBO
-    gl.vertexAttribPointer(coord, 3, gl.FLOAT, false, 0, 0);
+    gl.vertexAttribPointer(coord, 4, gl.FLOAT, false, 0, 0);
     // Enable the attribute
     gl.enableVertexAttribArray(coord);
     let timeUniformLocation = gl.getUniformLocation(selectedProgram, "time");
     gl.uniform1f(timeUniformLocation, drawCount);
     let resolutionUniformLocation = gl.getUniformLocation(selectedProgram, "resolution");
     gl.uniform2f(resolutionUniformLocation, cnvs.width, cnvs.height);
-    gl.drawArrays(gl.POINTS, 0, vertices3.length/3);
+    gl.drawArrays(gl.POINTS, 0, vertices.length/4);
 };
 
 if (false) {
