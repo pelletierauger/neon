@@ -110,9 +110,9 @@ makeField3D = function() {
     }
     for (let i = 0; i < 15; i++) {
         let mi = map(i, 0, 15, 0, 1);
-        let x = (Math.random() - 0.5) * 0.1;
-        let y = (Math.random() - 0.5) * 0.1;
-        let z = (Math.random() - 0.5) * 0.1;
+        let x = (Math.random() - 0.5) * 0.03;
+        let y = (Math.random() - 0.5) * 0.03;
+        let z = (Math.random() - 0.5) * 0.03;
         let p = [
             lerp(pointOnSmallSphere[0], pointOnMediumSphere[0], mi) + x,
             lerp(pointOnSmallSphere[1], pointOnMediumSphere[1], mi) + y,
@@ -124,9 +124,9 @@ makeField3D = function() {
     }
     for (let i = 0; i < 15; i++) {
         let mi = map(i, 0, 15, 0, 1);
-        let x = (Math.random() - 0.5) * 0.3;
-        let y = (Math.random() - 0.5) * 0.3;
-        let z = (Math.random() - 0.5) * 0.3;
+        let x = (Math.random() - 0.5) * 0.1;
+        let y = (Math.random() - 0.5) * 0.1;
+        let z = (Math.random() - 0.5) * 0.1;
         let p = [
             lerp(pointOnMediumSphere2[0], pointOnLargeSphere[0], mi) + x,
             lerp(pointOnMediumSphere2[1], pointOnLargeSphere[1], mi) + y,

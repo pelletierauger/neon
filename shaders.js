@@ -658,7 +658,7 @@ smoothLine3D.vertText = `
         t = time;
         posUnit2 = pos0.xyz;
         discarded = 0.0;
-        if (pos0.z < 0.2 && pos1.z < 0.2) {
+        if (pos0.z < 0.25 && pos1.z < 0.25) {
             discarded = 1.0;
         }
     }
