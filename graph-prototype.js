@@ -240,3 +240,61 @@ Walker.prototype.show = function() {
         );
     }
 };
+
+
+Walker.prototype.show = function() {
+    let size;
+    let x, y, z;
+    if (this.singing) {
+        size = 8;
+        this.singing = false;
+    } else {
+        size = 2;
+    }
+    if (!this.walking) {
+        // if (!this.sleeping) {
+            walkerVertices.push(this.v.pos.x, this.v.pos.y, this.v.pos.z, size);
+        // }
+        x = this.v.pos.x;
+        y = this.v.pos.y;
+        z = this.v.pos.z;
+    } else {
+        let d = map(this.walked, 0, this.distanceToWalk, 0, 1);
+        x = lerp(this.v.pos.x, this.goalV.pos.x, d);
+        y = lerp(this.v.pos.y, this.goalV.pos.y, d);
+        z = lerp(this.v.pos.z, this.goalV.pos.z, d);
+        walkerVertices.push(x, y, z, size);
+        add3DLine(
+            this.v.pos.x, this.v.pos.y, this.v.pos.z,
+            x, y, z,
+            1/6,
+            1, 0, 1, 0.5
+        );
+        add3DLine(
+            this.v.pos.x, this.v.pos.y, this.v.pos.z,
+            x, y, z,
+            1/45,
+            1, 0, 1, 1
+        );
+        add3DLine(
+            this.goalV.pos.x, this.goalV.pos.y, this.goalV.pos.z,
+            x, y, z,
+            1/6,
+            1, 0, this.e.fire, 0.5
+        );
+        add3DLine(
+            this.goalV.pos.x, this.goalV.pos.y, this.goalV.pos.z,
+            x, y, z,
+            1/45,
+            1, 0, this.e.fire, 1
+        );
+    }
+    let rotateX = drawCount*0.25e-2 * -1;
+    let rotateY = -drawCount*0.25e-2 * -1;
+    let pos = {x: x, y: y, z: z};
+    // let scalar = map(Math.sin(pos.y * 5. - drawCount * 0.5e-1) * 0.5 + 0.5, 0., 1., 1.0, 0.95);
+    // pos = {x: pos.x * scalar, y: pos.y * scalar, z: pos.z * scalar};
+    // pos = yRotate(pos.x, pos.y, pos.z, rotateY);
+    // pos = xRotate(pos.x, pos.y, pos.z, rotateX);
+    return [pos.x, pos.y, pos.z];
+};

@@ -220,6 +220,7 @@ draw = function() {
     reset3DLines();
     // makeTree3D();
     walkerVertices = [];
+    rawCamera = [];
     for (let i = 0; i < g.walkers.length; i++) {
         let gw = g.walkers[i];
         // gw.speed = map(Math.sin(drawCount*1e-3), -1, 1, 0.01, 0.001);
@@ -229,8 +230,24 @@ draw = function() {
         if (gw.walking) {
             gw.walk();
         }
-        gw.show();
+        rawCamera = gw.show();
     }
+    let t = 2*(camera[0]*rawCamera[0] + camera[1]*rawCamera[1] + camera[2]*rawCamera[2]) // 2*dot(dir,nor)
+    rawCameraDir = [
+        camera[0] -t * rawCamera[0],
+        camera[1] -t * rawCamera[1],
+        camera[2] -t * rawCamera[2]
+    ];
+   cameraDir = [
+        lerp(cameraDir[0], rawCameraDir[0], 0.1),
+        lerp(cameraDir[1], rawCameraDir[1], 0.1),
+        lerp(cameraDir[2], rawCameraDir[2], 0.1),
+    ];
+    camera = [
+        lerp(camera[0], rawCamera[0], 0.01),
+        lerp(camera[1], rawCamera[1], 0.01),
+        lerp(camera[2], rawCamera[2], 0.01),
+    ];
     let ce;
     for (let i = 0; i < g.edges.length; i++) {
         if (g.edges[i] === g.walkers[0].e) {
@@ -335,9 +352,9 @@ draw = function() {
     draw3DDots(currentProgram);
     currentProgram = getProgram("smooth-walker-3D");
     gl.useProgram(currentProgram);
-    drawWalker(currentProgram);
+    // drawWalker(currentProgram);
     for (let i = 0; i < g.edges.length; i++) {
-        g.edges[i].fire *= 0.999;
+        // g.edges[i].fire *= 0.999;
     }
      if (exporting && frameCount < maxFrames) {
         frameExport();
@@ -484,6 +501,10 @@ draw3DLines = function() {
     gl.uniform2f(resolutionUniformLocation, cnvs.width, cnvs.height);
     let timeUniformLocation = gl.getUniformLocation(currentProgram, "time");
     gl.uniform1f(timeUniformLocation, drawCount);
+    let cameraUniformLocation = gl.getUniformLocation(currentProgram, "camera");
+    gl.uniform3f(cameraUniformLocation, camera[0], camera[1], camera[2]);
+    let cameraDirUniformLocation = gl.getUniformLocation(currentProgram, "cameraDir");
+    gl.uniform3f(cameraDirUniformLocation, cameraDir[0], cameraDir[1], cameraDir[2]);
     // gl.clear(gl.COLOR_BUFFER_BIT);
     gl.drawElements(gl.TRIANGLES, indices.length, gl.UNSIGNED_SHORT, 0);
     // gl.bindBuffer(gl.ARRAY_BUFFER, null);
@@ -548,6 +569,10 @@ draw3DDots = function(selectedProgram) {
     gl.uniform1f(timeUniformLocation, drawCount);
     let resolutionUniformLocation = gl.getUniformLocation(selectedProgram, "resolution");
     gl.uniform2f(resolutionUniformLocation, cnvs.width, cnvs.height);
+    let cameraUniformLocation = gl.getUniformLocation(currentProgram, "camera");
+    gl.uniform3f(cameraUniformLocation, camera[0], camera[1], camera[2]);
+    let cameraDirUniformLocation = gl.getUniformLocation(currentProgram, "cameraDir");
+    gl.uniform3f(cameraDirUniformLocation, cameraDir[0], cameraDir[1], cameraDir[2]);
     gl.drawArrays(gl.POINTS, 0, vertices.length/4);
 };
 

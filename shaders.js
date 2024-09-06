@@ -564,6 +564,8 @@ smoothLine3D.vertText = `
     attribute vec2 uv;
     uniform vec2 resolution;
     uniform float time;
+    uniform vec3 camera;
+    uniform vec3 cameraDir;
     varying vec4 c;
     varying vec2 uvs;
     varying vec2 wh;
@@ -619,21 +621,31 @@ smoothLine3D.vertText = `
         vec4 pos1 = vec4(coordinatesB, 1.);
         // pos0.xyz *= map(sin(time *1e-1+pos0.y*2.), -1., 1., 0.95, 1.0);
         // pos1.xyz *= map(sin(time *1e-1+pos1.y*2.), -1., 1., 0.95, 1.0);
-        pos0.xyz *= map(sin(pos0.y*5.-time*0.5e-1)*0.5+0.5, 0., 1., 1.0, 0.95);
-        pos1.xyz *= map(sin(pos1.y*5.-time*0.5e-1)*0.5+0.5, 0., 1., 1.0, 0.95);
+        // pos0.xyz *= map(sin(pos0.y*5.-time*0.5e-1)*0.5+0.5, 0., 1., 1.0, 0.95);
+        // pos1.xyz *= map(sin(pos1.y*5.-time*0.5e-1)*0.5+0.5, 0., 1., 1.0, 0.95);
         posUnit = pos0.xyz;
         // pos0.xyz *= 0.15
         // pos1.xyz *= 0.1;
-        pos0 = yRotate(-time*0.25e-2) * pos0;
-        pos0 = xRotate(time*0.25e-2) * pos0;
+        // pos0 = yRotate(-time*0.25e-2) * pos0;
+        // pos0 = xRotate(time*0.25e-2) * pos0;
         // pos0 = xRotate(-time*0.5e-2) * pos0;
-        pos0 = translate(0.0, 0.0, 1.5) * pos0;
-        pos1 = yRotate(-time*0.25e-2) * pos1;
-        pos1 = xRotate(time*0.25e-2) * pos1;
+        // pos0 = translate(0.0, 0.0, 1.5) * pos0;
+        // pos1 = yRotate(-time*0.25e-2) * pos1;
+        // pos1 = xRotate(time*0.25e-2) * pos1;
         // pos1 = xRotate(-time*0.5e-2) * pos1;
-        pos1 = translate(0.0, 0.0, 1.5) * pos1;
+        // pos1 = translate(0.0, 0.0, 1.5) * pos1;
         // pos0 = translate(0.0, 0.9, 1.5) * pos0;
         // pos1 = translate(0.0, 0.9, 1.5) * pos1;
+        pos0 = xRotate(cameraDir.x * -1.) * pos0;
+        pos1 = xRotate(cameraDir.x * -1.) * pos1;
+        pos0 = yRotate(cameraDir.y * -1.) * pos0;
+        pos1 = yRotate(cameraDir.y * -1.) * pos1;
+        pos0 = zRotate(cameraDir.z * -1.) * pos0;
+        pos1 = zRotate(cameraDir.z * -1.) * pos1;
+        pos0 = translate(camera.x * -1., camera.y * -1., camera.z * -1.) * pos0;
+        pos1 = translate(camera.x * -1., camera.y * -1., camera.z * -1.) * pos1;
+                pos0 = translate(0.0, 0.0, 0.5) * pos0;
+                pos1 = translate(0.0, 0.0, 0.5) * pos1;
         pos0.xy = pos0.xy / pos0.z;
         pos1.xy = pos1.xy / pos1.z;
         float a = atan(pos1.y - pos0.y, pos1.x - pos0.x);
@@ -1278,6 +1290,8 @@ if (true) {
 smoothDots3D.vertText = `
     // beginGLSL
     attribute vec4 coordinates;
+    uniform vec3 camera;
+    uniform vec3 cameraDir;
     uniform float time;
     uniform vec2 resolution;
     varying float t;
@@ -1326,14 +1340,19 @@ smoothDots3D.vertText = `
         // pos = translate(0.0, 0., 0.5) * yRotate(time*2e-2) * xRotate(time*2e-2) * translate(0.0, 0., -0.5) * pos;
         // pos.xyz *= map(sin(time *1e-1+pos.y*2.), -1., 1., 0.95, 1.0);
         // pos.xyz *= 1.25;
-        pos.xyz *= map(sin(pos.y*5.-time*0.5e-1)*0.5+0.5, 0., 1., 1.0, 0.95);
+        // pos.xyz *= map(sin(pos.y*5.-time*0.5e-1)*0.5+0.5, 0., 1., 1.0, 0.95);
         posUnit = pos.xyz;
-        pos = yRotate(-time*0.25e-2) * pos;
-        pos = xRotate(time*0.25e-2) * pos;
+        // pos = yRotate(-time*0.25e-2) * pos;
+        // pos = xRotate(time*0.25e-2) * pos;
         // pos = xRotate(-time*0.5e-2) * pos;
-        pos = translate(0.0, 0.0, 1.5) * pos;
+        // pos = translate(0.0, 0.0, 1.5) * pos;
         // pos = rotate()
         // pos = translate(0.0, 0.9, 1.5) * pos;
+        pos = xRotate(cameraDir.x * -1.) * pos;
+        pos = yRotate(cameraDir.y * -1.) * pos;
+        pos = zRotate(cameraDir.z * -1.) * pos;
+        pos = translate(camera.x * -1., camera.y * -1., camera.z * -1.) * pos;
+        pos = translate(0.0, 0.0, 0.5) * pos;
         pos.x *= ratio;
         gl_Position = vec4(pos.x, pos.y, 0.0, pos.z);
         gl_PointSize = min(100., 10./pos.z/alpha);
