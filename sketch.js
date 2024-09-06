@@ -22,6 +22,8 @@ let g;
 let walkerVertices = [];
 let walker_buffer;
 let w;
+let cameraDir = [0,0,0];
+let camera = [0,0,0];
 
 function setup() {
     socket = io.connect('http://localhost:8080');
@@ -238,10 +240,24 @@ draw = function() {
         camera[1] -t * rawCamera[1],
         camera[2] -t * rawCamera[2]
     ];
-   cameraDir = [
+    cameraDir = [
         lerp(cameraDir[0], rawCameraDir[0], 0.1),
         lerp(cameraDir[1], rawCameraDir[1], 0.1),
         lerp(cameraDir[2], rawCameraDir[2], 0.1),
+    ];
+    let v = createVector(w.v.pos.x, w.v.pos.y, w.v.pos.z);
+    let v2 = createVector(w.goalV.pos.x, w.goalV.pos.y, w.goalV.pos.z);
+    // cameraDir = [0, 0, 0];
+    let d = map(w.walked, 0, w.distanceToWalk, 0, 1)
+    // let v3 = v2.normalize().sub(v.normalize());
+    let v3 = v2.sub(v);
+    rawCameraDir = [v3.x * -1, v3.y * -1, v3.z * -1];
+    // cameraDir = [0, 0, 0];
+    rawCameraDir = xRotateArr(rawCameraDir, Math.PI);
+    cameraDir = [
+        lerp(cameraDir[0], rawCameraDir[0], 0.01),
+        lerp(cameraDir[1], rawCameraDir[1], 0.01),
+        lerp(cameraDir[2], rawCameraDir[2], 0.01),
     ];
     camera = [
         lerp(camera[0], rawCamera[0], 0.01),
@@ -355,6 +371,7 @@ draw = function() {
     // drawWalker(currentProgram);
     for (let i = 0; i < g.edges.length; i++) {
         // g.edges[i].fire *= 0.999;
+        // g.edges[i].fire *= 0.995;
     }
      if (exporting && frameCount < maxFrames) {
         frameExport();
@@ -591,6 +608,26 @@ draw = function() {
     drawWalker(currentProgram);
 };
 
+// To test the bug in the line system when a line crosses
+// from positive to negative z.
+draw = function() {
+    gl.clear(gl.COLOR_BUFFER_BIT);
+    reset3DLines();
+    let msin = function(sa, so) {
+        return map(Math.sin(drawCount * 1e-1), -1, 1, sa, so);
+    };
+    add3DLine(
+        -0.5, 0.5, 1,
+        0.5, 0.0, msin(0.4, -0.4)+1,
+        1/2,
+        1, 0, 1, 1
+    );
+    currentProgram = getProgram("smooth-line-3D");
+    gl.useProgram(currentProgram);
+    draw3DLines();
+    drawCount++; 
+};
+
 }
 
 drawWalker = function(selectedProgram) {
@@ -639,4 +676,12 @@ xRotate = function(x, y, z, a) {
         y: y * Math.cos(a) - z * Math.sin(a),
         z: y * Math.sin(a) + z * Math.cos(a)
     }
+};
+
+xRotateArr = function(arr, a) {
+    return [
+        arr[0],
+        arr[1] * Math.cos(a) - arr[2] * Math.sin(a),
+        arr[1] * Math.sin(a) + arr[2] * Math.cos(a)
+    ]
 };
