@@ -135,6 +135,7 @@ function setup() {
     //     makeTree3D();
     // } while(unreached3D.length > 0.0);
     // w = new Walker(g.vertices[0], g);
+    makeFog();
 }
 
 makeField3D = function() {
@@ -355,6 +356,8 @@ draw = function() {
     drawCount++;
 };
 
+if (false) {
+
 makeFog = function() {
     zPos = 2;
     vertices = [];
@@ -366,6 +369,38 @@ makeFog = function() {
             for (let z = 0; z < 2; z += inc) {
                 let n = openSimplex.noise3D(x*1, y*1, z*10);
                 vertices.push(x+Math.random()*0.1, y+Math.random()*0.1, z+Math.random()*0.1, map(n,-1,1,0,1));
+            }
+        }
+    }
+    randomVertices = vertices.length;
+    let dotPerStroke = 100;
+    let strokeAmount = 20;
+    for (let i = 0; i < strokeAmount; i++) {
+            let z = Math.random() * 2;
+            let r = Math.random();
+        r = 0.15;
+        for (let j = 0; j < Math.PI*2; j+=(Math.PI*2/dotPerStroke)) {
+            let x = Math.cos(j) * r + (Math.random() - 0.5) * 0.015;
+            let y = Math.sin(j) * r + (Math.random() - 0.5) * 0.015;
+            vertices.push(x, y, z, 1);
+        }
+    }
+};
+makeFog();
+
+}
+
+makeFog = function() {
+    zPos = 2;
+    vertices = [];
+    randomVertices = 0;
+    let amount = 120;
+    let inc = 2 / amount;
+    for (let x = -0.5; x < 0.5; x += inc) {
+        for (let y = -0.5; y < 0.5; y += inc) {
+            for (let z = 0; z < 2; z += inc) {
+                let n = openSimplex.noise3D(x*1, y*1, z*10);
+                vertices.push(x+Math.random()*0.1, y+Math.random()*0.1, z+Math.random()*0.1, n*0.5+0.5);
             }
         }
     }
@@ -393,7 +428,7 @@ makeFog = function() {
         }
     }
 };
-makeFog();
+// makeFog();
 
 walkInFog = function() {
     let fogStep = 0.005;
@@ -404,12 +439,12 @@ walkInFog = function() {
             vertices[i+2] = 2;
             if (i < randomVertices) {
                 let n = openSimplex.noise3D(vertices[i], vertices[i+1], zPos*10);
-                vertices[i+3] = map(n,-1,1,0,1);
+                vertices[i+3] = n*0.5+0.5;
             }
         }
     }
 };
-walkInFog();
+// walkInFog();
 
 draw = function() {
     gl.clear(gl.COLOR_BUFFER_BIT);
