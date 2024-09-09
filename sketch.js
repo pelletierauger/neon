@@ -22,6 +22,8 @@ let g;
 let walkerVertices = [];
 let walker_buffer;
 let w;
+const openSimplex = openSimplexNoise(25);
+// openSimplex.noise2D(0, drawCount * 5e-2 + 1e5) * 0.0025;
 
 function setup() {
     socket = io.connect('http://localhost:8080');
@@ -127,12 +129,12 @@ function setup() {
             }   
         }, false);
     }, 1);
-    g = new Graph();
-    makeField3D();
-    do {
-        makeTree3D();
-    } while(unreached3D.length > 0.0);
-    w = new Walker(g.vertices[0], g);
+    // g = new Graph();
+    // makeField3D();
+    // do {
+    //     makeTree3D();
+    // } while(unreached3D.length > 0.0);
+    // w = new Walker(g.vertices[0], g);
 }
 
 makeField3D = function() {
@@ -352,6 +354,82 @@ draw = function() {
     // socket.emit('msgToSCD', msg);
     drawCount++;
 };
+
+makeFog = function() {
+    zPos = 2;
+    vertices = [];
+    randomVertices = 0;
+    let amount = 120;
+    let inc = 2 / amount;
+    for (let x = -0.5; x < 0.5; x += inc) {
+        for (let y = -0.5; y < 0.5; y += inc) {
+            for (let z = 0; z < 2; z += inc) {
+                let n = openSimplex.noise3D(x*1, y*1, z*10);
+                vertices.push(x+Math.random()*0.1, y+Math.random()*0.1, z+Math.random()*0.1, map(n,-1,1,0,1));
+            }
+        }
+    }
+    randomVertices = vertices.length;
+    let dotPerStroke = 300;
+    let strokeAmount = 20;
+    for (let j = 0; j < strokeAmount; j++) {
+        let x = (Math.random() - 0.5);
+        let z = Math.random() * 2;
+        for (let i = 0; i < dotPerStroke; i++) {
+            let y = map(i,0,dotPerStroke,-0.5,0.5);
+            vertices.push(x, y, z, 1);
+            x += (Math.random() - 0.5) * 0.015;
+            // z += (Math.random() - 0.5) * 0.015;
+        }
+    }
+    for (let j = 0; j < strokeAmount; j++) {
+        let y = (Math.random() - 0.5);
+        let z = Math.random() * 2;
+        for (let i = 0; i < dotPerStroke; i++) {
+            let x = map(i,0,dotPerStroke,-0.75,0.75);
+            vertices.push(x, y, z, 1);
+            y += (Math.random() - 0.5) * 0.015;
+            // z += (Math.random() - 0.5) * 0.015;
+        }
+    }
+};
+makeFog();
+
+walkInFog = function() {
+    let fogStep = 0.005;
+    zPos += fogStep;
+    for (let i = 0; i < vertices.length; i+=4) {
+        vertices[i+2] -= fogStep;
+        if (vertices[i+2] <= 0) {
+            vertices[i+2] = 2;
+            if (i < randomVertices) {
+                let n = openSimplex.noise3D(vertices[i], vertices[i+1], zPos*10);
+                vertices[i+3] = map(n,-1,1,0,1);
+            }
+        }
+    }
+};
+walkInFog();
+
+draw = function() {
+    gl.clear(gl.COLOR_BUFFER_BIT);
+    reset3DLines();
+    walkInFog();
+    // currentProgram = getProgram("holy-hills");
+    // gl.useProgram(currentProgram);
+    // drawRectangle(currentProgram, -1, -1, 1, 1);
+    // currentProgram = getProgram("smooth-line-3D");
+    // gl.useProgram(currentProgram);
+    // draw3DLines();
+    currentProgram = getProgram("smooth-dots-3D");
+    gl.useProgram(currentProgram);
+    draw3DDots(currentProgram);
+    if (exporting && frameCount < maxFrames) {
+        frameExport();
+    }
+    drawCount++;
+};
+
 
 reset3DLines = function() {
     indices = [];
