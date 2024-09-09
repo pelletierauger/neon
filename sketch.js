@@ -430,6 +430,50 @@ makeFog = function() {
 };
 // makeFog();
 
+makeFog = function() {
+    zPos = 2;
+    vertices = [];
+    randomVertices = 0;
+    let amount = 120;
+    let inc = 2 / amount;
+    for (let x = -0.5; x < 0.5; x += inc) {
+        for (let y = -0.5; y < 0.5; y += inc) {
+            for (let z = 0; z < 2; z += inc) {
+                let n = openSimplex.noise3D(x*1, y*1, z*10);
+                vertices.push(x+Math.random()*0.1, y+Math.random()*0.1, z+Math.random()*0.1, n*0.5+0.5);
+            }
+        }
+    }
+    randomVertices = vertices.length;
+    let dotPerStroke = 300;
+    let strokeAmount = 20;
+    for (let j = 0; j < strokeAmount; j++) {
+        let x = (Math.random() - 0.5);
+        let z = Math.random() * 2;
+        let zInc = (Math.random()-0.5) * 0.01;
+        for (let i = 0; i < dotPerStroke; i++) {
+            let y = map(i,0,dotPerStroke,-0.75,0.75);
+            vertices.push(x, y, z, 1);
+            x += (Math.random() - 0.5) * 0.015;
+            z += zInc;
+            // z += (Math.random() - 0.5) * 0.015;
+        }
+    }
+    for (let j = 0; j < strokeAmount; j++) {
+        let y = (Math.random() - 0.5);
+        let z = Math.random() * 2;
+        let zInc = (Math.random()-0.5) * 0.01;
+        for (let i = 0; i < dotPerStroke; i++) {
+            let x = map(i,0,dotPerStroke,-0.75,0.75);
+            vertices.push(x, y, z, 1);
+            y += (Math.random() - 0.5) * 0.015;
+            z += zInc;
+            // z += (Math.random() - 0.5) * 0.015;
+        }
+    }
+};
+// makeFog();
+
 walkInFog = function() {
     let fogStep = 0.005;
     zPos += fogStep;

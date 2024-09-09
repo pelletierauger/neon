@@ -1332,10 +1332,10 @@ smoothDots3D.vertText = `
         // pos.xyz *= 1.25;
         // pos.xyz *= map(sin(pos.y*5.-time*0.5e-1)*0.5+0.5, 0., 1., 1.0, 0.95);
         posUnit = pos.xyz;
-        pos = xRotate(cos(time*0.25e-1)*0.1) * pos;
-        pos = yRotate(sin(time*0.25e-1)*0.1) * pos;
-        pos = translate(cos(-time*0.25e-1)*0.1, sin(-time*0.25e-1)*0.1, 0.) * pos;
-        pos = zRotate(sin(-time*0.25e-1)*0.1) * pos;
+        pos = xRotate(cos(time*0.25e-1)*0.15) * pos;
+        pos = yRotate(sin(time*0.25e-1)*0.15) * pos;
+        pos = translate(cos(-time*0.25e-1)*0.15, sin(-time*0.25e-1)*0.15, 0.) * pos;
+        pos = zRotate(sin(-time*0.25e-1)*0.15) * pos;
         // pos = xRotate(time*0.25e-2) * pos;
         // pos = xRotate(-time*0.5e-2) * pos;
         // pos = rotate()
@@ -1372,6 +1372,7 @@ smoothDots3D.fragText = `
         if (posUnit2.z > 0.45) {
             discard;
         }
+        // float noise = rand(gl_FragCoord.xy+posUnit.x*10.) * 0.0;
         float shimmer = sin(posUnit.y*5.-t*0.5e-1)*0.5+0.5;
         shimmer = smoothstep(0., 1., shimmer);
         shimmer = smoothstep(0., 1., shimmer);
@@ -1393,7 +1394,8 @@ smoothDots3D.fragText = `
         l = max(l, halo);
         l  = pow(l, 100.);
         // l = halo;
-        gl_FragColor = vec4(vec3(1.0, halo*0.2, halo*0.2).gbr, halo);
+        gl_FragColor = vec4(vec3(1.0, halo*0.2, halo*0.2), halo);
+        // gl_FragColor = vec4(vec3(1.0, halo*0.35*alpha, halo*0.2), halo);
         // gl_FragColor.rgb = vec3(0.0);
         // gl_FragColor.a *= 1.0-posUnit2.z*0.4;
         gl_FragColor.a *= ((alpha*2.)-1.) * 0.5;
