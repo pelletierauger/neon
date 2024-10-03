@@ -756,7 +756,8 @@ void main() {
     float halo = max((c0A * c1A), (c0B * c1B * 0.35));
     // c = max(c, halo);
     // c = c1 * 0.5 + c0 * 0.5;
-    float noise = rand(uv + sin(time)) * 0.075;
+    // float noise = rand(uv + sin(time)) * 0.075;
+    float noise = rand(uv + sin(time)) * 0.025;
     gl_FragColor = vec4(vec3(c), 1.0);
     gl_FragColor = vec4(vec3(1.0, pow(c,5.)*0.75, pow(c,5.)*0.5*0.75), (c+halo)*0.7-noise);
 }
