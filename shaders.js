@@ -614,8 +614,8 @@ smoothLine3D.vertText = `
     void main(void) {
         float ratio = (resolution.y / resolution.x);
         vec2 pos = vec2(0., 0.);
-        vec4 pos0 = vec4(coordinatesA, 1.);
-        vec4 pos1 = vec4(coordinatesB, 1.);
+        vec4 pos0 = vec4(coordinatesA * 1.05, 1.);
+        vec4 pos1 = vec4(coordinatesB * 1.05, 1.);
         // pos0.xyz *= map(sin(time *1e-1+pos0.y*2.), -1., 1., 0.95, 1.0);
         // pos1.xyz *= map(sin(time *1e-1+pos1.y*2.), -1., 1., 0.95, 1.0);
         pos0.xyz *= map(sin(pos0.y*5.-time*0.5e-1)*0.5+0.5, 0., 1., 1.0, 0.95);
@@ -684,7 +684,7 @@ smoothLine3D.fragText = `
         uv -= fwh * 0.5;
         float radius = wh.x;
         vec2 size = fwh * 0.5 - radius;
-        radius *= 2. - (1. - shimmer);
+        // radius *= 2. - (1. - shimmer);
         float col = length(max(abs(uv), size) - size) - radius;
         col = min(col * -1. * (1. / radius), 1.0);
         col = pow(col, 3.) * 0.75 + pow(col, 43.);
@@ -702,7 +702,9 @@ smoothLine3D.fragText = `
         // gl_FragColor.rgb = vec3(0.);
         gl_FragColor.a *= 1.0-posUnit2.z*0.4;
         // gl_FragColor.rgb *= shimmer;
-        gl_FragColor.a *= shimmer;
+        // gl_FragColor.a *= shimmer * 0.25;
+        gl_FragColor.a *= 0.25;
+        gl_FragColor.rgb *= 1.0-pow(length(posUnit),8.)*0.125;
     }
     // endGLSL
 `;
@@ -1190,7 +1192,7 @@ smoothDots3D.vertText = `
     }
     void main(void) {
         float ratio = resolution.y / resolution.x;
-        vec4 pos = vec4(coordinates, 1.);
+        vec4 pos = vec4(coordinates * 1.05, 1.);
         // pos = translate(0.0, 0., 0.5) * yRotate(time*2e-2) * xRotate(time*2e-2) * translate(0.0, 0., -0.5) * pos;
         // pos.xyz *= map(sin(time *1e-1+pos.y*2.), -1., 1., 0.95, 1.0);
         // pos.xyz *= 1.25;
@@ -1250,7 +1252,8 @@ smoothDots3D.fragText = `
         gl_FragColor = vec4(vec3(1.0, pow(l, 2.)*0.25, 0.25), (l+halo-noise)*1.);
         // gl_FragColor.rgb = vec3(0.0);
         gl_FragColor.a *= 1.0-posUnit2.z*0.4;
-        gl_FragColor.rgb *= shimmer;
+        gl_FragColor.rgb *= 1.0-pow(length(posUnit),8.)*0.125;
+        // gl_FragColor.rgb *= shimmer;
     }
     // endGLSL
 `;
