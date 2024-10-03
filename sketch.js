@@ -428,7 +428,7 @@ draw = function() {
     // vertices.push(0.1, 0, 0.2);
     currentProgram = getProgram("holy-hills");
     gl.useProgram(currentProgram);
-    drawRectangle(currentProgram, -1, -1, 1, 1);
+    drawRectangle(currentProgram, 0.35, 0, 0.65, 1);
     currentProgram = getProgram("smooth-dots-3D");
     gl.useProgram(currentProgram);
     draw3DDots(currentProgram);
