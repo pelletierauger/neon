@@ -422,8 +422,10 @@ draw = function() {
     for (let i = 0; i < flakes.length; i++) {
         vertices.push(flakes[i][0], flakes[i][1], flakes[i][2]);
     }
-      // for (let i = 0; i < 1400; i++) {
-        // vertices.push(Math.random()*2-1, -0.1, Math.random()*2-1);
+    // for (let i = 0; i < 400; i++) {
+    //     let x = Math.cos(i - drawCount * 1e-2) * i * 1e-3;
+    //     let z = Math.sin(i - drawCount * 1e-2) * i * 1e-3;
+    //     vertices.push(x, -0.35, z + 0.5);
     // }
     // vertices.push(0.1, 0, 0.2);
     currentProgram = getProgram("holy-hills");
