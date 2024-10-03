@@ -309,7 +309,7 @@ flakes = [];
 maps = function(n,sa1,so1,sa2,so2) {
     return (n-sa1)/(so1-sa1)*(so2-sa2)+sa2;
 };
-for (let i = 0; i < 3500; i++) {
+for (let i = 0; i < 12500; i++) {
     let x = Math.random() * 2 - 1;
     // do {x = Math.random() * 2 - 1} while (Math.abs(x) < 0.1);
     let y = maps(Math.random(), 0, 1, -1, 1);
