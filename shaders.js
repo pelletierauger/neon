@@ -1397,7 +1397,7 @@ float sdTriangle(in vec2 p, in vec2 p0, in vec2 p1, in vec2 p2) {
         // gl_FragColor.a *= max(0.0,distSquared2) * 1.;
         // gl_FragColor.a *= max(0., 1.0-pow(length(posUnit2.xz), 2.)*10.);
         // gl_FragColor.a *= 1.0-length(uv)*2.;
-        float chain = 1.0-length(uv*vec2(0.31, 0.5)+vec2(0.,0.82));
+        float chain = 1.0-length(uv*vec2(0.25, 0.5)+vec2(0.,0.82));
         chain = abs((chain-0.5)*10.)*-1.+1.;
         // chain *= smoothstep(0.5,0.51, 1.-length(uv*vec2(1.,1.))*0.4);
         chain *= 1.-length(uv*vec2(1.,1.))*0.4;

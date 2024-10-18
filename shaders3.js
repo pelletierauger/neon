@@ -116,6 +116,7 @@ float sdTriangle(in vec2 p, in vec2 p0, in vec2 p1, in vec2 p2) {
         vec2 pos2 = gl_PointCoord - vec2(-osc2, osc2);
         float distSquared = 1.0 - dot(pos - 0.5, pos - 0.5) * 12.;
         distSquared = smoothstep(0., 1., distSquared);
+        float inner = distSquared;
         float contour = distSquared;
         contour = smoothstep(0.25, 1., contour);
         // contour = smoothstep(0., 1., contour);
@@ -156,6 +157,7 @@ float sdTriangle(in vec2 p, in vec2 p0, in vec2 p1, in vec2 p2) {
         float backHalo = 1.0 - dot(pos - 0.5, pos - 0.5) * 6.;
         backHalo = pow(backHalo, 3.)*1.;
         gl_FragColor.r += max(0., 1.0-backHalo)*tri*osc*0.5;
+        gl_FragColor.r += max(0., pow(max(0.,tri),5.)*2.*backHalo*osc)*(1.-inner*inner);
         // gl_FragColor.gb += pow(osc,15.)*0.5;
         // gl_FragColor.rgb *= max(0., 1.0-pow(length(posUnit2.xz), 2.)*10.);
         // gl_FragColor.a *= max(0.,1.0-pow(abs(gl_FragCoord.x)/1280.-0.5,3.)*160.);

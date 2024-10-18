@@ -426,14 +426,22 @@ draw = function() {
     }
     let p = {x: 0, y: -0.334, h: 0};
     let p2 = {x: 0.0, y: -0.334, h: Math.PI};
-    let ro = -0.017;
-    for (let i = 0; i < 55; i++) {
-        vertices.push(p.x, p.y, 0.8);
-        if (i > 0) {vertices.push(p2.x, p2.y, 0.8)};
-        ro *= 1.0035;
-        p = turtleRotateAndWalk(ro, 0.021, p.x, p.y, p.h);
-        p2 = turtleRotateAndWalk(-ro, 0.021, p2.x, p2.y, p2.h);
-        
+    let ro = -0.012;
+    let necklaceVertices = [];
+    for (let i = 0; i < 70; i++) {
+        necklaceVertices.push([p.x, p.y, 0.8]);
+        if (i > 0) {necklaceVertices.push([p2.x, p2.y, 0.8])};
+        ro *= 1.005;
+        p = turtleRotateAndWalk(ro, 0.018, p.x, p.y, p.h);
+        p2 = turtleRotateAndWalk(-ro, 0.018, p2.x, p2.y, p2.h);
+    }
+    necklaceVertices.sort((a, b) => a[1] - b[1]);
+    for (let i = 0; i < necklaceVertices.length; i++) {
+        vertices.push(
+            necklaceVertices[i][0],
+            necklaceVertices[i][1],
+            necklaceVertices[i][2]
+        );
     }
     // currentProgram = getProgram("pearl-glow");
     // gl.useProgram(currentProgram);
