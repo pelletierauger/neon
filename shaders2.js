@@ -786,6 +786,7 @@ void main() {
     uv -= 0.5;
     uv *= 0.5;
     uv.x *= ratio;
+    uv.y *= -1.;
     // uv = rotateUV(uv, pi*0.5, 0.0);
     vec2 v1 = vec2(-0.1, 0.1);
     vec2 v2 = vec2(0.1, 0.1);
@@ -802,7 +803,7 @@ void main() {
     float voro2 = voronoise(uv*12., 0.75, 0.3);
     voro = mix(voro, voro2, 0.5);
     tri = max(tri, (interior * voro));
-    tri *= map(sin((uv.x+uv.y)*10.-time*5e-2),-1.,1.,0.25,1.);
+    tri *= map(sin((uv.x-uv.y)*10.-time*5e-2),-1.,1.,0.25,1.);
     // tri = abs(tri - 0.5) * -1. + 0.5;
     tri = smoothstep(0., 1., tri);
     float noise = rand(uv + sin(time)) * 0.075;

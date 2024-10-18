@@ -392,6 +392,55 @@ draw = function() {
     //     gl.useProgram(currentProgram);
     //     draw3DLines();
     // }
+    currentProgram = getProgram("holy-hills");
+    gl.useProgram(currentProgram);
+    drawRectangle(currentProgram, 0.25, 0, 0.75, 1);
+    vertices = [];
+    // for (let i = 0; i < 100; i++) {
+    //     let a = 2, e = 1.5, n = 1;
+    //     let t = map(i, 0, 100, Math.PI * -2, Math.PI * 2);
+    //     let x = t;
+    //     let y = (a/2) * (Math.pow(e, t/a) + Math.pow(e, -t/a));
+    //     vertices.push(x/6,y*-0.4+0.47,0.8);
+    // }
+    for (let i = 0; i < 100; i++) {
+        let a = 1, e = 1.5, n = 1;
+        let t = map(i, 0, 100, Math.PI * -2, Math.PI * 2);
+        let x = t;
+        let y = (a/2) * (Math.pow(e, t/a) + Math.pow(e, -t/a));
+        // vertices.push(x*0.2,y*-0.2-0.135,0.8);
+    }
+    for (let i = 0; i < 90; i++) {
+        let a = 1, e = 1.5, n = 1;
+        let t = map(i, 0, 90, Math.PI, Math.PI * 2);
+        let x = Math.cos(t);
+        let y = Math.sin(t);
+        // vertices.push(x*0.7*1.4,y*-0.7-0.135,0.8);
+    }
+    function turtleRotateAndWalk(angle, length, x, y, heading) {
+        return {
+            x: x + Math.cos(heading + angle) * length,
+            y: y + Math.sin(heading + angle) * length,
+            h: heading + angle
+        };
+    }
+    let p = {x: 0, y: -0.334, h: 0};
+    let p2 = {x: 0.0, y: -0.334, h: Math.PI};
+    let ro = -0.017;
+    for (let i = 0; i < 55; i++) {
+        vertices.push(p.x, p.y, 0.8);
+        if (i > 0) {vertices.push(p2.x, p2.y, 0.8)};
+        ro *= 1.0035;
+        p = turtleRotateAndWalk(ro, 0.021, p.x, p.y, p.h);
+        p2 = turtleRotateAndWalk(-ro, 0.021, p2.x, p2.y, p2.h);
+        
+    }
+    // currentProgram = getProgram("pearl-glow");
+    // gl.useProgram(currentProgram);
+    // draw3DDots(currentProgram);
+    currentProgram = getProgram("pearl");
+    gl.useProgram(currentProgram);
+    draw3DDots(currentProgram);
     vertices = [];
     for (let i = 0; i < flakes.length; i++) {
         
@@ -428,9 +477,6 @@ draw = function() {
     //     vertices.push(x, -0.35, z + 0.5);
     // }
     // vertices.push(0.1, 0, 0.2);
-    currentProgram = getProgram("holy-hills");
-    gl.useProgram(currentProgram);
-    drawRectangle(currentProgram, 0.25, 0, 0.75, 1);
     currentProgram = getProgram("smooth-dots-3D");
     gl.useProgram(currentProgram);
     draw3DDots(currentProgram);
