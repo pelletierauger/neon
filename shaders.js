@@ -1266,6 +1266,7 @@ smoothDots3D.init();
 // A version of smoothDots3D that adjusts the dot size according to its Z value
 smoothDots3D.vertText = `
     // beginGLSL
+    ${pi}
     attribute vec3 coordinates;
     uniform float time;
     uniform vec2 resolution;
@@ -1322,12 +1323,12 @@ smoothDots3D.vertText = `
         // pos = translate(0.0, 0.9, 1.5) * pos;
         
         posUnit = pos.xyz;
+        pos = xRotate(pi * -1.7) * pos;
         // pos.x *= ratio;
-        gl_Position = vec4(pos.x * ratio, pos.y*-1., 0.0, pos.z);
+        gl_Position = vec4(pos.x * ratio*1.3, pos.y*1., 0.0, pos.z);
         gl_PointSize = 8./pos.z;
         t = time;
-        
-        pos = translate(0.0, 0.0, -0.5) * pos;
+        // pos = translate(0.0, 0.0, -0.5) * pos;
         // gl_PointSize += (sin((length(coordinates*20.)*0.2-time*2e-1))*0.5+0.5)*14.;
         posUnit2 = pos.xyz;
         if (length(posUnit2.xz) > 0.4) {
@@ -1404,11 +1405,13 @@ float sdTriangle(in vec2 p, in vec2 p0, in vec2 p1, in vec2 p2) {
         tri = max(tri, chain*2.);
         // tri = chain;
         // tri += smoothstep(0.5,0.51, chain);
-        gl_FragColor.a *= max(0., tri);
+        // gl_FragColor.a *= max(0., tri);
         // gl_FragColor.a *= max(0., smoothstep(0.5, 0.51, tri));
         float osc = map(sin((uv.x-uv.y)*1.-t*5e-2),-1.,1.,0.25,1.);
         // osc = smoothstep(0.5, 0.51, osc);
-        gl_FragColor.a *= osc;
+        gl_FragColor.a *= osc * 0.5;
+        
+        gl_FragColor.rgb = gl_FragColor.gbr;
         // gl_FragColor = vec4(vec3(1.,0.,0.,), 1.);
         // gl_FragColor.gb += pow(osc,15.)*0.5;
         // gl_FragColor.rgb *= max(0., 1.0-pow(length(posUnit2.xz), 2.)*10.);

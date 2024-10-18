@@ -155,6 +155,7 @@ function setup() {
     // do {
     //     makeTree3D();
     // } while(unreached3D.length > 0.0);
+    necklaces();
 }
 
 if (false) {
@@ -318,6 +319,34 @@ for (let i = 0; i < 12500; i++) {
 }
 flakes.sort((a, b) => b[2] - a[2]);
 
+
+
+necklaces = function() {
+    vertices2 = [];
+    function turtleRotateAndWalk(angle, length, x, y, heading) {
+        return {
+            x: x + Math.cos(heading + angle) * length,
+            y: y + Math.sin(heading + angle) * length,
+            h: heading + angle
+        };
+    }
+    for (let j = 0; j < 15; j++) {
+    let p = {x: -(16/9), y: -0.334, h: 0};
+    let p2 = {x: 0.0, y: -0.334, h: Math.PI};
+    let ro = 0;
+    for (let i = 0; i < 355; i++) {
+        vertices2.push(p.x, p.y, 0.8);
+        // if (i > 0) {vertices.push(p2.x, p2.y, 0.8)};
+        ro = lerp(Math.random()-0.5, ro, 0.9);
+        p = turtleRotateAndWalk(ro, 0.021, p.x, p.y, p.h);
+        // p2 = turtleRotateAndWalk(-ro, 0.021, p2.x, p2.y, p2.h);
+        
+    }
+    }
+}
+// necklaces();
+
+
 sc = 0.75;
 draw = function() {
     gl.clear(gl.COLOR_BUFFER_BIT);
@@ -392,9 +421,9 @@ draw = function() {
     //     gl.useProgram(currentProgram);
     //     draw3DLines();
     // }
-    currentProgram = getProgram("holy-hills");
-    gl.useProgram(currentProgram);
-    drawRectangle(currentProgram, 0.25, 0, 0.75, 1);
+    // currentProgram = getProgram("holy-hills");
+    // gl.useProgram(currentProgram);
+    // drawRectangle(currentProgram, 0.25, 0, 0.75, 1);
     vertices = [];
     // for (let i = 0; i < 100; i++) {
     //     let a = 2, e = 1.5, n = 1;
@@ -417,27 +446,12 @@ draw = function() {
         let y = Math.sin(t);
         // vertices.push(x*0.7*1.4,y*-0.7-0.135,0.8);
     }
-    function turtleRotateAndWalk(angle, length, x, y, heading) {
-        return {
-            x: x + Math.cos(heading + angle) * length,
-            y: y + Math.sin(heading + angle) * length,
-            h: heading + angle
-        };
-    }
-    let p = {x: 0, y: -0.334, h: 0};
-    let p2 = {x: 0.0, y: -0.334, h: Math.PI};
-    let ro = -0.017;
-    for (let i = 0; i < 55; i++) {
-        vertices.push(p.x, p.y, 0.8);
-        if (i > 0) {vertices.push(p2.x, p2.y, 0.8)};
-        ro *= 1.0035;
-        p = turtleRotateAndWalk(ro, 0.021, p.x, p.y, p.h);
-        p2 = turtleRotateAndWalk(-ro, 0.021, p2.x, p2.y, p2.h);
-        
-    }
     // currentProgram = getProgram("pearl-glow");
     // gl.useProgram(currentProgram);
     // draw3DDots(currentProgram);
+    for (let i = 0; i < vertices2.length; i++) {
+        vertices.push(vertices2[i]);
+    }
     currentProgram = getProgram("pearl");
     gl.useProgram(currentProgram);
     draw3DDots(currentProgram);

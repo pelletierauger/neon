@@ -3,6 +3,7 @@ let pearl = new ShaderProgram("pearl");
 // A version of smoothDots3D that adjusts the dot size according to its Z value
 pearl.vertText = `
     // beginGLSL
+    ${pi}
     attribute vec3 coordinates;
     uniform float time;
     uniform vec2 resolution;
@@ -58,10 +59,11 @@ pearl.vertText = `
         // pos = rotate()
         // pos = translate(0.0, 0.9, 1.5) * pos;
         
+        pos = xRotate(pi * -1.9) * pos;
         posUnit = pos.xyz;
         // pos.x *= ratio;
         gl_Position = vec4(pos.x * ratio, pos.y*-1., 0.0, pos.z);
-        gl_PointSize = 24.;
+        gl_PointSize = 24./pos.z;
         t = time;
         
         pos = translate(0.0, 0.0, -0.5) * pos;
@@ -157,6 +159,7 @@ float sdTriangle(in vec2 p, in vec2 p0, in vec2 p1, in vec2 p2) {
         backHalo = pow(backHalo, 3.)*1.;
         gl_FragColor.r += max(0., 1.0-backHalo)*tri*osc*0.5;
         // gl_FragColor.gb += pow(osc,15.)*0.5;
+        gl_FragColor.rgb = gl_FragColor.gbr;
         // gl_FragColor.rgb *= max(0., 1.0-pow(length(posUnit2.xz), 2.)*10.);
         // gl_FragColor.a *= max(0.,1.0-pow(abs(gl_FragCoord.x)/1280.-0.5,3.)*160.);
     }
