@@ -1322,13 +1322,13 @@ smoothDots3D.vertText = `
         // pos = rotate()
         // pos = translate(0.0, 0.9, 1.5) * pos;
         
-        posUnit = pos.xyz;
         pos = xRotate(pi * -1.7) * pos;
+        posUnit = pos.xyz;
         // pos.x *= ratio;
         gl_Position = vec4(pos.x * ratio*1.3, pos.y*1., 0.0, pos.z);
         gl_PointSize = 8./pos.z;
         t = time;
-        // pos = translate(0.0, 0.0, -0.5) * pos;
+        pos = translate(0.0, 0.0, -0.25) * pos;
         // gl_PointSize += (sin((length(coordinates*20.)*0.2-time*2e-1))*0.5+0.5)*14.;
         posUnit2 = pos.xyz;
         if (length(posUnit2.xz) > 0.4) {
@@ -1407,7 +1407,8 @@ float sdTriangle(in vec2 p, in vec2 p0, in vec2 p1, in vec2 p2) {
         // tri += smoothstep(0.5,0.51, chain);
         // gl_FragColor.a *= max(0., tri);
         // gl_FragColor.a *= max(0., smoothstep(0.5, 0.51, tri));
-        float osc = map(sin((uv.x-uv.y)*1.-t*5e-2),-1.,1.,0.25,1.);
+        float osc = map(sin((uv.x*-0.8-uv.y)*1.+t*5e-2+0.5),-1.,1.,1.,0.25);
+        osc = pow(osc, 3.);
         // osc = smoothstep(0.5, 0.51, osc);
         gl_FragColor.a *= osc * 0.5;
         

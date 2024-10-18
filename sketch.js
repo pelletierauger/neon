@@ -319,8 +319,6 @@ for (let i = 0; i < 12500; i++) {
 }
 flakes.sort((a, b) => b[2] - a[2]);
 
-
-
 necklaces = function() {
     vertices2 = [];
     function turtleRotateAndWalk(angle, length, x, y, heading) {
@@ -346,6 +344,46 @@ necklaces = function() {
 }
 // necklaces();
 
+necklaces = function() {
+    vertices2 = [];
+    function turtleRotateAndWalk(angle, length, x, y, heading) {
+        return {
+            x: x + Math.cos(heading + angle) * length,
+            y: y + Math.sin(heading + angle) * length,
+            h: heading + angle
+        };
+    }
+    for (let j = 0; j < 15; j++) {
+        let startX, startHeading;
+        if (j % 2 == 0) {
+            startX = -16/9, startHeading = 0;
+        } else {
+            startX = 16/9, startHeading = Math.PI;
+        }
+        let startY = map(Math.random(), 0, 1, -0.5, 0.5);
+        let p = {x: startX, y: -0.334 + startY, h: startHeading};
+        let ro = 0;
+        let necklaceVertices = [];
+        for (let i = 0; i < 355; i++) {
+            necklaceVertices.push([p.x, p.y, 0.8]);
+            ro = lerp(Math.random()-0.5, ro, 0.9);
+            p = turtleRotateAndWalk(ro, 0.021, p.x, p.y, p.h);
+            
+        }
+        necklaceVertices.sort((a, b) => a[1] - b[1]);
+        for (let i = 0; i < necklaceVertices.length; i++) {
+            vertices2.push(
+                necklaceVertices[i][0], 
+                necklaceVertices[i][1], 
+                necklaceVertices[i][2]
+            );
+        }
+    }
+    // for (let i = 0; i < 100; i++) {
+    //     vertices2.push(Math.random()*2-1, Math.random()*2-1-0.334, 0.8);
+    // }
+}
+// necklaces();
 
 sc = 0.75;
 draw = function() {

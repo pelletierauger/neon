@@ -107,8 +107,10 @@ float sdTriangle(in vec2 p, in vec2 p0, in vec2 p1, in vec2 p2) {
         // float ratio = resolution.x / resolution.y;
         // uv -= 0.5;
         uv *= 1.5 * vec2(1., 1.);
-        float x = (uv.x - uv.y) - t * 5e-2;
+        float x = (uv.x*0.8 - uv.y) - t * 5e-2;
+        // x = (1.0-length(uv)) - t * 5e-2;
         float osc = map(sin(x),-1.,1.,0.25,1.);
+        osc = pow(osc, 7.);
         float osc2 = (mod(x+(pi*0.5), pi*2.) / (pi*2.))*2.-1.;
         vec2 v1 = vec2(-0.4, 0.4);
         vec2 v2 = vec2(0.4, 0.4);
@@ -123,7 +125,7 @@ float sdTriangle(in vec2 p, in vec2 p0, in vec2 p1, in vec2 p2) {
         // contour = smoothstep(0., 1., contour);
         float distSquared2 = 1.0 - dot(pos2 - 0.5, pos2 - 0.5) * 12.;
         distSquared2 = smoothstep(0., 1., distSquared2);
-        distSquared += distSquared2 * distSquared * 0.0625;
+        // distSquared += distSquared2 * distSquared * 0.0625;
         distSquared *= mix(1.0, distSquared2, 0.5);
         distSquared -= (1.0-distSquared2)*0.25;
         // float l = 1.0 - length(pos - vec2(0.5)) * 4.;
@@ -152,12 +154,12 @@ float sdTriangle(in vec2 p, in vec2 p0, in vec2 p1, in vec2 p2) {
         // osc = smoothstep(0.5, 0.51, osc);
         gl_FragColor.a *= osc;
         float hl = pow(distSquared, 15.)*0.25;
-        distSquared *= 1.-length(uv)*0.25;
+        // distSquared *= 1.-length(uv)*0.25;
         distSquared *= osc;
                 gl_FragColor = vec4(vec3(1.,hl,hl)*distSquared, contour);
         float backHalo = 1.0 - dot(pos - 0.5, pos - 0.5) * 6.;
         backHalo = pow(backHalo, 3.)*1.;
-        gl_FragColor.r += max(0., 1.0-backHalo)*tri*osc*0.5;
+        // gl_FragColor.r += max(0., 1.0-backHalo)*tri*osc*0.5;
         // gl_FragColor.gb += pow(osc,15.)*0.5;
         gl_FragColor.rgb = gl_FragColor.gbr;
         // gl_FragColor.rgb *= max(0., 1.0-pow(length(posUnit2.xz), 2.)*10.);
