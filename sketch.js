@@ -313,9 +313,9 @@ maps = function(n,sa1,so1,sa2,so2) {
 for (let i = 0; i < 12500; i++) {
     let x = Math.random() * 2 - 1;
     // do {x = Math.random() * 2 - 1} while (Math.abs(x) < 0.1);
-    let y = maps(Math.random(), 0, 1, -1, 1);
+    let y = maps(Math.random(), 0, 1, -1, 15);
     let z = Math.random() * 2 - 1;
-    flakes.push([x, y, z, i])
+    flakes.push([x, y, z, i, true])
 }
 flakes.sort((a, b) => b[2] - a[2]);
 
@@ -495,10 +495,10 @@ draw = function() {
     draw3DDots(currentProgram);
     vertices = [];
     for (let i = 0; i < flakes.length; i++) {
-        
-        flakes[i][0] += 0.0025 * 0.75;
-        flakes[i][1] -= 0.005 * 0.75;
-        flakes[i][0] += Math.sin(flakes[i][3]*1e1)*2e-3;
+        if (flakes[i][3]) {
+        flakes[i][0] += 0.0025 * 0.75 * 0.5;
+        flakes[i][1] -= 0.005 * 0.75 * 0.5;
+        flakes[i][0] += Math.sin(flakes[i][3]*1e1)*2e-3 * 0.5;
 //         if (flakes[i][2] < -0.1) {
 //             flakes[i][2] = 2;
 //             let x = Math.random() * 2 - 1;
@@ -510,13 +510,15 @@ draw = function() {
             
 //         }
         if (flakes[i][0] > 1 || flakes[i][1] < -1) {
-            let x = Math.random() * 2 - 1;
-            flakes[i][0] = x;
-            let y = 1;
-            flakes[i][1] = y;
-            let z = Math.random() * 2 - 1;
-            flakes[i][2] = z;
+            flakes[i][3] = false;
+            // let x = Math.random() * 2 - 1;
+            // flakes[i][0] = x;
+            // let y = 1;
+            // flakes[i][1] = y;
+            // let z = Math.random() * 2 - 1;
+            // flakes[i][2] = z;
             
+        }
         }
     }
     flakes.sort((a, b) => b[2] - a[2]);
