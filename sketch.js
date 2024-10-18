@@ -306,18 +306,21 @@ makeTree3D = function() {
 // }
 // makeTree3D();
 
-flakes = [];
-maps = function(n,sa1,so1,sa2,so2) {
-    return (n-sa1)/(so1-sa1)*(so2-sa2)+sa2;
-};
-for (let i = 0; i < 12500; i++) {
-    let x = Math.random() * 2 - 1;
-    // do {x = Math.random() * 2 - 1} while (Math.abs(x) < 0.1);
-    let y = maps(Math.random(), 0, 1, -1, 15);
-    let z = Math.random() * 2 - 1;
-    flakes.push([x, y, z, i, true])
+startFlakes = function() {
+    flakes = [];
+    maps = function(n,sa1,so1,sa2,so2) {
+        return (n-sa1)/(so1-sa1)*(so2-sa2)+sa2;
+    };
+    for (let i = 0; i < 12500; i++) {
+        let x = Math.random() * 2 - 1;
+        // do {x = Math.random() * 2 - 1} while (Math.abs(x) < 0.1);
+        let y = maps(Math.random(), 0, 1, -0.5, 15);
+        let z = Math.random() * 2 - 1;
+        flakes.push([x, y, z, i, true, Math.random()]);
+    }
+    flakes.sort((a, b) => b[2] - a[2]);
 }
-flakes.sort((a, b) => b[2] - a[2]);
+startFlakes();
 
 necklaces = function() {
     vertices2 = [];
@@ -495,7 +498,7 @@ draw = function() {
     draw3DDots(currentProgram);
     vertices = [];
     for (let i = 0; i < flakes.length; i++) {
-        if (flakes[i][3]) {
+        if (flakes[i][4]) {
         flakes[i][0] += 0.0025 * 0.75 * 0.5;
         flakes[i][1] -= 0.005 * 0.75 * 0.5;
         flakes[i][0] += Math.sin(flakes[i][3]*1e1)*2e-3 * 0.5;
@@ -510,7 +513,7 @@ draw = function() {
             
 //         }
         if (flakes[i][0] > 1 || flakes[i][1] < -1) {
-            flakes[i][3] = false;
+            flakes[i][4] = false;
             // let x = Math.random() * 2 - 1;
             // flakes[i][0] = x;
             // let y = 1;
@@ -523,7 +526,7 @@ draw = function() {
     }
     flakes.sort((a, b) => b[2] - a[2]);
     for (let i = 0; i < flakes.length; i++) {
-        vertices.push(flakes[i][0], flakes[i][1], flakes[i][2]);
+        vertices.push(flakes[i][0], flakes[i][1], flakes[i][2], flakes[i][5]);
     }
     // for (let i = 0; i < 400; i++) {
     //     let x = Math.cos(i - drawCount * 1e-2) * i * 1e-3;
@@ -533,7 +536,7 @@ draw = function() {
     // vertices.push(0.1, 0, 0.2);
     currentProgram = getProgram("smooth-dots-3D");
     gl.useProgram(currentProgram);
-    draw3DDots(currentProgram);
+    draw3DDots2(currentProgram);
      if (exporting && frameCount < maxFrames) {
         frameExport();
     }
@@ -832,7 +835,7 @@ function keyPressed() {
             }
         }
         if (key == 'p' || key == 'P') {
-            makeField();
+            startFlakes();
         }
         if (key == 'r' || key == 'R') {
             window.location.reload();
@@ -917,6 +920,23 @@ draw3DDots = function(selectedProgram) {
     let resolutionUniformLocation = gl.getUniformLocation(selectedProgram, "resolution");
     gl.uniform2f(resolutionUniformLocation, cnvs.width, cnvs.height);
     gl.drawArrays(gl.POINTS, 0, vertices.length/3);
+};
+
+
+draw3DDots2 = function(selectedProgram) {
+    gl.bindBuffer(gl.ARRAY_BUFFER, dots_buffer);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
+    // Get the attribute location
+    var coord = gl.getAttribLocation(selectedProgram, "coordinates");
+    // Point an attribute to the currently bound VBO
+    gl.vertexAttribPointer(coord, 4, gl.FLOAT, false, 0, 0);
+    // Enable the attribute
+    gl.enableVertexAttribArray(coord);
+    let timeUniformLocation = gl.getUniformLocation(selectedProgram, "time");
+    gl.uniform1f(timeUniformLocation, drawCount);
+    let resolutionUniformLocation = gl.getUniformLocation(selectedProgram, "resolution");
+    gl.uniform2f(resolutionUniformLocation, cnvs.width, cnvs.height);
+    gl.drawArrays(gl.POINTS, 0, vertices.length/4);
 };
 
 drawRectangle = function(selectedProgram, x0, y0, x1, y1) {

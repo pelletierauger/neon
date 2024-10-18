@@ -1267,7 +1267,7 @@ smoothDots3D.init();
 smoothDots3D.vertText = `
     // beginGLSL
     ${pi}
-    attribute vec3 coordinates;
+    attribute vec4 coordinates;
     uniform float time;
     uniform vec2 resolution;
     varying float t;
@@ -1310,7 +1310,7 @@ smoothDots3D.vertText = `
     }
     void main(void) {
         float ratio = resolution.y / resolution.x;
-        vec4 pos = vec4(coordinates * 1.05, 1.);
+        vec4 pos = vec4(coordinates.xyz * 1.05, 1.);
         // pos = translate(0.0, 0., 0.5) * yRotate(time*2e-2) * xRotate(time*2e-2) * translate(0.0, 0., -0.5) * pos;
         // pos.xyz *= map(sin(time *1e-1+pos.y*2.), -1., 1., 0.95, 1.0);
         // pos.xyz *= 1.25;
@@ -1327,7 +1327,7 @@ smoothDots3D.vertText = `
         // pos.x *= ratio;
         pos = translate(-0.5, 0.32, 0.0) * pos;
         gl_Position = vec4(pos.x * ratio*1.3, pos.y*1.1, 0.0, pos.z);
-        gl_PointSize = 18./pos.z;
+        gl_PointSize = 18./pos.z*0.85+(coordinates.w*15.);
         t = time;
         pos = translate(0.0, 0.0, -0.25) * pos;
         // gl_PointSize += (sin((length(coordinates*20.)*0.2-time*2e-1))*0.5+0.5)*14.;
