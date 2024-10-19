@@ -61,7 +61,7 @@ pearl.vertText = `
         posUnit = pos.xyz;
         // pos.x *= ratio;
         gl_Position = vec4(pos.x * ratio, pos.y*-1., 0.0, pos.z);
-        gl_PointSize = 24.;
+        gl_PointSize = 104.;
         t = time;
         
         pos = translate(0.0, 0.0, -0.5) * pos;
@@ -119,7 +119,10 @@ float sdTriangle(in vec2 p, in vec2 p0, in vec2 p1, in vec2 p2) {
         float inner = distSquared;
         float contour = distSquared;
         contour = smoothstep(0.25, 1., contour);
-        // contour = smoothstep(0., 1., contour);
+        contour = smoothstep(0., 1., contour);
+        contour = smoothstep(0., 1., contour);
+        
+        contour = smoothstep(0., 1., contour);
         float distSquared2 = 1.0 - dot(pos2 - 0.5, pos2 - 0.5) * 48.;
         distSquared2 = smoothstep(0., 1., distSquared2);
         distSquared += distSquared2 * distSquared * 0.0625;
@@ -156,7 +159,7 @@ float sdTriangle(in vec2 p, in vec2 p0, in vec2 p1, in vec2 p2) {
                 gl_FragColor = vec4(vec3(1.,hl,hl)*distSquared, contour);
         float backHalo = 1.0 - dot(pos - 0.5, pos - 0.75) * 6.;
         backHalo = pow(backHalo, 3.)*1. * pow(abs((pos.x-0.5)*2.)*-1.+1.,3.);
-        gl_FragColor.r += max(0., 1.0-backHalo)*tri*osc*0.5;
+        gl_FragColor.r += max(0.,max(0., 1.0-backHalo)*tri*osc*0.5);
         gl_FragColor.r += max(0., pow(max(0.,tri),5.)*2.*backHalo*osc)*(1.-inner*inner)*4.;
         // gl_FragColor.rgb = vec3();
         // gl_FragColor.gb += pow(osc,15.)*0.5;
