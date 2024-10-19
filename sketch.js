@@ -314,7 +314,7 @@ startFlakes = function() {
     for (let i = 0; i < 12500; i++) {
         let x = Math.random() * 2 - 1;
         // do {x = Math.random() * 2 - 1} while (Math.abs(x) < 0.1);
-        let y = maps(Math.random(), 0, 1, -0.5, 15);
+        let y = maps(Math.random(), 0, 1, 0.25, 15);
         let z = Math.random() * 2 - 1;
         flakes.push([x, y, z, i, true, Math.random()]);
     }
@@ -499,34 +499,37 @@ draw = function() {
     vertices = [];
     for (let i = 0; i < flakes.length; i++) {
         if (flakes[i][4]) {
-        flakes[i][0] += 0.0025 * 0.75 * 0.5;
-        flakes[i][1] -= 0.005 * 0.75 * 0.5;
-        flakes[i][0] += Math.sin(flakes[i][3]*1e1)*2e-3 * 0.5;
-//         if (flakes[i][2] < -0.1) {
-//             flakes[i][2] = 2;
-//             let x = Math.random() * 2 - 1;
-//             flakes[i][0] = x;
-//         }
-//         if (flakes[i][1] < -0.5) {
-//             let y = 0.75;
-//             flakes[i][1] = y;
-            
-//         }
-        if (flakes[i][0] > 1 || flakes[i][1] < -1) {
-            flakes[i][4] = false;
-            // let x = Math.random() * 2 - 1;
-            // flakes[i][0] = x;
-            // let y = 1;
-            // flakes[i][1] = y;
-            // let z = Math.random() * 2 - 1;
-            // flakes[i][2] = z;
-            
-        }
+            flakes[i][0] += 0.0025 * 0.75 * 0.5 * 4;
+            flakes[i][1] -= 0.005 * 0.75 * 0.5 * 4;
+            flakes[i][0] += Math.sin(flakes[i][3]*1e1)*2e-3 * 0.5 * 4;
+    //         if (flakes[i][2] < -0.1) {
+    //             flakes[i][2] = 2;
+    //             let x = Math.random() * 2 - 1;
+    //             flakes[i][0] = x;
+    //         }
+    //         if (flakes[i][1] < -0.5) {
+    //             let y = 0.75;
+    //             flakes[i][1] = y;
+    //         }
+            if (flakes[i][0] > 1) {
+                // flakes[i][4] = false;
+                let x = Math.random() * 2 - 1;
+                flakes[i][0] = x;
+                let y = 15;
+                flakes[i][1] = y;
+                let z = Math.random() * 2 - 1;
+                flakes[i][2] = z;
+            }
+            if (flakes[i][1] < 0) {
+                flakes[i][4] = false;
+            }
         }
     }
     flakes.sort((a, b) => b[2] - a[2]);
-    for (let i = 0; i < flakes.length; i++) {
+    // for (let i = 0; i < flakes.length; i++) {
+    for (let i = 0; i < 5000; i++) {
         vertices.push(flakes[i][0], flakes[i][1], flakes[i][2], flakes[i][5]);
+        // vertices.push(Math.random()*2-1, 0.0, Math.random()*2-1, flakes[i][5]);
     }
     // for (let i = 0; i < 400; i++) {
     //     let x = Math.cos(i - drawCount * 1e-2) * i * 1e-3;

@@ -1310,7 +1310,7 @@ smoothDots3D.vertText = `
     }
     void main(void) {
         float ratio = resolution.y / resolution.x;
-        vec4 pos = vec4(coordinates.xyz * 1.05, 1.);
+        vec4 pos = vec4(coordinates.xyz * 1.0, 1.);
         // pos = translate(0.0, 0., 0.5) * yRotate(time*2e-2) * xRotate(time*2e-2) * translate(0.0, 0., -0.5) * pos;
         // pos.xyz *= map(sin(time *1e-1+pos.y*2.), -1., 1., 0.95, 1.0);
         // pos.xyz *= 1.25;
@@ -1322,14 +1322,18 @@ smoothDots3D.vertText = `
         // pos = rotate()
         // pos = translate(0.0, 0.9, 1.5) * pos;
         
-        pos = xRotate(pi * -1.55) * pos;
         posUnit = pos.xyz;
+        pos = xRotate(pi * 0.35) * pos;
         // pos.x *= ratio;
-        pos = translate(-0.5, 0.32, 0.0) * pos;
-        gl_Position = vec4(pos.x * ratio*1.3, pos.y*1.1, 0.0, pos.z);
-        gl_PointSize = 18./pos.z*0.85+(coordinates.w*15.);
+        // pos = translate(-0.5, 0.32, 0.0) * pos;
+        // pos = translate(0., -0.5, 0.5) * pos;
+        pos = translate(0., 0., 1.) * pos;
+        gl_Position = vec4(pos.x * ratio * 2.6, (pos.y - 0.48) * 3.65, 0.0, pos.z);
+        // gl_Position = vec4(pos.x, pos.y, 0.0, pos.z + 1.);
+        gl_PointSize = 28./pos.z*0.85+(coordinates.w*15.);
+        // gl_PointSize = 2./pos.z*0.85+(coordinates.w*15.);
         t = time;
-        pos = translate(0.0, 0.0, -0.25) * pos;
+        // pos = translate(0.0, 0.0, -0.25) * pos;
         // gl_PointSize += (sin((length(coordinates*20.)*0.2-time*2e-1))*0.5+0.5)*14.;
         posUnit2 = pos.xyz;
         if (length(posUnit2.xz) > 0.4) {
@@ -1366,10 +1370,11 @@ float sdTriangle(in vec2 p, in vec2 p0, in vec2 p1, in vec2 p2) {
 }
     void main(void) {
         // vec2 es
-    vec2 uv = posUnit.xy/posUnit.z;
+    // vec2 uv = posUnit.xy/posUnit.z;
+    vec2 uv = posUnit.xz * vec2(0.65, 1.) * 2. * 1.5 - vec2(0.,0.);
     // float ratio = resolution.x / resolution.y;
     // uv -= 0.5;
-    uv *= 1.5 * vec2(1., 1.);
+    // uv *= 1.5 * vec2(1., 1.);
     // uv.x *= ratio;
     // uv = rotateUV(uv, pi*0.5, 0.0);
     vec2 v1 = vec2(-0.4, 0.4);
@@ -1408,8 +1413,8 @@ float sdTriangle(in vec2 p, in vec2 p0, in vec2 p1, in vec2 p2) {
         // tri += smoothstep(0.5,0.51, chain);
         // gl_FragColor.a *= max(0., tri);
         // gl_FragColor.a *= max(0., smoothstep(0.5, 0.51, tri));
-        float osc = map(sin((uv.x*-0.8-uv.y)*1.+t*5e-2+0.),-1.,1.,1.,0.25);
-        osc = pow(osc, 7.);
+        float osc = map(sin((uv.x*-0.8-uv.y)*1.+t*5e-2+1.),-1.,1.,1.,0.25);
+        osc = pow(osc, 17.);
         // osc = smoothstep(0.5, 0.51, osc);
         gl_FragColor.a *= osc * 0.5;
         
