@@ -1324,14 +1324,15 @@ smoothDots3D.vertText = `
         posUnit = pos.xyz;
         // pos.x *= ratio;
         gl_Position = vec4(pos.x * ratio, pos.y*-1., 0.0, pos.z);
-        gl_PointSize = 8./pos.z;
+        gl_PointSize = 12./pos.z;
+        gl_PointSize *= 6.0-length(pos.xy - vec2(0., 2.))*1.5;
         t = time;
         
         pos = translate(0.0, 0.0, -0.5) * pos;
         // gl_PointSize += (sin((length(coordinates*20.)*0.2-time*2e-1))*0.5+0.5)*14.;
         posUnit2 = pos.xyz;
         if (length(posUnit2.xz) > 0.4) {
-            gl_PointSize = 0.0;
+            // gl_PointSize = 0.0;
         }
         if ((posUnit.z) > 0.72) {
             // gl_PointSize = 0.0;
@@ -1386,7 +1387,8 @@ float sdTriangle(in vec2 p, in vec2 p0, in vec2 p1, in vec2 p2) {
         l = smoothstep(0., 1., l);
         l = pow(l, 3.);
         float noise = rand(pos - vec2(cos(t), sin(t))) * 0.02;
-        gl_FragColor = vec4(vec3(1.0, 0.25, 0.25), (l+halo-noise)*0.5*3.);
+        gl_FragColor = vec4(vec3(1.0, 0.125, 0.25), (l+halo-noise)*0.5*3.);
+        gl_FragColor = vec4(vec3(1.0, l*0.5, l*0.5), (l+halo-noise)*0.5*3.);
         // gl_FragColor.rgb = gl_FragColor.bgr;
                 vec3 light = posUnit - vec3(0.0, 0., 0.);
         float distSquared2 = 1.0 - dot(light, light) * 1.5;
@@ -1404,11 +1406,15 @@ float sdTriangle(in vec2 p, in vec2 p0, in vec2 p1, in vec2 p2) {
         tri = max(tri, chain*2.);
         // tri = chain;
         // tri += smoothstep(0.5,0.51, chain);
-        gl_FragColor.a *= max(0., tri);
+        // gl_FragColor.a *= max(0., tri);
         // gl_FragColor.a *= max(0., smoothstep(0.5, 0.51, tri));
         float osc = map(sin((uv.x-uv.y)*1.-t*5e-2),-1.,1.,0.25,1.);
         // osc = smoothstep(0.5, 0.51, osc);
-        gl_FragColor.a *= osc;
+        // gl_FragColor.a *= osc;
+        gl_FragColor.a *= 1.0-length(uv - vec2(0., 2.))*0.25;
+        // gl_FragColor.a *= 0.25;
+        // gl_FragColor.a *= ((posUnit.y+1.)*2.);
+        // gl_FragColor.rgb += ((posUnit.y)*1.)*0.5;
         // gl_FragColor = vec4(vec3(1.,0.,0.,), 1.);
         // gl_FragColor.gb += pow(osc,15.)*0.5;
         // gl_FragColor.rgb *= max(0., 1.0-pow(length(posUnit2.xz), 2.)*10.);

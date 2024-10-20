@@ -710,69 +710,14 @@ holyHills.fragText = `
 // beginGLSL
 precision mediump float;
 #define pi 3.1415926535897932384626433832795
-// varying vec2 vTexCoord;
+varying vec2 vTexCoord;
 uniform float time;
 uniform vec2 resolution;
-${blendingMath}
-float sdHexagon( in vec2 p, in float r ) {
-    const vec3 k = vec3(-0.866025404,0.5,0.577350269);
-    p = abs(p);
-    p -= 2.0*min(dot(k.xy,p),0.0)*k.xy;
-    p -= vec2(clamp(p.x, -k.z*r, k.z*r), r);
-    return length(p)*sign(p.y);
+float map(float value, float min1, float max1, float min2, float max2) {
+    return min2 + (value - min1) * (max2 - min2) / (max1 - min1);
 }
-float sdTriangle(in vec2 p, in vec2 p0, in vec2 p1, in vec2 p2) {
-    vec2 e0 = p1 - p0, e1 = p2 - p1, e2 = p0 - p2;
-    vec2 v0 = p  - p0, v1 = p  - p1, v2 = p  - p2;
-    vec2 pq0 = v0 - e0 * clamp(dot(v0, e0) / dot(e0, e0), 0.0, 1.0);
-    vec2 pq1 = v1 - e1 * clamp(dot(v1, e1) / dot(e1, e1), 0.0, 1.0);
-    vec2 pq2 = v2 - e2 * clamp(dot(v2, e2) / dot(e2, e2), 0.0, 1.0);
-    float s = sign(e0.x * e2.y - e0.y * e2.x);
-    vec2 d = min(min(vec2(dot(pq0, pq0), s * (v0.x * e0.y - v0.y * e0.x)),
-                     vec2(dot(pq1, pq1), s * (v1.x * e1.y - v1.y * e1.x))),
-                     vec2(dot(pq2, pq2), s * (v2.x * e2.y - v2.y * e2.x)));
-    return -sqrt(d.x) * sign(d.y);
-}
-float sdCircleWave( in vec2 p, in float tb, in float ra )
-{
-    tb = 3.1415927*5.0/6.0*max(tb,0.0001);
-    vec2 co = ra*vec2(sin(tb),cos(tb));
-    p.x = abs(mod(p.x,co.x*4.0)-co.x*2.0);
-    vec2  p1 = p;
-    vec2  p2 = vec2(abs(p.x-2.0*co.x),-p.y+2.0*co.y);
-    float d1 = ((co.y*p1.x>co.x*p1.y) ? length(p1-co) : abs(length(p1)-ra));
-    float d2 = ((co.y*p2.x>co.x*p2.y) ? length(p2-co) : abs(length(p2)-ra));
-    return min(d1, d2); 
-}
-    float map(float value, float min1, float max1, float min2, float max2) {
-        return min2 + (value - min1) * (max2 - min2) / (max1 - min1);
-    }
-    float rand(vec2 co){
-        return fract(sin(dot(co.xy ,vec2(12.9898,78.233))) * 43758.5453 * (2.0 + sin(co.x)));
-    }
-vec3 hash3( vec2 p ){
-    vec3 q = vec3( dot(p,vec2(127.1,311.7)), 
-           dot(p,vec2(269.5,183.3)), 
-           dot(p,vec2(419.2,371.9)) );
-  return fract(sin(q)*43758.5453);
-}
-float voronoise( in vec2 p, float u, float v ) {
-  float k = 1.0+63.0*pow(1.0-v,6.0);
-    vec2 i = floor(p);
-    vec2 f = fract(p);
-    
-  vec2 a = vec2(0.0,0.0);
-    for( int y=-2; y<=2; y++ )
-    for( int x=-2; x<=2; x++ )
-    {
-        vec2  g = vec2( x, y );
-    vec3  o = hash3( i + g )*vec3(u,u,1.0);
-    vec2  d = g - f + o.xy;
-    float w = pow( 1.0-smoothstep(0.0,1.414,length(d)), k );
-    a += vec2(o.z*w,w);
-    }
-  
-    return a.x/a.y;
+float rand(vec2 co){
+    return fract(sin(dot(co.xy ,vec2(12.9898,78.233))) * 43758.5453 * (2.0 + sin(co.x)));
 }
 vec2 rotateUV(vec2 uv, float rotation, float mid) {
     return vec2(
@@ -781,35 +726,124 @@ vec2 rotateUV(vec2 uv, float rotation, float mid) {
     );
 }
 void main() {
-    vec2 uv = gl_FragCoord.xy / resolution;
-    float ratio = resolution.x / resolution.y;
-    uv -= 0.5;
-    uv *= 0.5;
+    vec2 uv = gl_FragCoord.xy / resolution.xy - vec2(0.5);
+    float ratio = resolution.x / resolution.y;
     uv.x *= ratio;
-    uv.y *= -1.;
-    // uv = rotateUV(uv, pi*0.5, 0.0);
-    vec2 v1 = vec2(-0.1, 0.1);
-    vec2 v2 = vec2(0.1, 0.1);
-    vec2 v3 = vec2(0.0, -0.1);
-    float tri = 1.0 - sdTriangle(uv, v1, v2, v3);
-    // tri = 1.0 - sdHexagon(uv, 0.1);
-    // tri = 1.0 - sdCircleWave(uv, 0.5, 0.05);
-    // tri = smoothstep(0.95, 1., tri) + smoothstep(0.5, 1., tri) * 0.5;
-    float interior = (smoothstep(0.992, 1., tri));
-    tri = smoothstep(0.94, 1., tri) * 1.0 - (smoothstep(0.998, 1., tri)) + (1.0-smoothstep(1., 1.05, tri)*2.1)*smoothstep(0.998, 1., tri)*0.5;
-    // uv -= 0.5;
-    // uv.x *= ratio;
-    float voro = voronoise(uv*24., 0.75, 0.3);
-    float voro2 = voronoise(uv*12., 0.75, 0.3);
-    voro = mix(voro, voro2, 0.5);
-    tri = max(tri, (interior * voro));
-    tri *= map(sin((uv.x-uv.y)*10.-time*5e-2),-1.,1.,0.25,1.);
-    // tri = abs(tri - 0.5) * -1. + 0.5;
-    tri = smoothstep(0., 1., tri);
-    float noise = rand(uv + sin(time)) * 0.075;
-    vec3 col = vec3(1.0, 0.0, 0.);
-    col = mix(col, vec3(1.0), pow(max(0.,tri),19.)*0.5);
-    gl_FragColor = vec4(col *tri, 1. - noise);
+    uv *= 2.;
+    uv.y += 0.15;
+    float rando = rand(uv+time * 1e-2);
+    vec2 ov = uv;
+    uv = uv.yx;
+    // uv = rotateUV(uv, pi * 0.5, 0.0);
+   // uv *= 1.0-(length(uv)*length(uv))*0.0625;
+    
+    // uv.x += time * 0.5e-2;
+    uv.x *= -1.0;
+    ov.y *= -1.0;
+    // uv.y += time * 1e-2;
+    // uv.y *= -1.;
+    // uv = uv.yx;
+    float ax = floor(uv.x*4.);
+    float ay = floor(uv.y*4.);
+    float xx = (mod(ax, 2.) == 0.) ? 0. : 1.;
+    float yy = (mod(ay, 2.) == 0.) ? 0. : 1.;
+    uv = fract(uv*4.);
+    float c0 = length(uv - vec2(1., yy));
+    c0 = abs((c0 - 0.85) * 4.) * -1. + 1.;
+    c0 = smoothstep(0., 1., c0);
+    float c = length(uv - vec2(0., yy));
+    c = abs((c - 0.85) * 4.) * -1. + 1.;
+    c = smoothstep(0., 1., c);
+    float c1 = length(uv - vec2(0. + 0., 1.-yy));
+    c1 = abs((c1 - 0.85) * 4.) * -1. + 1.;
+    c1 = smoothstep(0., 1., c1);
+    float c2 = length(uv - vec2(1. + 0., 1.-yy));
+    c2 = abs((c2 - 0.85) * 4.) * -1. + 1.;
+    c2 = smoothstep(0., 1., c2);
+    float shadowA = (uv.x) * 0.5;
+    float shadowB = (1. - uv.x) * 0.5;
+    float vignette = 1.0-length(ov+vec2(0.,-0.1)*5.)*0.5;
+    vignette = smoothstep(0., 1., vignette);
+    vignette = smoothstep(0., 1., vignette);
+    c += smoothstep(0.9, 1., c) * 0.1;
+    c0 += smoothstep(0.9, 1., c0) * 0.1;
+    c1 += smoothstep(0.9, 1., c1) * 0.1;
+    c2 += smoothstep(0.9, 1., c2) * 0.1;
+    // shadowB += uv.x * -1.;
+    // shadowB -= (uv.x);
+    shadowA = smoothstep(0., 1., shadowA);
+    shadowB = smoothstep(0., 1., shadowB);
+    shadowA = smoothstep(0., 1., shadowA);
+    shadowB = smoothstep(0., 1., shadowB);
+    // c = c - shadowA;
+    // c1 = c1 - shadowB;
+    // c2 = c2 - shadowA;
+    // c0 = c0 - shadowB;
+    float cOri = c;
+    float a = 0.3, b = 0.5;
+    if (xx == 0.) {
+        if (yy == 0.) {
+            if (uv.x < uv.y) {
+                c2 *= smoothstep(a, b, c2);
+                cOri = mix(c2, cOri, smoothstep(a, b, cOri));
+                c = cOri - shadowA;
+                // c = 1.;
+            } else {
+                cOri *= smoothstep(a, b, cOri);
+                cOri = mix(cOri, c2, smoothstep(a, b, c2));
+                c = cOri - shadowA;
+                // c = 1.;
+            }
+        } else {
+            if (uv.x < uv.y * -1. + 1.) {
+                c2 *= smoothstep(a, b, c2);
+                cOri = mix(c2, cOri, smoothstep(a, b, cOri));
+                c = cOri - shadowA;
+                // c = 1.;
+            } else {
+                cOri *= smoothstep(a, b, cOri);
+                cOri = mix(cOri, c2, smoothstep(a, b, c2));
+                c = cOri - shadowA;
+                // c = 1.;
+            }
+        }
+    } else {
+        if (yy == 1.) {
+            if (uv.x > uv.y) {
+                c0 *= smoothstep(a, b, c0);
+                // c0 = min(c0, c0-c1Shadow * 1. * (1.0-uv.y*2.5));
+                c1 = mix(c0, c1, smoothstep(a, b, c1));
+                c = c1 - shadowB;
+            } else {
+                c1 *= smoothstep(a, b, c1);
+                c0 = mix(c1, c0, smoothstep(a, b, c0));
+                c = c0 - shadowB;
+                // c = 1.;
+            }
+        } else {
+            if (uv.x > uv.y * -1. + 1.) {
+                c0 *= smoothstep(a, b, c0);
+                // c0 = min(c0, c0-c1Shadow);
+                // c0 -= c1Shadow * 200.;
+                // c0 = min(c0, c0-c1Shadow * 1. * (1.25-uv.y*2.5)*-1.);
+                c1 = mix(c0, c1, smoothstep(a, b, c1));
+                c = c1 - shadowB;
+                // c = 1.;
+            } else {
+                c1 *= smoothstep(a, b, c1);
+                c0 = mix(c1, c0, smoothstep(a, b, c0));
+                c = c0 - shadowB;
+                // c = 1.;
+            }
+        }
+    }
+    // c = min(c, c-c1Shadow * 0.5 * (1.25-uv.y*2.5)*-1.);
+    float grid = floor(1.0-abs(uv.x)+0.01) + floor(1.0-abs(uv.y)+0.01);
+    gl_FragColor = vec4(vec3(c+grid*0.), 1.0-rando*0.075);
+    gl_FragColor.rgb *= vignette;
+    float r = gl_FragColor.r;
+    // r *= smoothstep(0., 1., ov.y * 0.5 + 0.75);
+    gl_FragColor.rgb = vec3(r, pow(max(0., r), 4.)*0.5, pow(max(0., r), 2.)*0.5);
 }
 // endGLSL
 `;
