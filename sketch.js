@@ -453,8 +453,8 @@ draw = function() {
     for (let i = 0; i < flakes.length; i++) {
         
         // flakes[i][0] += 0.0025 * 0.75;
-        flakes[i][1] -= 0.005 * 0.5;
-        flakes[i][0] += Math.sin(flakes[i][3]*0.25e1)*2e-3;
+        flakes[i][1] -= 0.005 * 1.5;
+        flakes[i][0] += Math.sin(flakes[i][3]*0.25e1)*5e-3;
 //         if (flakes[i][2] < -0.1) {
 //             flakes[i][2] = 2;
 //             let x = Math.random() * 2 - 1;

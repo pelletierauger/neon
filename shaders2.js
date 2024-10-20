@@ -843,7 +843,7 @@ void main() {
     gl_FragColor.rgb *= vignette;
     float r = gl_FragColor.r;
     // r *= smoothstep(0., 1., ov.y * 0.5 + 0.75);
-    gl_FragColor.rgb = vec3(r, pow(max(0., r), 4.)*0.5, pow(max(0., r), 2.)*0.5);
+    gl_FragColor.rgb = vec3(r, pow(max(0., r), 4.)*0.5, pow(max(0., r), 2.)*0.5) * 0.25;
 }
 // endGLSL
 `;

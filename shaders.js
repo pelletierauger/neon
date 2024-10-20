@@ -1325,7 +1325,7 @@ smoothDots3D.vertText = `
         // pos.x *= ratio;
         gl_Position = vec4(pos.x * ratio, pos.y*-1., 0.0, pos.z);
         gl_PointSize = 12./pos.z;
-        gl_PointSize *= 6.0-length(pos.xy - vec2(0., 2.))*1.5;
+        gl_PointSize *= 4.0-length(pos.xy - vec2(0., 2.))*1.5;
         t = time;
         
         pos = translate(0.0, 0.0, -0.5) * pos;
