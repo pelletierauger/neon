@@ -719,6 +719,36 @@ float map(float value, float min1, float max1, float min2, float max2) {
 float rand(vec2 co){
     return fract(sin(dot(co.xy ,vec2(12.9898,78.233))) * 43758.5453 * (2.0 + sin(co.x)));
 }
+vec2 hash(vec2 p) {
+  p = vec2(dot(p, vec2(127.1, 311.7)), dot(p, vec2(269.5, 183.3)));
+  return -1.0 + 2.0 * fract(sin(p) * 43758.5453123);
+}
+float noise( in vec2 p ) {
+    const float K1 = 0.366025404; // (sqrt(3)-1)/2;
+    const float K2 = 0.211324865; // (3-sqrt(3))/6;
+    vec2  i = floor(p + (p.x + p.y) * K1 );
+    vec2  a = p - i + (i.x + i.y) * K2;
+    float m = step(a.y, a.x); 
+    vec2  o = vec2(m, 1.0 - m);
+    vec2  b = a - o + K2;
+    vec2  c = a - 1.0 + 2.0 * K2;
+    vec3  h = max(0.5 - vec3(dot(a,a), dot(b,b), dot(c,c)), 0.0);
+    vec3  n = h * h * h * h * vec3(dot(a, hash(i + 0.0)), dot(b, hash(i + o)), dot(c, hash(i + 1.0)));
+    return dot(n, vec3(70.0));
+}
+float smoothTriangle(vec2 p, vec2 p0, vec2 p1, vec2 p2, float smoothness) {
+    vec3 e0, e1, e2;
+    e0.xy = normalize(p1 - p0).yx * vec2(+1.0, -1.0);
+    e1.xy = normalize(p2 - p1).yx * vec2(+1.0, -1.0);
+    e2.xy = normalize(p0 - p2).yx * vec2(+1.0, -1.0);
+    e0.z = dot(e0.xy, p0) - smoothness;
+    e1.z = dot(e1.xy, p1) - smoothness;
+    e2.z = dot(e2.xy, p2) - smoothness;
+    float a = max(0.0, dot(e0.xy, p) - e0.z);
+    float b = max(0.0, dot(e1.xy, p) - e1.z);
+    float c = max(0.0, dot(e2.xy, p) - e2.z);
+    return smoothstep(smoothness * 2.0, 1e-7, length(vec3(a, b, c)));
+}
 vec2 rotateUV(vec2 uv, float rotation, float mid) {
     return vec2(
       cos(rotation) * (uv.x - mid) + sin(rotation) * (uv.y - mid) + mid,
@@ -729,121 +759,68 @@ void main() {
     vec2 uv = gl_FragCoord.xy / resolution.xy - vec2(0.5);
     float ratio = resolution.x / resolution.y;
     uv.x *= ratio;
-    uv *= 2.;
-    uv.y += 0.15;
-    float rando = rand(uv+time * 1e-2);
+    uv *= 0.9;
+    uv.y -= 0.02;
     vec2 ov = uv;
-    uv = uv.yx;
-    // uv = rotateUV(uv, pi * 0.5, 0.0);
-   // uv *= 1.0-(length(uv)*length(uv))*0.0625;
+    float torsionX = (cos(uv.x * 10. + cos(uv.y * 10.+time*1e-1)) * 0.5+0.5)*0.35;
+    float torsionY = (sin(uv.x * 10. + cos(uv.y * 10.+time*1e-1)) * 0.5+0.5)*0.35;
+    vec2 p = uv;
+    uv -= vec2(0.05, 0.05);
+    // uv = uv + time * 2e-3;
+    float f = 0.0;
+    // // left: value noise  
+    vec2 muv = uv * 25.0;
+    muv *= vec2(1.0 - torsionX * 0.1, 1.0 - torsionY * 0.1);
+    mat2 m = mat2(1.6, 1.2, -1.2, 1.6);
+    f  = 0.5000 * noise(muv);
+    muv = m * muv;
+    f += 0.2500 * noise(muv);
+    muv = m * muv;
+    f += 0.1250 * noise(muv);
+    muv = m * muv;
+    f += 0.0625 * noise(muv);
+    f = 0.5 + 0.5 * f;
+    // f *= smoothstep(0.0, 0.005, abs(p.x - 0.5 / ratio));  
+    float flX = sin(time*1e-1)*0.01;
+    float flY = cos(time*1e-1)*0.01;
+    vec2 v0 = vec2(0.0 + 0.1 + flX, -0.25 + flY);
+    vec2 v1 = vec2(0.5 + 0.1 - flX, 0.35 + flY);
+    vec2 v2 = vec2(0.1 + 0.1 + flX, 0.25 + flY);
+    float a = smoothTriangle(uv, v0, v1, v2, 0.003);
+    v0 = vec2(-0.5+flX, -0.35-flY), v1 = vec2(0.5-flX, -0.5+flY), v2 = vec2(0.1+flX, 0.25+flY);
+    float b = smoothTriangle(uv, v0, v1, v2, 0.006);
+    v0 = vec2(-0.75-flX, 0.35-flY), v1 = vec2(0.25+flX, -0.35+flY), v2 = vec2(-0.05-flX, 0.24-flY);
+    float c = smoothTriangle(uv, v0, v1, v2, 0.004);
+    v0 = vec2(0.12-flX, -0.35-flY), v1 = vec2(0.6+flX, 0.15+flY), v2 = vec2(0.27-flX, -0.1-flY);
+    float d = smoothTriangle(rotateUV(uv, pi * 0.05, 0.0) + vec2(-0.1, -0.0), v0, v1, v2, 0.004);
+    float e = smoothTriangle(rotateUV(uv, pi *0.17, 0.0) * vec2(-1.,1.) + vec2(0.11, 0.04), v0, v1, v2, 0.004);
+    // b = smoothstep(0., 1., b);
+    // b = smoothstep(0., 1., b);
+    // b = smoothstep(0., 1., b);
+    // a = max(a, b * 0.35);
+    a = mix(a, c * 1., c);
+    a = mix(a, d * 1., d);
+    a = mix(a, e * 1., e);
+    a = mix(a, b * 0.45, b*0.75);
+    f += pow(f, 3.)*2.;
+    // a = max(a, b * 0.35 + a * 0.65);
+    // a = max(a, c);
+    ov = rotateUV(ov, pi * -0.4, 0.);
+    ov.y -= 0.25;
+    ov.y *= 0.25;
+    float zz = abs(fract(ov.x*5.)-0.5);
+    float line = abs(ov.y*10.+zz)*-3.+1.;
+    line = smoothstep(0., 1., line);
+    // a = max(a, line * 0.5);
     
-    // uv.x += time * 0.5e-2;
-    uv.x *= -1.0;
-    ov.y *= -1.0;
-    // uv.y += time * 1e-2;
-    // uv.y *= -1.;
-    // uv = uv.yx;
-    float ax = floor(uv.x*4.);
-    float ay = floor(uv.y*4.);
-    float xx = (mod(ax, 2.) == 0.) ? 0. : 1.;
-    float yy = (mod(ay, 2.) == 0.) ? 0. : 1.;
-    uv = fract(uv*4.);
-    float c0 = length(uv - vec2(1., yy));
-    c0 = abs((c0 - 0.85) * 4.) * -1. + 1.;
-    c0 = smoothstep(0., 1., c0);
-    float c = length(uv - vec2(0., yy));
-    c = abs((c - 0.85) * 4.) * -1. + 1.;
-    c = smoothstep(0., 1., c);
-    float c1 = length(uv - vec2(0. + 0., 1.-yy));
-    c1 = abs((c1 - 0.85) * 4.) * -1. + 1.;
-    c1 = smoothstep(0., 1., c1);
-    float c2 = length(uv - vec2(1. + 0., 1.-yy));
-    c2 = abs((c2 - 0.85) * 4.) * -1. + 1.;
-    c2 = smoothstep(0., 1., c2);
-    float shadowA = (uv.x) * 0.5;
-    float shadowB = (1. - uv.x) * 0.5;
-    float vignette = 1.0-length(ov+vec2(0.,-0.1)*5.)*0.5;
-    vignette = smoothstep(0., 1., vignette);
-    vignette = smoothstep(0., 1., vignette);
-    c += smoothstep(0.9, 1., c) * 0.1;
-    c0 += smoothstep(0.9, 1., c0) * 0.1;
-    c1 += smoothstep(0.9, 1., c1) * 0.1;
-    c2 += smoothstep(0.9, 1., c2) * 0.1;
-    // shadowB += uv.x * -1.;
-    // shadowB -= (uv.x);
-    shadowA = smoothstep(0., 1., shadowA);
-    shadowB = smoothstep(0., 1., shadowB);
-    shadowA = smoothstep(0., 1., shadowA);
-    shadowB = smoothstep(0., 1., shadowB);
-    // c = c - shadowA;
-    // c1 = c1 - shadowB;
-    // c2 = c2 - shadowA;
-    // c0 = c0 - shadowB;
-    float cOri = c;
-    float a = 0.3, b = 0.5;
-    if (xx == 0.) {
-        if (yy == 0.) {
-            if (uv.x < uv.y) {
-                c2 *= smoothstep(a, b, c2);
-                cOri = mix(c2, cOri, smoothstep(a, b, cOri));
-                c = cOri - shadowA;
-                // c = 1.;
-            } else {
-                cOri *= smoothstep(a, b, cOri);
-                cOri = mix(cOri, c2, smoothstep(a, b, c2));
-                c = cOri - shadowA;
-                // c = 1.;
-            }
-        } else {
-            if (uv.x < uv.y * -1. + 1.) {
-                c2 *= smoothstep(a, b, c2);
-                cOri = mix(c2, cOri, smoothstep(a, b, cOri));
-                c = cOri - shadowA;
-                // c = 1.;
-            } else {
-                cOri *= smoothstep(a, b, cOri);
-                cOri = mix(cOri, c2, smoothstep(a, b, c2));
-                c = cOri - shadowA;
-                // c = 1.;
-            }
-        }
-    } else {
-        if (yy == 1.) {
-            if (uv.x > uv.y) {
-                c0 *= smoothstep(a, b, c0);
-                // c0 = min(c0, c0-c1Shadow * 1. * (1.0-uv.y*2.5));
-                c1 = mix(c0, c1, smoothstep(a, b, c1));
-                c = c1 - shadowB;
-            } else {
-                c1 *= smoothstep(a, b, c1);
-                c0 = mix(c1, c0, smoothstep(a, b, c0));
-                c = c0 - shadowB;
-                // c = 1.;
-            }
-        } else {
-            if (uv.x > uv.y * -1. + 1.) {
-                c0 *= smoothstep(a, b, c0);
-                // c0 = min(c0, c0-c1Shadow);
-                // c0 -= c1Shadow * 200.;
-                // c0 = min(c0, c0-c1Shadow * 1. * (1.25-uv.y*2.5)*-1.);
-                c1 = mix(c0, c1, smoothstep(a, b, c1));
-                c = c1 - shadowB;
-                // c = 1.;
-            } else {
-                c1 *= smoothstep(a, b, c1);
-                c0 = mix(c1, c0, smoothstep(a, b, c0));
-                c = c0 - shadowB;
-                // c = 1.;
-            }
-        }
-    }
-    // c = min(c, c-c1Shadow * 0.5 * (1.25-uv.y*2.5)*-1.);
-    float grid = floor(1.0-abs(uv.x)+0.01) + floor(1.0-abs(uv.y)+0.01);
-    gl_FragColor = vec4(vec3(c+grid*0.), 1.0-rando*0.075);
-    gl_FragColor.rgb *= vignette;
-    float r = gl_FragColor.r;
-    // r *= smoothstep(0., 1., ov.y * 0.5 + 0.75);
-    gl_FragColor.rgb = vec3(r, pow(max(0., r), 4.)*0.5, pow(max(0., r), 2.)*0.5);
+    a *= 1.0-(f*0.25);
+    a *= 1.0 - torsionX;
+    // a = (abs(a - 0.5) * -1. + 0.5) * 2.;
+    vec3 col = vec3(1.0, 0.0, 0.0);
+    // col = vec3(0.0, 0.95, 0.6);
+    col *= a;
+    float rando = rand(uv + sin(time)) * 0.025;
+    gl_FragColor = vec4(col, 1.0 - rando);
 }
 // endGLSL
 `;

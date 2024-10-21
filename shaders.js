@@ -1325,7 +1325,7 @@ smoothDots3D.vertText = `
         // pos.x *= ratio;
         gl_Position = vec4(pos.x * ratio, pos.y*-1., 0.0, pos.z);
         gl_PointSize = 12./pos.z;
-        gl_PointSize *= 6.0-length(pos.xy - vec2(0., 2.))*1.5;
+        gl_PointSize *= 5.0-length(pos.xy - vec2(0., 2.))*1.85;
         t = time;
         
         pos = translate(0.0, 0.0, -0.5) * pos;
@@ -1351,6 +1351,7 @@ smoothDots3D.fragText = `
         return fract(sin(dot(co.xy ,vec2(12.9898,78.233))) * 43758.5453 * (2.0 + sin(co.x)));
     }
     ${mapFunction}
+    ${blendingMath}
 float sdTriangle(in vec2 p, in vec2 p0, in vec2 p1, in vec2 p2) {
     vec2 e0 = p1 - p0, e1 = p2 - p1, e2 = p0 - p2;
     vec2 v0 = p  - p0, v1 = p  - p1, v2 = p  - p2;
@@ -1388,8 +1389,9 @@ float sdTriangle(in vec2 p, in vec2 p0, in vec2 p1, in vec2 p2) {
         l = pow(l, 3.);
         float noise = rand(pos - vec2(cos(t), sin(t))) * 0.02;
         gl_FragColor = vec4(vec3(1.0, 0.125, 0.25), (l+halo-noise)*0.5*3.);
-        gl_FragColor = vec4(vec3(1.0, l*0.5, l*0.5), (l+halo-noise)*0.5*3.);
-        // gl_FragColor.rgb = gl_FragColor.bgr;
+        gl_FragColor = vec4(vec3(1.0, l*0.5, l*0.5), (l+halo*0.5-noise)*0.5*3.);
+        // gl_FragColor.rgb = gl_FragColor.brg;
+        // gl_FragColor.rgb = hueShift(gl_FragColor.rgb, 2.8);
                 vec3 light = posUnit - vec3(0.0, 0., 0.);
         float distSquared2 = 1.0 - dot(light, light) * 1.5;
         // gl_FragColor.rgb *= 1.0 - posUnit.z;
@@ -1412,7 +1414,7 @@ float sdTriangle(in vec2 p, in vec2 p0, in vec2 p1, in vec2 p2) {
         // osc = smoothstep(0.5, 0.51, osc);
         // gl_FragColor.a *= osc;
         gl_FragColor.a *= 1.0-length(uv - vec2(0., 2.))*0.25;
-        // gl_FragColor.a *= 0.25;
+        // gl_FragColor.a *= 0.5;
         // gl_FragColor.a *= ((posUnit.y+1.)*2.);
         // gl_FragColor.rgb += ((posUnit.y)*1.)*0.5;
         // gl_FragColor = vec4(vec3(1.,0.,0.,), 1.);
