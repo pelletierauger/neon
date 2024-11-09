@@ -390,8 +390,9 @@ necklaces = function() {
 }
 // necklaces();
 
-clothVertices = [];
+
 cloth = function() {
+    clothVertices = [];
     for (let i = 0; i < 45500; i++) {
         let x = (Math.random() * 2 - 1) * 1.75;
         let y = Math.random() * 2 - 1;
@@ -400,36 +401,8 @@ cloth = function() {
 };
 cloth();
 
-sc = 0.75;
-draw = function() {
-    gl.clear(gl.COLOR_BUFFER_BIT);
-    vertices = [];
-    for (let i = 0; i < clothVertices.length; i++) {
-        vertices.push(clothVertices[i]);
-    }
-    // for (let x = -1.75; x < 1.75; x += 0.1) {
-    //     for (let y = -1; y < 1; y += 0.005) {
-    //         vertices.push(x, y, 0);
-    //     }
-    // }
-    // for (let x = -1.75; x < 1.75; x += 0.1) {
-    //     for (let y = -1; y < 1; y += 0.005) {
-    //         vertices.push(y, x, 0);
-    //     }
-    // }
-    currentProgram = getProgram("pearl-glow");
-    gl.useProgram(currentProgram);
-    draw3DDots(currentProgram);
-    vertices = [];
-    for (let i = 0; i < vertices2.length; i++) {
-        vertices.push(vertices2[i]);
-    }
-    currentProgram = getProgram("pearl");
-    gl.useProgram(currentProgram);
-    draw3DDots(currentProgram);
-    vertices = [];
-    meltVertices = [];
-    for (let i = 0; i < flakes.length; i++) {
+snowfall = function() {
+        for (let i = 0; i < flakes.length; i++) {
         if (flakes[i][4]) {
             // flakes[i][0] += 0.0025 * 0.75 * 0.5 * 8;
             flakes[i][1] -= 0.005 * 0.75 * 0.5 * 16;
@@ -470,6 +443,31 @@ draw = function() {
             }
         }
     }
+};
+for (let i = 0; i < 500; i++) {
+    snowfall();
+}
+
+sc = 0.75;
+draw = function() {
+    gl.clear(gl.COLOR_BUFFER_BIT);
+    vertices = [];
+    for (let i = 0; i < clothVertices.length; i++) {
+        vertices.push(clothVertices[i]);
+    }
+    currentProgram = getProgram("pearl-glow");
+    gl.useProgram(currentProgram);
+    draw3DDots(currentProgram);
+    vertices = [];
+    for (let i = 0; i < vertices2.length; i++) {
+        vertices.push(vertices2[i]);
+    }
+    currentProgram = getProgram("pearl");
+    gl.useProgram(currentProgram);
+    draw3DDots(currentProgram);
+    vertices = [];
+    meltVertices = [];
+    snowfall();
     // flakes.sort((a, b) => b[2] - a[2]);
     // for (let i = 0; i < flakes.length; i++) {
     for (let i = 0; i < flakes.length; i++) {
