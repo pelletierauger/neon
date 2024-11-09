@@ -59,12 +59,17 @@ pearl.vertText = `
         // pos = rotate()
         // pos = translate(0.0, 0.9, 1.5) * pos;
         
-        pos = xRotate(pi * -1.9) * pos;
+        // pos = xRotate(pi * -1.9) * pos;
+        pos.y *= -1.;
+                pos.z = 1. - pos.z;
         posUnit = pos.xyz;
+        pos = xRotate(pi * -0.1) * pos;
+        
+        pos = translate(0.0, 0.2, 0.2) * pos;
         // pos.x *= ratio;
-        gl_Position = vec4(pos.x * ratio, pos.y*-1., 0.0, pos.z);
-        gl_PointSize = 24./pos.z;
-        t = time;
+        gl_Position = vec4(pos.x * ratio, pos.y, 0.0, pos.z);
+        gl_PointSize = 34./pos.z;
+        t = time*0.5;
         
         pos = translate(0.0, 0.0, -0.5) * pos;
         // gl_PointSize += (sin((length(coordinates*20.)*0.2-time*2e-1))*0.5+0.5)*14.;
@@ -90,32 +95,15 @@ pearl.fragText = `
         return fract(sin(dot(co.xy ,vec2(12.9898,78.233))) * 43758.5453 * (2.0 + sin(co.x)));
     }
     ${mapFunction}
-float sdTriangle(in vec2 p, in vec2 p0, in vec2 p1, in vec2 p2) {
-    vec2 e0 = p1 - p0, e1 = p2 - p1, e2 = p0 - p2;
-    vec2 v0 = p  - p0, v1 = p  - p1, v2 = p  - p2;
-    vec2 pq0 = v0 - e0 * clamp(dot(v0, e0) / dot(e0, e0), 0.0, 1.0);
-    vec2 pq1 = v1 - e1 * clamp(dot(v1, e1) / dot(e1, e1), 0.0, 1.0);
-    vec2 pq2 = v2 - e2 * clamp(dot(v2, e2) / dot(e2, e2), 0.0, 1.0);
-    float s = sign(e0.x * e2.y - e0.y * e2.x);
-    vec2 d = min(min(vec2(dot(pq0, pq0), s * (v0.x * e0.y - v0.y * e0.x)),
-                     vec2(dot(pq1, pq1), s * (v1.x * e1.y - v1.y * e1.x))),
-                     vec2(dot(pq2, pq2), s * (v2.x * e2.y - v2.y * e2.x)));
-    return -sqrt(d.x) * sign(d.y);
-}
+    ${blendingMath}
     void main(void) {
-        vec2 uv = posUnit.xy/posUnit.z;
-        // float ratio = resolution.x / resolution.y;
-        // uv -= 0.5;
+        vec2 uv = posUnit.xy / posUnit.z;
         uv *= 1.5 * vec2(1., 1.);
-        float x = (uv.x*0.8 - uv.y) - t * 5e-2;
+        float x = (uv.x*0.8 + uv.y) * 0.75 - t * 5e-2;
         // x = (1.0-length(uv)) - t * 5e-2;
         float osc = map(sin(x),-1.,1.,0.25,1.);
         osc = pow(osc, 7.);
         float osc2 = (mod(x+(pi*0.5), pi*2.) / (pi*2.))*2.-1.;
-        vec2 v1 = vec2(-0.4, 0.4);
-        vec2 v2 = vec2(0.4, 0.4);
-        vec2 v3 = vec2(0.0, -0.4);
-        float tri = 1.0 - sdTriangle(uv, v1, v2, v3);
         vec2 pos = gl_PointCoord;
         vec2 pos2 = gl_PointCoord - vec2(-osc2, osc2);
         float distSquared = 1.0 - dot(pos - 0.5, pos - 0.5) * 12.;
@@ -159,9 +147,11 @@ float sdTriangle(in vec2 p, in vec2 p0, in vec2 p1, in vec2 p2) {
                 gl_FragColor = vec4(vec3(1.,hl,hl)*distSquared, contour);
         float backHalo = 1.0 - dot(pos - 0.5, pos - 0.5) * 6.;
         backHalo = pow(backHalo, 3.)*1.;
+        // gl_FragColor.rgb = Desaturate(gl_FragColor.rgb, 0.125).rgb;
         // gl_FragColor.r += max(0., 1.0-backHalo)*tri*osc*0.5;
         // gl_FragColor.gb += pow(osc,15.)*0.5;
         gl_FragColor.rgb = gl_FragColor.gbr;
+        // gl_FragColor = vec4(contour);
         // gl_FragColor.rgb *= max(0., 1.0-pow(length(posUnit2.xz), 2.)*10.);
         // gl_FragColor.a *= max(0.,1.0-pow(abs(gl_FragCoord.x)/1280.-0.5,3.)*160.);
     }
@@ -178,6 +168,7 @@ let pearlGlow = new ShaderProgram("pearl-glow");
 // A version of smoothDots3D that adjusts the dot size according to its Z value
 pearlGlow.vertText = `
     // beginGLSL
+    ${pi}
     attribute vec3 coordinates;
     uniform float time;
     uniform vec2 resolution;
@@ -221,7 +212,7 @@ pearlGlow.vertText = `
     }
     void main(void) {
         float ratio = resolution.y / resolution.x;
-        vec4 pos = vec4(coordinates * 1.05, 1.);
+        vec4 pos = vec4(coordinates * 1.0, 1.);
         // pos = translate(0.0, 0., 0.5) * yRotate(time*2e-2) * xRotate(time*2e-2) * translate(0.0, 0., -0.5) * pos;
         // pos.xyz *= map(sin(time *1e-1+pos.y*2.), -1., 1., 0.95, 1.0);
         // pos.xyz *= 1.25;
@@ -232,12 +223,18 @@ pearlGlow.vertText = `
         // pos = translate(0.0, 0.0, 1.5) * pos;
         // pos = rotate()
         // pos = translate(0.0, 0.9, 1.5) * pos;
-        
+        pos.y *= -1.;
+        pos.z = 1. - pos.z;
+        pos.xy *= 2.;
         posUnit = pos.xyz;
+        pos = xRotate(pi * -0.1) * pos;
+        pos = translate(0.0, 0.2, 0.2) * pos;
         // pos.x *= ratio;
-        gl_Position = vec4(pos.x * ratio, pos.y*-1., 0.0, pos.z);
-        gl_PointSize = 125.;
-        t = time;
+        // posUnit = pos.xyz;
+        // pos.x *= ratio;
+        gl_Position = vec4(pos.x * ratio, pos.y, 0.0, pos.z);
+        gl_PointSize = 7./pos.z;
+        t = time*0.5;
         
         pos = translate(0.0, 0.0, -0.5) * pos;
         // gl_PointSize += (sin((length(coordinates*20.)*0.2-time*2e-1))*0.5+0.5)*14.;
@@ -262,30 +259,14 @@ pearlGlow.fragText = `
         return fract(sin(dot(co.xy ,vec2(12.9898,78.233))) * 43758.5453 * (2.0 + sin(co.x)));
     }
     ${mapFunction}
-float sdTriangle(in vec2 p, in vec2 p0, in vec2 p1, in vec2 p2) {
-    vec2 e0 = p1 - p0, e1 = p2 - p1, e2 = p0 - p2;
-    vec2 v0 = p  - p0, v1 = p  - p1, v2 = p  - p2;
-    vec2 pq0 = v0 - e0 * clamp(dot(v0, e0) / dot(e0, e0), 0.0, 1.0);
-    vec2 pq1 = v1 - e1 * clamp(dot(v1, e1) / dot(e1, e1), 0.0, 1.0);
-    vec2 pq2 = v2 - e2 * clamp(dot(v2, e2) / dot(e2, e2), 0.0, 1.0);
-    float s = sign(e0.x * e2.y - e0.y * e2.x);
-    vec2 d = min(min(vec2(dot(pq0, pq0), s * (v0.x * e0.y - v0.y * e0.x)),
-                     vec2(dot(pq1, pq1), s * (v1.x * e1.y - v1.y * e1.x))),
-                     vec2(dot(pq2, pq2), s * (v2.x * e2.y - v2.y * e2.x)));
-    return -sqrt(d.x) * sign(d.y);
-}
+    ${blendingMath}
     void main(void) {
-        // vec2 es
-        vec2 uv = posUnit.xy/posUnit.z;
-    // float ratio = resolution.x / resolution.y;
-    // uv -= 0.5;
+        vec2 uv = posUnit.xy / posUnit.z;
         uv *= 1.5 * vec2(1., 1.);
-    // uv.x *= ratio;
-    // uv = rotateUV(uv, pi*0.5, 0.0);
-        vec2 v1 = vec2(-0.4, 0.4);
-        vec2 v2 = vec2(0.4, 0.4);
-        vec2 v3 = vec2(0.0, -0.4);
-        float tri = 1.0 - sdTriangle(uv, v1, v2, v3);
+        float x = (uv.x*0.8 + uv.y) * 0.75 - t * 5e-2;
+        // x = (1.0-length(uv)) - t * 5e-2;
+        float osc = map(sin(x),-1.,1.,0.25,1.);
+        osc = pow(osc, 15.);
         vec2 pos = gl_PointCoord;
         float distSquared = 1.0 - dot(pos - 0.5, pos - 0.5) * 4.;
         distSquared = smoothstep(0., 1., distSquared);
@@ -312,13 +293,17 @@ float sdTriangle(in vec2 p, in vec2 p0, in vec2 p1, in vec2 p2) {
         // gl_FragColor.a *= 1.0-length(uv)*2.;
         // gl_FragColor.a *= max(0., tri);
         // gl_FragColor.a *= max(0., smoothstep(0.5, 0.51, tri));
-        float osc = map(sin((uv.x-uv.y)*1.-t*5e-2),-1.,1.,0.25,1.);
+        // float osc = map(sin((uv.x-uv.y)*1.-t*5e-2),-1.,1.,0.25,1.);
         // osc = smoothstep(0.5, 0.51, osc);
         gl_FragColor.a *= osc;
         float hl = pow(distSquared, 15.)*0.25;
-        distSquared *= 1.-length(uv)*0.5;
+        // distSquared *= 1.-length(uv)*0.5;
         distSquared *= osc;
-                gl_FragColor = vec4(vec3(1.,hl,hl), distSquared*0.0625);
+                gl_FragColor = vec4(vec3(1.,hl,hl), distSquared*0.25);
+        gl_FragColor.rgb = gl_FragColor.gbr;
+        // gl_FragColor.rgb = hueShift(gl_FragColor.rgb, 1.5);
+        // gl_FragColor.rgb = Desaturate(gl_FragColor.rgb, 4.0-osc*4.).rgb;
+        // gl_FragColor = vec4(vec3(1.0), osc);
         // gl_FragColor.gb += pow(osc,15.)*0.5;
         // gl_FragColor.rgb *= max(0., 1.0-pow(length(posUnit2.xz), 2.)*10.);
         // gl_FragColor.a *= max(0.,1.0-pow(abs(gl_FragCoord.x)/1280.-0.5,3.)*160.);

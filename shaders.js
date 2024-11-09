@@ -1311,28 +1311,19 @@ smoothDots3D.vertText = `
     void main(void) {
         float ratio = resolution.y / resolution.x;
         vec4 pos = vec4(coordinates.xyz * 1.0, 1.);
-        // pos = translate(0.0, 0., 0.5) * yRotate(time*2e-2) * xRotate(time*2e-2) * translate(0.0, 0., -0.5) * pos;
-        // pos.xyz *= map(sin(time *1e-1+pos.y*2.), -1., 1., 0.95, 1.0);
-        // pos.xyz *= 1.25;
-        // pos.xyz *= map(sin(pos.y*5.-time*0.5e-1)*0.5+0.5, 0., 1., 1.0, 0.95);
-        // pos = yRotate(-time*0.25e-2) * pos;
-        // pos = xRotate(time*0.25e-2) * pos;
-        // pos = xRotate(-time*0.5e-2) * pos;
-        // pos = translate(0.0, 0.0, 1.5) * pos;
-        // pos = rotate()
-        // pos = translate(0.0, 0.9, 1.5) * pos;
-        
+        pos.xyz = pos.xzy;
+        pos.z = 1. - pos.z;
+        pos.xy *= 2.;
         posUnit = pos.xyz;
-        pos = xRotate(pi * 0.35) * pos;
-        // pos.x *= ratio;
-        // pos = translate(-0.5, 0.32, 0.0) * pos;
-        // pos = translate(0., -0.5, 0.5) * pos;
-        pos = translate(0., 0., 1.) * pos;
-        gl_Position = vec4(pos.x * ratio * 2.6, (pos.y - 0.48) * 3.65, 0.0, pos.z);
+        pos = xRotate(pi * -0.1) * pos;
+        pos = translate(0.0, 0.2, 0.2) * pos;
+        gl_Position = vec4(pos.x * ratio, pos.y, 0.0, pos.z);
         // gl_Position = vec4(pos.x, pos.y, 0.0, pos.z + 1.);
-        gl_PointSize = 28./pos.z*0.85+(coordinates.w*15.);
+        // gl_PointSize = 28./pos.z*0.85+(coordinates.w*15.);
+        gl_PointSize = 25./pos.z*0.85+(coordinates.w*15.)+5.;
+        // gl_PointSize = 28.;
         // gl_PointSize = 2./pos.z*0.85+(coordinates.w*15.);
-        t = time;
+        t = time*0.5;
         // pos = translate(0.0, 0.0, -0.25) * pos;
         // gl_PointSize += (sin((length(coordinates*20.)*0.2-time*2e-1))*0.5+0.5)*14.;
         posUnit2 = pos.xyz;
@@ -1356,31 +1347,12 @@ smoothDots3D.fragText = `
         return fract(sin(dot(co.xy ,vec2(12.9898,78.233))) * 43758.5453 * (2.0 + sin(co.x)));
     }
     ${mapFunction}
-float sdTriangle(in vec2 p, in vec2 p0, in vec2 p1, in vec2 p2) {
-    vec2 e0 = p1 - p0, e1 = p2 - p1, e2 = p0 - p2;
-    vec2 v0 = p  - p0, v1 = p  - p1, v2 = p  - p2;
-    vec2 pq0 = v0 - e0 * clamp(dot(v0, e0) / dot(e0, e0), 0.0, 1.0);
-    vec2 pq1 = v1 - e1 * clamp(dot(v1, e1) / dot(e1, e1), 0.0, 1.0);
-    vec2 pq2 = v2 - e2 * clamp(dot(v2, e2) / dot(e2, e2), 0.0, 1.0);
-    float s = sign(e0.x * e2.y - e0.y * e2.x);
-    vec2 d = min(min(vec2(dot(pq0, pq0), s * (v0.x * e0.y - v0.y * e0.x)),
-                     vec2(dot(pq1, pq1), s * (v1.x * e1.y - v1.y * e1.x))),
-                     vec2(dot(pq2, pq2), s * (v2.x * e2.y - v2.y * e2.x)));
-    return -sqrt(d.x) * sign(d.y);
-}
     void main(void) {
-        // vec2 es
-    // vec2 uv = posUnit.xy/posUnit.z;
-    vec2 uv = posUnit.xz * vec2(0.65, 1.) * 2. * 1.5 - vec2(0.,0.);
-    // float ratio = resolution.x / resolution.y;
-    // uv -= 0.5;
-    // uv *= 1.5 * vec2(1., 1.);
-    // uv.x *= ratio;
-    // uv = rotateUV(uv, pi*0.5, 0.0);
-    vec2 v1 = vec2(-0.4, 0.4);
-    vec2 v2 = vec2(0.4, 0.4);
-    vec2 v3 = vec2(0.0, -0.4);
-    float tri = 1.0 - sdTriangle(uv, v1, v2, v3);
+        vec2 uv = posUnit.xy;
+        uv *= 1.5 * vec2(1., 1.);
+        float x = (uv.x*0.8 + uv.y) * 0.75 - t * 5e-2;
+        float osc = map(sin(x),-1.,1.,0.25,1.);
+        osc = pow(osc, 17.);
         vec2 pos = gl_PointCoord;
         float distSquared = 1.0 - dot(pos - 0.5, pos - 0.5) * 0.5;
         float l = 1.0 - length(pos - vec2(0.5)) * 4.;
@@ -1393,7 +1365,7 @@ float sdTriangle(in vec2 p, in vec2 p0, in vec2 p1, in vec2 p2) {
         l = smoothstep(0., 1., l);
         l = pow(l, 3.);
         float noise = rand(pos - vec2(cos(t), sin(t))) * 0.02;
-        gl_FragColor = vec4(vec3(1.0, 0.25, 0.25), (l+halo-noise)*0.5*3.);
+        gl_FragColor = vec4(vec3(1.0, 0.25, 0.25), (l+halo-noise)*0.5*3.*osc);
         // gl_FragColor.rgb = gl_FragColor.bgr;
                 vec3 light = posUnit - vec3(0.0, 0., 0.);
         float distSquared2 = 1.0 - dot(light, light) * 1.5;
@@ -1408,17 +1380,17 @@ float sdTriangle(in vec2 p, in vec2 p0, in vec2 p1, in vec2 p2) {
         chain = abs((chain-0.5)*10.)*-1.+1.;
         // chain *= smoothstep(0.5,0.51, 1.-length(uv*vec2(1.,1.))*0.4);
         chain *= 1.-length(uv*vec2(1.,1.))*0.4;
-        tri = max(tri, chain*2.);
         // tri = chain;
         // tri += smoothstep(0.5,0.51, chain);
         // gl_FragColor.a *= max(0., tri);
         // gl_FragColor.a *= max(0., smoothstep(0.5, 0.51, tri));
-        float osc = map(sin((uv.x*-0.8-uv.y)*1.+t*5e-2+1.),-1.,1.,1.,0.25);
-        osc = pow(osc, 17.);
+        // float osc = map(sin((uv.x*-0.8-uv.y)*1.+t*5e-2+1.),-1.,1.,1.,0.25);
+        // osc = pow(osc, 17.);
         // osc = smoothstep(0.5, 0.51, osc);
-        gl_FragColor.a *= osc * 0.5;
+        // gl_FragColor.a *= osc * 0.5;
         
         gl_FragColor.rgb = gl_FragColor.gbr;
+        // gl_FragColor = vec4(1.);
         // gl_FragColor = vec4(vec3(1.,0.,0.,), 1.);
         // gl_FragColor.gb += pow(osc,15.)*0.5;
         // gl_FragColor.rgb *= max(0., 1.0-pow(length(posUnit2.xz), 2.)*10.);

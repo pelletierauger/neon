@@ -312,10 +312,11 @@ startFlakes = function() {
         return (n-sa1)/(so1-sa1)*(so2-sa2)+sa2;
     };
     for (let i = 0; i < 12500; i++) {
-        let x = Math.random() * 2 - 1;
+        let x = (Math.random() * 2 - 1) * 1.5;
         // do {x = Math.random() * 2 - 1} while (Math.abs(x) < 0.1);
         let y = maps(Math.random(), 0, 1, 0.25, 15);
-        let z = Math.random() * 2 - 1;
+        // y = 0.25;
+        let z = (Math.random() * 2 - 1);
         flakes.push([x, y, z, i, true, Math.random()]);
     }
     flakes.sort((a, b) => b[2] - a[2]);
@@ -359,18 +360,18 @@ necklaces = function() {
     for (let j = 0; j < 15; j++) {
         let startX, startHeading;
         if (j % 2 == 0) {
-            startX = -16/9, startHeading = 0;
+            startX = -16/9 * 1.25, startHeading = 0;
         } else {
-            startX = 16/9, startHeading = Math.PI;
+            startX = 16/9 * 1.25, startHeading = Math.PI;
         }
         let startY = map(Math.random(), 0, 1, -0.5, 0.5);
         let p = {x: startX, y: -0.334 + startY, h: startHeading};
         let ro = 0;
         let necklaceVertices = [];
         for (let i = 0; i < 355; i++) {
-            necklaceVertices.push([p.x, p.y, 0.8]);
+            necklaceVertices.push([p.x, p.y, 0.]);
             ro = lerp(Math.random()-0.5, ro, 0.9);
-            p = turtleRotateAndWalk(ro, 0.021, p.x, p.y, p.h);
+            p = turtleRotateAndWalk(ro, 0.021*1.2, p.x, p.y, p.h);
             
         }
         necklaceVertices.sort((a, b) => a[1] - b[1]);
@@ -388,108 +389,37 @@ necklaces = function() {
 }
 // necklaces();
 
+clothVertices = [];
+cloth = function() {
+    for (let i = 0; i < 45500; i++) {
+        let x = (Math.random() * 2 - 1) * 1.75;
+        let y = Math.random() * 2 - 1;
+        clothVertices.push(x, y, 0);
+    }
+};
+cloth();
+
 sc = 0.75;
 draw = function() {
     gl.clear(gl.COLOR_BUFFER_BIT);
-    // makeTree3D();
-    reset3DLines();
-    // for (let i = 0; i < pairs3D.length; i++) {
-    //     add3DLine(
-    //         pairs3D[i][0][0], 
-    //         pairs3D[i][0][1], 
-    //         pairs3D[i][0][2], 
-    //         pairs3D[i][1][0], 
-    //         pairs3D[i][1][1], 
-    //         pairs3D[i][1][2], 
-    //         1/6,
-    //         1, 0, 0, 0.5
-    //     );
-    // }
-    // for (let i = 0; i < newPairs3D.length; i++) {
-    //     add3DLine(
-    //         newPairs3D[i][0][0], 
-    //         newPairs3D[i][0][1], 
-    //         newPairs3D[i][0][2], 
-    //         newPairs3D[i][1][0], 
-    //         newPairs3D[i][1][1], 
-    //         newPairs3D[i][1][2], 
-    //         1/6,
-    //         1, 0, 0, 0.5
-    //     );
-    // }
-    // for (let i = 0; i < pairs3D.length; i++) {
-    //     add3DLine(
-    //         pairs3D[i][0][0], 
-    //         pairs3D[i][0][1], 
-    //         pairs3D[i][0][2], 
-    //         pairs3D[i][1][0], 
-    //         pairs3D[i][1][1], 
-    //         pairs3D[i][1][2], 
-    //         1/45,
-    //         1, 0, 0, 1
-    //     );
-    // }
-    // for (let i = 0; i < newPairs3D.length; i++) {
-    //     add3DLine(
-    //         newPairs3D[i][0][0], 
-    //         newPairs3D[i][0][1], 
-    //         newPairs3D[i][0][2], 
-    //         newPairs3D[i][1][0], 
-    //         newPairs3D[i][1][1], 
-    //         newPairs3D[i][1][2], 
-    //         1/45,
-    //         1, 0, 0, 1
-    //     );
-    // }
-    // for (let i = 0; i < pairs3D.length; i++) {
-        // add3DLine(
-        //     pairs3D[i][0][0], 
-        //     pairs3D[i][0][1], 
-        //     pairs3D[i][0][2], 
-        //     pairs3D[i][1][0], 
-        //     pairs3D[i][1][1], 
-        //     pairs3D[i][1][2], 
-        //     1/10,
-        //     1, 0, 0, 0.1
-        // );
-    // }
-    // currentProgram = getProgram("smooth-dots");
-    // gl.useProgram(currentProgram);
-    // drawAlligatorQuiet(currentProgram);
-   // console.log(lineAmount);
-    // if (indices.length) {
-    //     currentProgram = getProgram("smooth-line-3D");
-    //     gl.useProgram(currentProgram);
-    //     draw3DLines();
-    // }
-    // currentProgram = getProgram("holy-hills");
-    // gl.useProgram(currentProgram);
-    // drawRectangle(currentProgram, 0.25, 0, 0.75, 1);
     vertices = [];
-    // for (let i = 0; i < 100; i++) {
-    //     let a = 2, e = 1.5, n = 1;
-    //     let t = map(i, 0, 100, Math.PI * -2, Math.PI * 2);
-    //     let x = t;
-    //     let y = (a/2) * (Math.pow(e, t/a) + Math.pow(e, -t/a));
-    //     vertices.push(x/6,y*-0.4+0.47,0.8);
+    for (let i = 0; i < clothVertices.length; i++) {
+        vertices.push(clothVertices[i]);
+    }
+    // for (let x = -1.75; x < 1.75; x += 0.1) {
+    //     for (let y = -1; y < 1; y += 0.005) {
+    //         vertices.push(x, y, 0);
+    //     }
     // }
-    for (let i = 0; i < 100; i++) {
-        let a = 1, e = 1.5, n = 1;
-        let t = map(i, 0, 100, Math.PI * -2, Math.PI * 2);
-        let x = t;
-        let y = (a/2) * (Math.pow(e, t/a) + Math.pow(e, -t/a));
-        // vertices.push(x*0.2,y*-0.2-0.135,0.8);
-    }
-    for (let i = 0; i < 90; i++) {
-        let a = 1, e = 1.5, n = 1;
-        let t = map(i, 0, 90, Math.PI, Math.PI * 2);
-        let x = Math.cos(t);
-        let y = Math.sin(t);
-        // vertices.push(x*0.7*1.4,y*-0.7-0.135,0.8);
-    }
-    // currentProgram = getProgram("pearl-glow");
-    // gl.useProgram(currentProgram);
-    // draw3DDots(currentProgram);
+    // for (let x = -1.75; x < 1.75; x += 0.1) {
+    //     for (let y = -1; y < 1; y += 0.005) {
+    //         vertices.push(y, x, 0);
+    //     }
+    // }
+    currentProgram = getProgram("pearl-glow");
+    gl.useProgram(currentProgram);
+    draw3DDots(currentProgram);
+    vertices = [];
     for (let i = 0; i < vertices2.length; i++) {
         vertices.push(vertices2[i]);
     }
@@ -499,9 +429,9 @@ draw = function() {
     vertices = [];
     for (let i = 0; i < flakes.length; i++) {
         if (flakes[i][4]) {
-            flakes[i][0] += 0.0025 * 0.75 * 0.5 * 4;
-            flakes[i][1] -= 0.005 * 0.75 * 0.5 * 4;
-            flakes[i][0] += Math.sin(flakes[i][3]*1e1)*2e-3 * 0.5 * 4;
+            flakes[i][0] += 0.0025 * 0.75 * 0.5 * 1;
+            flakes[i][1] -= 0.005 * 0.75 * 0.5 * 1;
+            flakes[i][0] += Math.sin(flakes[i][3]*1e1)*2e-3 * 0.5 * 1;
     //         if (flakes[i][2] < -0.1) {
     //             flakes[i][2] = 2;
     //             let x = Math.random() * 2 - 1;
@@ -511,7 +441,7 @@ draw = function() {
     //             let y = 0.75;
     //             flakes[i][1] = y;
     //         }
-            if (flakes[i][0] > 1) {
+            if (flakes[i][0] > 1.5) {
                 // flakes[i][4] = false;
                 let x = Math.random() * 2 - 1;
                 flakes[i][0] = x;
@@ -527,7 +457,7 @@ draw = function() {
     }
     flakes.sort((a, b) => b[2] - a[2]);
     // for (let i = 0; i < flakes.length; i++) {
-    for (let i = 0; i < 5000; i++) {
+    for (let i = 0; i < flakes.length; i++) {
         vertices.push(flakes[i][0], flakes[i][1], flakes[i][2], flakes[i][5]);
         // vertices.push(Math.random()*2-1, 0.0, Math.random()*2-1, flakes[i][5]);
     }
