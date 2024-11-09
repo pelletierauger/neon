@@ -361,9 +361,9 @@ necklaces = function() {
     for (let j = 0; j < 15; j++) {
         let startX, startHeading;
         if (j % 2 == 0) {
-            startX = -16/9 * 1.5, startHeading = 0;
+            startX = -16/9 * 1.75, startHeading = 0;
         } else {
-            startX = 16/9 * 1.5, startHeading = Math.PI;
+            startX = 16/9 * 1.75, startHeading = Math.PI;
         }
         let startY = map(Math.random(), 0, 1, -0.5, 0.5);
         let p = {x: startX, y: -0.334 + startY, h: startHeading};
@@ -393,9 +393,9 @@ necklaces = function() {
 
 cloth = function() {
     clothVertices = [];
-    for (let i = 0; i < 45500; i++) {
+    for (let i = 0; i < 65500; i++) {
         let x = (Math.random() * 2 - 1) * 1.75;
-        let y = Math.random() * 2 - 1;
+        let y = (Math.random() * 2 - 1.) * 1.75;
         clothVertices.push(x, y, 0);
     }
 };
