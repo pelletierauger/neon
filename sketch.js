@@ -11,7 +11,7 @@ let colors = [];
 let indices = [];
 let amountOfLines = 0;
 let drawCount = 0;
-let vertex_buffer, indices2_buffer, Index_Buffer, color_buffer, width_buffer, uv_buffer, dots_buffer;
+let vertex_buffer, indices2_buffer, Index_Buffer, color_buffer, width_buffer, uv_buffer, dots_buffer, melt_buffer;
 let vertex_bufferA, vertex_bufferB;
 let vbuffer;
 let field = [];
@@ -40,6 +40,7 @@ function setup() {
     width_buffer = gl.createBuffer();
     uv_buffer = gl.createBuffer();
     dots_buffer = gl.createBuffer();
+    melt_buffer = gl.createBuffer();
     vertex_bufferA = gl.createBuffer();
     vertex_bufferB = gl.createBuffer();
     vbuffer = gl.createBuffer();
@@ -317,7 +318,7 @@ startFlakes = function() {
         let y = maps(Math.random(), 0, 1, 1, 25)+7;
         // y = 0.25;
         let z = (Math.random() * 2 - 1);
-        flakes.push([x, y, z, i, true, Math.random()]);
+        flakes.push([x, y, z, i, true, Math.random(), 1]);
     }
     flakes.sort((a, b) => b[2] - a[2]);
 }
@@ -371,7 +372,7 @@ necklaces = function() {
         for (let i = 0; i < 355; i++) {
             necklaceVertices.push([p.x, p.y, 0.]);
             ro = lerp(Math.random()-0.5, ro, 0.9);
-            p = turtleRotateAndWalk(ro, 0.021*1.2, p.x, p.y, p.h);
+            p = turtleRotateAndWalk(ro, 0.021*1.7, p.x, p.y, p.h);
             
         }
         necklaceVertices.sort((a, b) => a[1] - b[1]);
@@ -427,6 +428,7 @@ draw = function() {
     gl.useProgram(currentProgram);
     draw3DDots(currentProgram);
     vertices = [];
+    meltVertices = [];
     for (let i = 0; i < flakes.length; i++) {
         if (flakes[i][4]) {
             // flakes[i][0] += 0.0025 * 0.75 * 0.5 * 8;
@@ -454,14 +456,28 @@ draw = function() {
                 // flakes[i][1] = 25;
                 flakes[i][4] = false;
             }
+        } else {
+            flakes[i][6] *= 0.975;
+            if (flakes[i][6] <= 0.001) {
+                let x = (Math.random() * 2 - 1) * 1.5;
+                flakes[i][0] = x;
+                let y = 15;
+                flakes[i][1] = y;
+                let z = Math.random() * 2 - 1;
+                flakes[i][2] = z;
+                flakes[i][4] = true;
+                flakes[i][6] = 1;
+            }
         }
     }
     // flakes.sort((a, b) => b[2] - a[2]);
     // for (let i = 0; i < flakes.length; i++) {
     for (let i = 0; i < flakes.length; i++) {
         vertices.push(flakes[i][0], flakes[i][1], flakes[i][2], flakes[i][5]);
+        meltVertices.push(flakes[i][6]);
         // vertices.push(Math.random()*2-1, 0.0, Math.random()*2-1, flakes[i][5]);
     }
+    
     // for (let i = 0; i < 400; i++) {
     //     let x = Math.cos(i - drawCount * 1e-2) * i * 1e-3;
     //     let z = Math.sin(i - drawCount * 1e-2) * i * 1e-3;
@@ -866,6 +882,13 @@ draw3DDots2 = function(selectedProgram) {
     gl.vertexAttribPointer(coord, 4, gl.FLOAT, false, 0, 0);
     // Enable the attribute
     gl.enableVertexAttribArray(coord);
+    gl.bindBuffer(gl.ARRAY_BUFFER, melt_buffer);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(meltVertices), gl.STATIC_DRAW);
+    var melt = gl.getAttribLocation(selectedProgram, "melt");
+    // Point an attribute to the currently bound VBO
+    gl.vertexAttribPointer(melt, 1, gl.FLOAT, false, 0, 0);
+    // Enable the attribute
+    gl.enableVertexAttribArray(melt);
     let timeUniformLocation = gl.getUniformLocation(selectedProgram, "time");
     gl.uniform1f(timeUniformLocation, drawCount);
     let resolutionUniformLocation = gl.getUniformLocation(selectedProgram, "resolution");

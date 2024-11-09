@@ -1703,14 +1703,17 @@ smoothDots3D.vertText = `
     // beginGLSL
     ${pi}
     attribute vec4 coordinates;
+    attribute float melt;
     uniform float time;
     uniform vec2 resolution;
     varying float t;
     varying vec3 posUnit;
     varying vec3 posUnit2;
+    varying float m;
     ${mapFunction}
     ${matrixTransforms}
     void main(void) {
+        m = melt;
         float ratio = resolution.y / resolution.x;
         vec4 pos = vec4(coordinates.xyz * 1.0, 1.);
         pos.xyz = pos.xzy;
@@ -1728,6 +1731,8 @@ smoothDots3D.vertText = `
         // gl_PointSize = 28./pos.z*0.85+(coordinates.w*15.);
         gl_PointSize = 25./pos.z*0.85+(coordinates.w*15.)+5.;
         gl_PointSize *= 0.35;
+        gl_PointSize /= m;
+        // gl_PointSize = min(206., gl_PointSize / m);
         // gl_PointSize = 28.;
         // gl_PointSize = 2./pos.z*0.85+(coordinates.w*15.);
         t = time*0.5;
@@ -1750,6 +1755,7 @@ smoothDots3D.fragText = `
     varying float t;
     varying vec3 posUnit;
     varying vec3 posUnit2;
+    varying float m;
     float rand(vec2 co){
         return fract(sin(dot(co.xy ,vec2(12.9898,78.233))) * 43758.5453 * (2.0 + sin(co.x)));
     }
@@ -1767,6 +1773,8 @@ smoothDots3D.fragText = `
         gl_FragColor.rgb = vec3(1.0, 0.25, 0.25).gbr * osc;
         gl_FragColor.rg = max(gl_FragColor.rg, gl_FragColor.rg * l * pow(osc, 3.) * 3.35);
         gl_FragColor.a = max(gl_FragColor.a, gl_FragColor.a + (l + halo) * pow(osc, 3.) * 1.35);
+        gl_FragColor.a *= m;
+        gl_FragColor.rg *= m;
     }
     // endGLSL
 `;

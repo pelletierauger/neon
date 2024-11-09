@@ -71,7 +71,7 @@ pearl.vertText = `
         pos.y -= 1.5;
         // pos.xy *= 0.75;
         gl_Position = vec4(pos.x * ratio, pos.y, 0.0, pos.z);
-        gl_PointSize = 139./pos.z;
+        gl_PointSize = 119./pos.z;
         t = time*0.5;
         
         pos = translate(0.0, 0.0, -0.5) * pos;
