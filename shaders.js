@@ -1787,3 +1787,100 @@ smoothDots3D.fragText = `
 smoothDots3D.vertText = smoothDots3D.vertText.replace(/[^\x00-\x7F]/g, "");
 smoothDots3D.fragText = smoothDots3D.fragText.replace(/[^\x00-\x7F]/g, "");
 smoothDots3D.init();
+
+if (false) {
+
+// A version of the snowfall where the melting snow is adjusted for perspective.
+smoothDots3D.vertText = `
+    // beginGLSL
+    ${pi}
+    attribute vec4 coordinates;
+    attribute float melt;
+    uniform float time;
+    uniform vec2 resolution;
+    varying float t;
+    varying vec3 posUnit;
+    varying vec3 posUnit2;
+    varying float m;
+    varying float osc;
+    ${mapFunction}
+    ${matrixTransforms}
+    void main(void) {
+        m = melt;
+        float ratio = resolution.y / resolution.x;
+        vec4 pos = vec4(coordinates.xyz * 1.0, 1.);
+        pos.xyz = pos.xzy;
+        pos.z = 1. - pos.z;
+        pos.xy *= 2.;
+        posUnit = pos.xyz;
+        // pos = xRotate(pi * -0.1) * pos;
+        // pos = translate(0.0, 0.2, 0.2) * pos;
+        pos = xRotate(pi * -0.2) * pos;
+        pos = translate(0.0, 1.6, 3.5) * pos;
+        pos.xy *= 3.;
+        pos.y -= 1.5;
+        gl_Position = vec4(pos.x * ratio, pos.y, 0.0, pos.z);
+        // gl_Position = vec4(pos.x, pos.y, 0.0, pos.z + 1.);
+        // gl_PointSize = 28./pos.z*0.85+(coordinates.w*15.);
+        gl_PointSize = 25./pos.z*0.85+(coordinates.w*15.)+5.;
+        gl_PointSize *= 0.35;
+        gl_PointSize /= m;
+        if (m < 1.0) {
+            gl_PointSize /= m;
+        }
+        // gl_PointSize = min(206., gl_PointSize / m);
+        // gl_PointSize = 28.;
+        // gl_PointSize = 2./pos.z*0.85+(coordinates.w*15.);
+        t = time*0.5;
+        // pos = translate(0.0, 0.0, -0.25) * pos;
+        // gl_PointSize += (sin((length(coordinates*20.)*0.2-time*2e-1))*0.5+0.5)*14.;
+        posUnit2 = pos.xyz;
+        if (length(posUnit2.xz) > 0.4) {
+            // gl_PointSize = 0.0;
+        }
+        if ((posUnit.z) > 0.72) {
+            // gl_PointSize = 0.0;
+        }
+        vec2 uv = posUnit.xy * 1.5;
+        float x = (uv.x * 0.8 + uv.y) * 0.75 - t * 5e-2;
+        osc = map(sin(x), -1., 1., 0.25, 1.);
+        osc = pow(osc, 17.);
+        if (osc < 0.4 && m < 1.) {
+            gl_PointSize = 0.;
+        }
+    }
+    // endGLSL
+`;
+smoothDots3D.fragText = `
+    // beginGLSL
+    precision mediump float;
+    // uniform float time;
+    varying float t;
+    varying vec3 posUnit;
+    varying vec3 posUnit2;
+    varying float m;
+    varying float osc;
+    float rand(vec2 co){
+        return fract(sin(dot(co.xy ,vec2(12.9898,78.233))) * 43758.5453 * (2.0 + sin(co.x)));
+    }
+    ${mapFunction}
+    void main(void) {
+        vec2 pos = gl_PointCoord - vec2(0.5);
+        float l = 1.0 - length((pos)*vec2(1., mix(1., 1./m, 0.5))) * 2.;
+        float halo = l * 0.0625;
+        l = smoothstep(0., 1., l);
+        gl_FragColor.a = l;
+        gl_FragColor.rgb = vec3(1.0, 0.25, 0.25).gbr * osc;
+        gl_FragColor.rg = max(gl_FragColor.rg, gl_FragColor.rg * l * pow(osc, 3.) * 3.35);
+        gl_FragColor.a = max(gl_FragColor.a, gl_FragColor.a + (l + halo) * pow(osc, 3.) * 1.35);
+        gl_FragColor.rga *= m;
+        // gl_FragColor.rg *= m;
+        // gl_FragColor = vec4(1.);
+    }
+    // endGLSL
+`;
+smoothDots3D.vertText = smoothDots3D.vertText.replace(/[^\x00-\x7F]/g, "");
+smoothDots3D.fragText = smoothDots3D.fragText.replace(/[^\x00-\x7F]/g, "");
+smoothDots3D.init();
+
+}
