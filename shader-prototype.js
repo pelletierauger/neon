@@ -391,3 +391,38 @@ rand = `
         return fract(sin(dot(co.xy, vec2(12.9898, 78.233))) * 43758.5453 * (2.0 + sin(co.x)));
     }
 `;
+
+matrixTransforms = `
+    mat4 translate(float x, float y, float z) {
+        return mat4(
+            1.0,  0.0,  0.0,  0.0,
+            0.0,  1.0,  0.0,  0.0,
+            0.0,  0.0,  1.0,  0.0,
+            x,      y,    z,  1.0
+        );
+    }
+    mat4 xRotate(float a) {
+        return mat4(
+           1.0, 0.0,        0.0, 0.0,
+           0.0, cos(a), -sin(a), 0.0,
+           0.0, sin(a),  cos(a), 0.0,
+           0.0, 0.0,        0.0, 1.0
+        );
+    }
+    mat4 yRotate(float a) {
+        return mat4(
+           cos(a),  0.0, sin(a), 0.0,
+           0.0,     1.0,    0.0, 0.0,
+           -sin(a), 0.0, cos(a), 0.0,
+           0.0,     0.0,    0.0, 1.0
+        );
+    }
+    mat4 zRotate(float a) {
+        return mat4(
+           cos(a), -sin(a), 0.0, 0.0,
+           sin(a),  cos(a), 0.0, 0.0,
+           0.0,        0.0, 1.0, 0.0,
+           0.0,        0.0, 0.0, 1.0
+        );
+    }
+`;

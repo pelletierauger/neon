@@ -311,10 +311,10 @@ startFlakes = function() {
     maps = function(n,sa1,so1,sa2,so2) {
         return (n-sa1)/(so1-sa1)*(so2-sa2)+sa2;
     };
-    for (let i = 0; i < 12500; i++) {
+    for (let i = 0; i < 22500; i++) {
         let x = (Math.random() * 2 - 1) * 1.5;
         // do {x = Math.random() * 2 - 1} while (Math.abs(x) < 0.1);
-        let y = maps(Math.random(), 0, 1, 0.25, 15);
+        let y = maps(Math.random(), 0, 1, 1, 25)+7;
         // y = 0.25;
         let z = (Math.random() * 2 - 1);
         flakes.push([x, y, z, i, true, Math.random()]);
@@ -360,9 +360,9 @@ necklaces = function() {
     for (let j = 0; j < 15; j++) {
         let startX, startHeading;
         if (j % 2 == 0) {
-            startX = -16/9 * 1.25, startHeading = 0;
+            startX = -16/9 * 1.5, startHeading = 0;
         } else {
-            startX = 16/9 * 1.25, startHeading = Math.PI;
+            startX = 16/9 * 1.5, startHeading = Math.PI;
         }
         let startY = map(Math.random(), 0, 1, -0.5, 0.5);
         let p = {x: startX, y: -0.334 + startY, h: startHeading};
@@ -429,9 +429,9 @@ draw = function() {
     vertices = [];
     for (let i = 0; i < flakes.length; i++) {
         if (flakes[i][4]) {
-            flakes[i][0] += 0.0025 * 0.75 * 0.5 * 1;
-            flakes[i][1] -= 0.005 * 0.75 * 0.5 * 1;
-            flakes[i][0] += Math.sin(flakes[i][3]*1e1)*2e-3 * 0.5 * 1;
+            // flakes[i][0] += 0.0025 * 0.75 * 0.5 * 8;
+            flakes[i][1] -= 0.005 * 0.75 * 0.5 * 16;
+            flakes[i][0] += Math.sin(flakes[i][3]*1e1)*2e-3 * 0.5 * 8
     //         if (flakes[i][2] < -0.1) {
     //             flakes[i][2] = 2;
     //             let x = Math.random() * 2 - 1;
@@ -451,11 +451,12 @@ draw = function() {
                 flakes[i][2] = z;
             }
             if (flakes[i][1] < 0) {
+                // flakes[i][1] = 25;
                 flakes[i][4] = false;
             }
         }
     }
-    flakes.sort((a, b) => b[2] - a[2]);
+    // flakes.sort((a, b) => b[2] - a[2]);
     // for (let i = 0; i < flakes.length; i++) {
     for (let i = 0; i < flakes.length; i++) {
         vertices.push(flakes[i][0], flakes[i][1], flakes[i][2], flakes[i][5]);
