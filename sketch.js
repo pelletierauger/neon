@@ -17,6 +17,95 @@ let field = [];
 let makeField;
 let reached, unreached;
 
+let points = []
+    sticks = [],
+    ball_radius = 1.5,
+    bounce = 0.9,                     // reduce velocity after every bounce
+    gravity = 0.05,
+    friction = 1;
+
+let row = 35, cols = 80, space = 2.5;
+let width = 1280, height = 720;
+let mouse = {
+    x: width/2,
+    y: height/2
+};
+
+function distance(p1, p2){
+    let dx = p1.x - p2.x,
+        dy = p1.y - p2.y;
+    return Math.sqrt(dx * dx + dy * dy);
+}
+
+// Cloth simulation code from:
+// https://github.com/Pragyay/Cloth-simulation
+function generatePoints(rows, cols, space){
+    let initial_x = (width - (cols*space))/2,
+        initial_y = 0;
+    for(let i=0; i<rows; i++){
+        initial_y += space;
+
+        for(let j=0; j<cols; j++){
+            initial_x += space;
+            let point = {
+                x: initial_x,
+                y: initial_y,
+                oldx: initial_x - 2,
+                oldy: initial_y,
+                color: "red"
+            }
+            points.push(point);
+        }
+
+        initial_x = (width - (cols*space))/2;
+    }
+}
+
+function generateSticks(rows, cols, space){
+    // hzt sticks
+    let initial_index = 0;
+    for(let i=0;i<rows;i++){
+        initial_index = cols*i;
+
+        for(let j=0;j<cols-1;j++){
+            let stick = {
+                p1: points[initial_index + j],
+                p2: points[initial_index + j + 1],
+                length: distance(points[initial_index + j], points[initial_index + j + 1])
+            }
+            sticks.push(stick);
+        }
+    }
+
+    initial_index = 0;
+
+    // vrt sticks
+    for(let i=0;i<rows-1;i++){
+        initial_index = i*cols;
+        for(let j=0;j<cols;j++){
+            let stick = {
+                p1: points[initial_index + j],
+                p2: points[initial_index + cols + j],
+                length: distance(points[initial_index + j], points[initial_index+cols+j])
+            }
+            sticks.push(stick);
+        }
+    }
+}
+
+function pinPoints(){ 
+    for(let i=0;i<cols;i++){
+        points[i].pinned = true;
+    }
+}
+
+
+generatePoints(row, cols, space);
+generateSticks(row, cols, space);
+
+pinPoints();
+
+
 function setup() {
     socket = io.connect('http://localhost:8080');
     pixelDensity(1);
@@ -128,24 +217,24 @@ function setup() {
             }   
         }, false);
     }, 1);
-    makeField = function() {
-        field = [];
-        let n = 400;
-        for (var i = 0; i < n; i++) {
-            let x = Math.cos(i*1e2*Math.sin(i*1e2)+(Math.random()*1e4))*i/n * 2;
-            let y = Math.sin(i*1e2*Math.sin(i*1e2)+(Math.random()*1e4))*i/n * 2;
-            // x = Math.random()*2-1;
-            // y = Math.random()*2-1;
-            x *= cnvs.width/cnvs.height;
-            field.push([x, y]);
-        }
-        reached = [];
-        unreached = field.slice();
-        reached.push(unreached[Math.floor(Math.random()*unreached.length)]);
-        unreached.splice(0, 1);
-        pairs = [];
-    };
-    makeField();
+    // makeField = function() {
+    //     field = [];
+    //     let n = 400;
+    //     for (var i = 0; i < n; i++) {
+    //         let x = Math.cos(i*1e2*Math.sin(i*1e2)+(Math.random()*1e4))*i/n * 2;
+    //         let y = Math.sin(i*1e2*Math.sin(i*1e2)+(Math.random()*1e4))*i/n * 2;
+    //         // x = Math.random()*2-1;
+    //         // y = Math.random()*2-1;
+    //         x *= cnvs.width/cnvs.height;
+    //         field.push([x, y]);
+    //     }
+    //     reached = [];
+    //     unreached = field.slice();
+    //     reached.push(unreached[Math.floor(Math.random()*unreached.length)]);
+    //     unreached.splice(0, 1);
+    //     pairs = [];
+    // };
+    // makeField();
 }
 
 if (false) {
@@ -189,23 +278,23 @@ makeField();
 
 }
 
-makeField3D = function() {
-    field3D = [];
-    let n = 400;
-    for (var i = 0; i < n; i++) {
-        // let p = randomPointInSphere();
-        let p = randomPointOnSphere();
-        field3D.push(p);
-    }
-    reached3D = [];
-    unreached3D = field3D.slice();
-    reached3D.push(unreached3D[Math.floor(Math.random()*unreached3D.length)]);
-    unreached3D.splice(0, 1);
-    pairs3D = [];
-    vertices = [].concat.apply([], field3D);
-    num = n;
-};
-makeField3D();
+// makeField3D = function() {
+//     field3D = [];
+//     let n = 400;
+//     for (var i = 0; i < n; i++) {
+//         // let p = randomPointInSphere();
+//         let p = randomPointOnSphere();
+//         field3D.push(p);
+//     }
+//     reached3D = [];
+//     unreached3D = field3D.slice();
+//     reached3D.push(unreached3D[Math.floor(Math.random()*unreached3D.length)]);
+//     unreached3D.splice(0, 1);
+//     pairs3D = [];
+//     vertices = [].concat.apply([], field3D);
+//     num = n;
+// };
+// makeField3D();
 
 
 makeTree = function() {
@@ -276,246 +365,164 @@ sc = 0.75;
 draw = function() {
     gl.clear(gl.COLOR_BUFFER_BIT);
     // for (let i = 0; i < 5; i++) {
-    makeTree3D();  
+    // makeTree3D();  
     // }
     // resetLines();
+    vertices = [];
     reset3DLines();
-    // addLine(0, 0, 1, 0, 0.25);
-    // for (let i = 0; i < 100; i++) {
-    //     addLine(field[i][0], field[i][1], field[i+1][0], field[i+1][1], 1/16);
-    // }    
-    // for (let i = 0; i < pairs.length; i++) {
-    //     addLine(
-    //         pairs[i][0][0], 
-    //         pairs[i][0][1], 
-    //         pairs[i][1][0], 
-    //         pairs[i][1][1], 
-    //         1/5,
+    wind();
+    updatePoints();
+    updateSticks();
+    renderSticks();
+    renderPoints();
+    // for (let i = 0; i < pairs3D.length; i++) {
+    //     add3DLine(
+    //         pairs3D[i][0][0], 
+    //         pairs3D[i][0][1], 
+    //         pairs3D[i][0][2], 
+    //         pairs3D[i][1][0], 
+    //         pairs3D[i][1][1], 
+    //         pairs3D[i][1][2], 
+    //         1/45,
     //         1, 0, 0, 0.25
     //     );
     // }
-    // for (let i = 0; i < pairs.length; i++) {
-    // let sc = 0.75;
-    // sc += 0.001;
-    // if (sc > 1) {sc = 0.75};
-    // for (let x = 0; x < 1; x += 1/10) {
-    //     let y = 1;
-    //     addLine(
-    //         (x - 0.5) * 1.5 * sc, 
-    //         y * 0.75 * sc, 
-    //         (x - 0.5) * 1.5 * sc, 
-    //         -y * 0.75 * sc, 
+    // for (let i = 0; i < pairs3D.length; i++) {
+    //     add3DLine(
+    //         pairs3D[i][0][0], 
+    //         pairs3D[i][0][1], 
+    //         pairs3D[i][0][2], 
+    //         pairs3D[i][1][0], 
+    //         pairs3D[i][1][1], 
+    //         pairs3D[i][1][2], 
     //         1/5,
-    //         1, 0, 0, 0.6
-    //     );
-    //     addLine(
-    //         (x - 0.5) * 1.5 * sc, 
-    //         y * 0.75 * sc, 
-    //         (x - 0.5) * 1.5 * sc, 
-    //         -y * 0.75 * sc, 
-    //         1/25,
-    //         1, 0, 0, 1
+    //         1, 0, 0, 0.00001
     //     );
     // }
-    // for (let y = 0; y < 1; y += 1/10) {
-    //     let x = 0;
-    //     addLine(
-    //         (x - 1) * 0.75 * sc, 
-    //         (y - 0.5) * 1.5 * sc, 
-    //         (x + 1) * 0.75 * sc, 
-    //         (y - 0.5) * 1.5 * sc, 
-    //         1/5,
-    //         1, 0, 0, 0.6
-    //     );
-    //     addLine(
-    //         (x - 1) * 0.75 * sc, 
-    //         (y - 0.5) * 1.5 * sc, 
-    //         (x + 1) * 0.75 * sc, 
-    //         (y - 0.5) * 1.5 * sc, 
-    //         1/25,
-    //         1, 0, 0, 1
-    //     );
-    // }
-    // for (let y = 0; y < 1; y += 1/10) {
-    //     let x = -0.75;
-    //     let yy = map(y, 0, 1, 0.75, -0.75);
-    //     let y2 = map(y, 0, 1, 1.57, -1.57);
-    //     addLine(
-    //         x * sc, 
-    //         (yy) * sc, 
-    //         (x - 1.75) * sc, 
-    //         (yy+y2) * sc, 
-    //         1/5,
-    //         1, 0, 0, 0.6
-    //     );
-    //     addLine(
-    //         x * sc, 
-    //         (yy) * sc, 
-    //         (x - 1.75) * sc, 
-    //         (yy+y2) * sc, 
-    //         1/25,
-    //         1, 0, 0, 1
-    //     );
-    //     x = 0.75;
-    //     addLine(
-    //         x * sc, 
-    //         (yy) * sc, 
-    //         (x + 1.75) * sc, 
-    //         (yy+y2) * sc, 
-    //         1/5,
-    //         1, 0, 0, 0.6
-    //     );
-    //     addLine(
-    //         x * sc, 
-    //         (yy) * sc, 
-    //         (x + 1.75) * sc, 
-    //         (yy+y2) * sc, 
-    //         1/25,
-    //         1, 0, 0, 1
-    //     );
-    // }
-    // for (let x = 0; x < 1; x += 1/10) {
-    //     let y = -0.75;
-    //     let xx = map(x, 0, 1, 0.75, 1.5);
-    //     xx = Math.pow(xx, 2) + 0.28;
-    //     let yy = map(x, 0, 1, 0.825, 2);
-    //     addLine(
-    //         xx * sc, 
-    //         (yy) * sc, 
-    //         xx * sc, 
-    //         (-yy) * sc, 
-    //         1/5,
-    //         1, 0, 0, 0.6
-    //     );
-    //     addLine(
-    //         xx * sc, 
-    //         (yy) * sc, 
-    //         xx * sc, 
-    //         (-yy) * sc, 
-    //         1/25,
-    //         1, 0, 0, 1
-    //     );
-    //             addLine(
-    //         -xx * sc, 
-    //         (yy) * sc, 
-    //         -xx * sc, 
-    //         (-yy) * sc, 
-    //         1/5,
-    //         1, 0, 0, 0.6
-    //     );
-    //     addLine(
-    //         -xx * sc, 
-    //         (yy) * sc, 
-    //         -xx * sc, 
-    //         (-yy) * sc, 
-    //         1/25,
-    //         1, 0, 0, 1
-    //     );
-    // }
-        //     for (let y = 0; y < 1; y += 1/10) {
-        //     addLine(
-        //         x, 
-        //         y, 
-        //         x, 
-        //         x, 
-        //         1/5,
-        //         1, 0, 0, 1
-        //     );
-        // }
-    // }
-    // addLine(0.9, 0.9, 0.9, -0.9, 1/15);
-    // currentProgram = getProgram("smooth-line");
-    // gl.useProgram(currentProgram);
-    // drawLines();
-    // add3DLine(
-    //     -1, 0.1, 2,
-    //     1, -0.1, 2,
-    //     1/5,
-    //     1, 0, 0, 1
-    // );
-//     for (let x = 0; x < 1; x += 1/10) {
-//         let y = 1;
-//         add3DLine(
-//             (x - 0.5) * 1.5 * sc, 
-//             y * 0.75 * sc, 
-//             1,
-//             (x - 0.5) * 1.5 * sc, 
-//             -y * 0.75 * sc, 
-//             1,
-//             1/3,
-//             1, 0, 0, 0.25
-//         );
-//         add3DLine(
-//             (x - 0.5) * 1.5 * sc, 
-//             y * 0.75 * sc, 
-//             1,
-//             (x - 0.5) * 1.5 * sc, 
-//             -y * 0.75 * sc, 
-//             1,
-//             1/25,
-//             1, 0, 0, 1
-//         );
-//         add3DLine(
-//             (x - 0.5) * 1.5 * sc, 
-//             y * 0.75 * sc, 
-//             1,
-//             (x - 0.5) * 1.5 * sc, 
-//             y * 0.75 * sc, 
-//             2,
-//             1/3,
-//             1, 0, 0, 0.25
-//         );
-//         add3DLine(
-//             (x - 0.5) * 1.5 * sc, 
-//             y * 0.75 * sc, 
-//             1,
-//             (x - 0.5) * 1.5 * sc, 
-//             y * 0.75 * sc, 
-//             2,
-//             1/25,
-//             1, 0, 0, 1
-//         );
-        
-//     }
-    for (let i = 0; i < pairs3D.length; i++) {
-        add3DLine(
-            pairs3D[i][0][0], 
-            pairs3D[i][0][1], 
-            pairs3D[i][0][2], 
-            pairs3D[i][1][0], 
-            pairs3D[i][1][1], 
-            pairs3D[i][1][2], 
-            1/45,
-            1, 0, 0, 0.25
-        );
-    }
-    for (let i = 0; i < pairs3D.length; i++) {
-        add3DLine(
-            pairs3D[i][0][0], 
-            pairs3D[i][0][1], 
-            pairs3D[i][0][2], 
-            pairs3D[i][1][0], 
-            pairs3D[i][1][1], 
-            pairs3D[i][1][2], 
-            1/5,
-            1, 0, 0, 0.00001
-        );
-    }
-    // currentProgram = getProgram("smooth-dots");
-    // gl.useProgram(currentProgram);
-    // drawAlligatorQuiet(currentProgram);
+    currentProgram = getProgram("smooth-line-3D");
+    gl.useProgram(currentProgram);
+    draw3DLines();
     currentProgram = getProgram("smooth-dots-3D");
     gl.useProgram(currentProgram);
     draw3DDots(currentProgram);
-        currentProgram = getProgram("smooth-line-3D");
-    gl.useProgram(currentProgram);
-    draw3DLines();
     if (exporting && frameCount < maxFrames) {
         frameExport();
     }
     drawCount++;
 }
 
+function updatePoints(){
+    for(let i = 0; i < points.length; i++){
+        let p = points[i];
+
+        if(!p.pinned){
+            let vx = (p.x - p.oldx)*friction,
+                vy = (p.y - p.oldy)*friction;
+
+            p.oldx = p.x;
+            p.oldy = p.y;
+
+            p.x += vx;
+            p.y += vy;
+            p.y += gravity;
+        
+
+            //handling edges
+            let rightEdge = (width - ball_radius),
+                leftEdge = topEdge = ball_radius,
+                bottomEdge = (height - ball_radius);
+
+            if(p.x > rightEdge){
+                p.x = rightEdge;
+                p.oldx = p.x + vx*bounce;
+            }
+
+            else if(p.x < leftEdge){
+                p.x = leftEdge;
+                p.oldx = p.x + vx*bounce;
+            }
+
+            else if(p.y < topEdge){
+                p.y = topEdge;
+                p.oldy = p.y + vy*bounce;
+            }
+
+            else if(p.y > bottomEdge){
+                p.y = bottomEdge;
+                p.oldy = p.y + vy*bounce;
+                // points.splice(i, 1);    
+            }
+        }
+
+    }
+}
+
+function updateSticks(){
+    for(let i=0; i < sticks.length; i++){
+        let s = sticks[i];
+
+        let dx = s.p2.x - s.p1.x,
+            dy = s.p2.y - s.p1.y,
+            distance = Math.sqrt(dx*dx + dy*dy),
+
+            difference = distance - s.length,
+            percent = difference / distance / 2,
+            offsetX = dx * percent,
+            offsetY = dy * percent;
+        
+        if(!s.p1.pinned){
+            s.p1.x += offsetX;
+            s.p1.y += offsetY;
+        }
+
+        if(!s.p2.pinned){
+            s.p2.x -= offsetX;
+            s.p2.y -= offsetY;    
+        }
+    }
+}
+
+renderPoints = function() {
+    for(let i = 0; i < points.length; i++){
+        let p = points[i];
+        // vertices.push(p.x, p.y, 1);
+        vertices.push(p.x * 0.02 - 12.875, -p.y * 0.02 + 1.9, 1);
+    //     if(p.pinned){
+    //         ctx.beginPath();
+    //         ctx.fillStyle = p.color;
+    //         ctx.arc(p.x, p.y, ball_radius, 0, Math.PI*2);
+    //         ctx.fill();
+    //     }
+    //     ctx.beginPath();
+    //     ctx.fillStyle = "gray";
+    //     ctx.arc(p.x, p.y, ball_radius, 0, Math.PI*2);
+    //     ctx.fill();
+    }
+};
+
+renderSticks = function() {
+    // ctx.beginPath();
+    for(let i = 0; i < sticks.length; i++){
+        let s = sticks[i];
+        // ctx.moveTo(s.p1.x, s.p1.y);
+        // ctx.lineTo(s.p2.x, s.p2.y);
+        // add3DLine(
+        //     s.p1.x * 0.02 - 12, -s.p1.y * 0.02 + 1.2, 1, 
+        //     s.p2.x * 0.02 - 12, -s.p2.y * 0.02 + 1.2, 1,
+        //     1/10,
+        //     1, 0, 0, 0.001
+        // );
+        add3DLine(
+            s.p1.x * 0.02 - 12.875, -s.p1.y * 0.02 + 1.9, 1, 
+            s.p2.x * 0.02 - 12.875, -s.p2.y * 0.02 + 1.9, 1,
+            1/30,
+            1, 0, 0, 0.0001
+        );
+    }
+    // ctx.strokeStyle = "white";
+    // ctx.strokeWidth = 0.1;
+    // ctx.stroke();
+};
 
 resetLines = function() {
     indices = [];
@@ -888,5 +895,29 @@ draw3DDots = function(selectedProgram) {
     gl.uniform1f(timeUniformLocation, drawCount);
     let resolutionUniformLocation = gl.getUniformLocation(selectedProgram, "resolution");
     gl.uniform2f(resolutionUniformLocation, cnvs.width, cnvs.height);
-    gl.drawArrays(gl.POINTS, 0, num);
+    gl.drawArrays(gl.POINTS, 0, vertices.length/3);
 };
+
+
+wind = function() {
+    for (let i = row; i < (cols*row); i++) {
+        let w = i % row;
+        w = Math.sin(i * 0.001 + drawCount * 0.05);
+        points[i].x -= w * 0.01;
+    }
+};
+// wind();
+
+
+if (false) {
+
+for (let i = 0; i < 30; i++) {
+    sticks.splice(Math.floor(Math.random()*sticks.length), 1);
+}
+
+let s = Math.floor(Math.random()*sticks.length);
+for (let i = s; i < s + 5; i++) {
+    sticks.splice(s, 1);
+}
+
+}
