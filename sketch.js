@@ -39,6 +39,9 @@ function distance(p1, p2){
 
 // Cloth simulation code from:
 // https://github.com/Pragyay/Cloth-simulation
+// Pragyay's code appears to be based on this tutorial video:
+// Coding Math: Episode 36 - Verlet Integration Part I
+// https://www.youtube.com/watch?v=3HjO_RGIjCU
 function generatePoints(rows, cols, space){
     let initial_x = (width - (cols*space))/2,
         initial_y = 0;
