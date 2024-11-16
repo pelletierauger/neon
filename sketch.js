@@ -238,6 +238,9 @@ function setup() {
     //     pairs = [];
     // };
     // makeField();
+    makeField();
+    makeTree();
+    
 }
 
 if (false) {
@@ -260,14 +263,16 @@ makeField = function() {
 };
 makeField();
 
+}
+
 makeField = function() {
     field = [];
     let n = 400;
     for (var i = 0; i < n; i++) {
         let x = Math.cos(i*1e2*Math.sin(i*1e2)+(Math.random()*1e4))*i/n * 2;
         let y = Math.sin(i*1e2*Math.sin(i*1e2)+(Math.random()*1e4))*i/n * 2;
-        // x = Math.random()*2-1;
-        // y = Math.random()*2-1;
+        x = Math.random()*2-1;
+        y = Math.random()*2-1;
         x *= cnvs.width/cnvs.height;
         field.push([x, y]);
     }
@@ -277,9 +282,9 @@ makeField = function() {
     unreached.splice(0, 1);
     pairs = [];
 };
-makeField();
 
-}
+
+
 
 // makeField3D = function() {
 //     field3D = [];
@@ -329,6 +334,34 @@ makeTree = function() {
     }
 };
 
+
+makeTree = function() {
+    while (unreached.length > 0) {
+        let record = Infinity;
+        var rIndex;
+        var uIndex;
+        let found = false;
+        for (var i = 0; i < reached.length; i++) {
+          for (var j = 0; j < unreached.length; j++) {
+            var v1 = reached[i];
+            var v2 = unreached[j];
+            var d = dist(v1[0], v1[1], v2[0], v2[1]);
+              if (d < record) {
+              record = d;
+              rIndex = i;
+              uIndex = j;
+              found = true;
+            }
+          }
+        }
+        if (found) {
+            pairs.push([reached[rIndex], unreached[uIndex]]);
+            reached.push(unreached[uIndex]);
+            unreached.splice(uIndex, 1);
+        }
+    }
+};
+
 makeTree3D = function() {
     if (unreached3D.length > 0) {
         let record = Infinity;
@@ -366,48 +399,35 @@ makeTree3D = function() {
 
 sc = 0.75;
 draw = function() {
+    // makeTree(); 
     gl.clear(gl.COLOR_BUFFER_BIT);
-    // for (let i = 0; i < 5; i++) {
-    // makeTree3D();  
-    // }
-    // resetLines();
     vertices = [];
     reset3DLines();
-    wind();
-    updatePoints();
-    updateSticks();
-    renderSticks();
-    renderPoints();
-    // for (let i = 0; i < pairs3D.length; i++) {
-    //     add3DLine(
-    //         pairs3D[i][0][0], 
-    //         pairs3D[i][0][1], 
-    //         pairs3D[i][0][2], 
-    //         pairs3D[i][1][0], 
-    //         pairs3D[i][1][1], 
-    //         pairs3D[i][1][2], 
-    //         1/45,
-    //         1, 0, 0, 0.25
-    //     );
-    // }
-    // for (let i = 0; i < pairs3D.length; i++) {
-    //     add3DLine(
-    //         pairs3D[i][0][0], 
-    //         pairs3D[i][0][1], 
-    //         pairs3D[i][0][2], 
-    //         pairs3D[i][1][0], 
-    //         pairs3D[i][1][1], 
-    //         pairs3D[i][1][2], 
-    //         1/5,
-    //         1, 0, 0, 0.00001
-    //     );
-    // }
+    // add3DLine(
+    //     0, 0, 1, 
+    //     Math.cos(drawCount*0.01) * 0.125, Math.sin(drawCount*0.01) * 0.125, 1,
+    //     1/2,
+    //     1, 0, 0, 0.25
+    // );
+    for (let i = 0; i < pairs.length; i++) {
+        add3DLine(
+            pairs[i][0][0], 
+            pairs[i][0][1],
+            1,
+            pairs[i][1][0], 
+            pairs[i][1][1],
+            1,
+            1/2,
+            1, 0, 0, map(Math.sin(i),-1,1,0,1)
+        );
+    }
     currentProgram = getProgram("smooth-line-3D");
     gl.useProgram(currentProgram);
     draw3DLines();
-    currentProgram = getProgram("smooth-dots-3D");
-    gl.useProgram(currentProgram);
-    draw3DDots(currentProgram);
+    // currentProgram = getProgram("smooth-dots-3D");
+    // gl.useProgram(currentProgram);
+    // drawAlligatorQuiet(currentProgram);
+    // draw3DDots(currentProgram);
     if (exporting && frameCount < maxFrames) {
         frameExport();
     }
@@ -825,6 +845,27 @@ function keyPressed() {
     }
 }
 
+drawAlligatorQuiet = function(selectedProgram) {
+    vertices = [];
+    num=0;
+    for (let i = 0; i < reached.length; i++) {
+        vertices.push(reached[i][0], reached[i][1], 1);
+        num++;
+    }
+    gl.bindBuffer(gl.ARRAY_BUFFER, dots_buffer);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
+    // Get the attribute location
+    var coord = gl.getAttribLocation(selectedProgram, "coordinates");
+    // Point an attribute to the currently bound VBO
+    gl.vertexAttribPointer(coord, 2, gl.FLOAT, false, 0, 0);
+    // Enable the attribute
+    gl.enableVertexAttribArray(coord);
+    let timeUniformLocation = gl.getUniformLocation(selectedProgram, "time");
+    gl.uniform1f(timeUniformLocation, drawCount);
+    let resolutionUniformLocation = gl.getUniformLocation(selectedProgram, "resolution");
+    gl.uniform2f(resolutionUniformLocation, cnvs.width, cnvs.height);
+    gl.drawArrays(gl.POINTS, 0, num);
+};
 
 drawAlligatorQuiet = function(selectedProgram) {
     vertices = [];
