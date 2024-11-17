@@ -286,23 +286,23 @@ makeField = function() {
 
 
 
-// makeField3D = function() {
-//     field3D = [];
-//     let n = 400;
-//     for (var i = 0; i < n; i++) {
-//         // let p = randomPointInSphere();
-//         let p = randomPointOnSphere();
-//         field3D.push(p);
-//     }
-//     reached3D = [];
-//     unreached3D = field3D.slice();
-//     reached3D.push(unreached3D[Math.floor(Math.random()*unreached3D.length)]);
-//     unreached3D.splice(0, 1);
-//     pairs3D = [];
-//     vertices = [].concat.apply([], field3D);
-//     num = n;
-// };
-// makeField3D();
+makeField3D = function() {
+    field3D = [];
+    let n = 400;
+    for (var i = 0; i < n; i++) {
+        // let p = randomPointInSphere();
+        let p = randomPointOnSphere();
+        field3D.push(p);
+    }
+    reached3D = [];
+    unreached3D = field3D.slice();
+    reached3D.push(unreached3D[Math.floor(Math.random()*unreached3D.length)]);
+    unreached3D.splice(0, 1);
+    pairs3D = [];
+    vertices = [].concat.apply([], field3D);
+    num = n;
+};
+makeField3D();
 
 
 makeTree = function() {
@@ -363,7 +363,7 @@ makeTree = function() {
 };
 
 makeTree3D = function() {
-    if (unreached3D.length > 0) {
+    while (unreached3D.length > 0) {
         let record = Infinity;
         var rIndex;
         var uIndex;
@@ -386,10 +386,9 @@ makeTree3D = function() {
             reached3D.push(unreached3D[uIndex]);
             unreached3D.splice(uIndex, 1);
         }
-    } else {
-        makeField3D();
     }
 };
+// makeTree3D();
 
 // makeTree();
 
@@ -399,9 +398,9 @@ makeTree3D = function() {
 
 sc = 0.75;
 draw = function() {
-    // makeTree(); 
+    // makeTree3D(); 
     gl.clear(gl.COLOR_BUFFER_BIT);
-    vertices = [];
+    // vertices = [];
     reset3DLines();
     // add3DLine(
     //     0, 0, 1, 
@@ -409,7 +408,39 @@ draw = function() {
     //     1/2,
     //     1, 0, 0, 0.25
     // );
-    for (let i = 0; i < pairs.length; i++) {
+    // for (let i = 0; i < pairs.length; i++) {
+    //     add3DLine(
+    //         pairs[i][0][0], 
+    //         pairs[i][0][1],
+    //         1,
+    //         pairs[i][1][0], 
+    //         pairs[i][1][1],
+    //         1,
+    //         1/2,
+    //         1, 0, 0, map(Math.sin(i),-1,1,0,1)
+    //     );
+    // }
+    // for (let i = 0; i < pairs3D.length; i++) {
+    //     let d = dist(
+    //         pairs3D[i][0][0], pairs3D[i][0][1], pairs3D[i][0][2], 
+    //         pairs3D[i][1][0], pairs3D[i][1][1], pairs3D[i][1][2]);
+    //     d *= d * 35;
+    //     add3DLine(
+    //         pairs3D[i][0][0], 
+    //         pairs3D[i][0][1],
+    //         pairs3D[i][0][2],
+    //         pairs3D[i][1][0], 
+    //         pairs3D[i][1][1],
+    //         pairs3D[i][0][2],
+    //         0.85,
+    //         1, 0, 0,Math.min(1.2, d)
+    //     );
+    // }
+    for (let i = 0; i < pairs.length; i++) {
+        let d = dist(
+            pairs[i][0][0], pairs[i][0][1], 
+            pairs[i][1][0], pairs[i][1][1]);
+        d *= d * 35;
         add3DLine(
             pairs[i][0][0], 
             pairs[i][0][1],
@@ -417,17 +448,17 @@ draw = function() {
             pairs[i][1][0], 
             pairs[i][1][1],
             1,
-            1/2,
-            1, 0, 0, map(Math.sin(i),-1,1,0,1)
+            0.95,
+            1, 0, 0,Math.min(1.2, d)
         );
     }
-    currentProgram = getProgram("smooth-line-3D");
-    gl.useProgram(currentProgram);
-    draw3DLines();
     // currentProgram = getProgram("smooth-dots-3D");
     // gl.useProgram(currentProgram);
     // drawAlligatorQuiet(currentProgram);
     // draw3DDots(currentProgram);
+    currentProgram = getProgram("smooth-line-3D");
+    gl.useProgram(currentProgram);
+    draw3DLines();
     if (exporting && frameCount < maxFrames) {
         frameExport();
     }
@@ -904,7 +935,7 @@ set3DDots = function(selectedProgram) {
         num++;
     }
 };
-// set3DDots();
+set3DDots();
 
 function randomPointInSphere() {
     var d, x, y, z;
