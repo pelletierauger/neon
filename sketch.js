@@ -360,6 +360,7 @@ makeTree = function() {
             unreached.splice(uIndex, 1);
         }
     }
+    pairs = pairs.sort((a, b) => dist(a[0][0],a[0][1],a[1][0],a[1][1]) - dist(b[0][0],b[0][1],b[1][0],b[1][1]));
 };
 
 makeTree3D = function() {
@@ -853,7 +854,7 @@ let makeLine2 = function(x0, y0, x1, y1, w) {
     return [xA, yA, xB, yB, xC, yC, xD, yD];
 };
 
-function keyPressed() {
+keyPressed = function() {
     if (keysActive) {
         if (keyCode === 32) {
             if (looping) {
@@ -866,6 +867,8 @@ function keyPressed() {
         }
         if (key == 'p' || key == 'P') {
             makeField();
+            makeTree();
+            draw();
         }
         if (key == 'r' || key == 'R') {
             window.location.reload();
