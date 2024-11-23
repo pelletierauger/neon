@@ -283,8 +283,23 @@ makeField = function() {
     pairs = [];
 };
 
-
-
+makeField = function() {
+    field = [];
+    let n = 600;
+    for (var i = 0; i < n; i++) {
+        let x = Math.cos(i*1e2*Math.sin(i*1e2)+(Math.random()*1e4))*i/n * 2;
+        let y = Math.sin(i*1e2*Math.sin(i*1e2)+(Math.random()*1e4))*i/n * 2;
+        x = (Math.random()*2-1) * 1.33;
+        y = (Math.random()*2-1) * 1.33;
+        x *= cnvs.width/cnvs.height;
+        field.push([x, y]);
+    }
+    reached = [];
+    unreached = field.slice();
+    reached.push(unreached[Math.floor(Math.random()*unreached.length)]);
+    unreached.splice(0, 1);
+    pairs = [];
+};
 
 makeField3D = function() {
     field3D = [];
@@ -865,13 +880,14 @@ keyPressed = function() {
                 looping = true;
             }
         }
+        if (key == 'o' || key == 'O') {
+            fastRefresh();
+            draw();
+        }
         if (key == 'p' || key == 'P') {
             makeField();
             makeTree();
             draw();
-        }
-        if (key == 'r' || key == 'R') {
-            window.location.reload();
         }
         if (key == 'm' || key == 'M') {
             redraw();
@@ -999,3 +1015,30 @@ for (let i = s; i < s + 5; i++) {
 }
 
 }
+
+fastRefresh = function(){
+    function r() {
+        return (Math.random() * 2 - 1) * 1.33 * 2.25;
+    };
+    pairs = [];
+    do {
+        let x1 = r(), y1 = r(), x2 = r(), y2 = r();
+        let d = dist(x1, y1, x2, y2);
+        if (d < 0.19) {
+          pairs.push([[x1,y1],[x2,y2]]);
+        }
+    } while (pairs.length < 600);
+    do {
+        let x1 = r(), y1 = r(), x2 = r(), y2 = r();
+        let d = dist(x1, y1, x2, y2);
+        if (d > 0.03 && d < 0.125) {
+          pairs.push([[x1,y1],[x2,y2]]);
+        }
+    } while (pairs.length < 1200);
+    pairs = pairs.sort(
+        (a, b) => 
+        dist(a[0][0],a[0][1],a[1][0],a[1][1]) - 
+        dist(b[0][0],b[0][1],b[1][0],b[1][1])
+    );
+};
+// fastRefresh(); draw();
