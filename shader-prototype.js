@@ -14,14 +14,14 @@ ShaderProgram.prototype.init = function() {
         // Create a vertex shader object
         var vertShader = gl.createShader(gl.VERTEX_SHADER);
         // Attach vertex shader source code
-        gl.shaderSource(vertShader, this.vertText);
+        gl.shaderSource(vertShader, this.vertText.replace(/[^\x00-\x7F]/g, ""));
         // Compile the vertex shader
         gl.compileShader(vertShader);
         // fragment shader source code
         // Create fragment shader object
         var fragShader = gl.createShader(gl.FRAGMENT_SHADER);
         // Attach fragment shader source code
-        gl.shaderSource(fragShader, this.fragText);
+        gl.shaderSource(fragShader, this.fragText.replace(/[^\x00-\x7F]/g, ""));
         // Compile the fragmentt shader
         gl.compileShader(fragShader);
         // Create a shader program object to store
@@ -381,4 +381,11 @@ float luma(vec3 color) {
 float luma(vec4 color) {
   return dot(color.rgb, vec3(0.299, 0.587, 0.114));
 }
+`;
+
+
+rand = `    
+    float rand(vec2 co){
+        return fract(sin(dot(co.xy, vec2(12.9898, 78.233))) * 43758.5453 * (2.0 + sin(co.x)));
+    }
 `;

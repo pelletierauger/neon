@@ -1221,7 +1221,7 @@ smoothDots3D.init();
 smoothDots3D.vertText = `
     // beginGLSL
     #define pi 3.1415926535897932384626433832795
-    attribute vec3 coordinates;
+    attribute vec4 coordinates;
     uniform float time;
     uniform vec2 resolution;
     varying float t;
@@ -1263,20 +1263,24 @@ smoothDots3D.vertText = `
     }
     void main(void) {
         float ratio = resolution.y / resolution.x;
-        vec4 pos = vec4(coordinates, 1.);
+        vec4 pos = vec4(coordinates.xyz, 1.);
         posUnit = pos.xyz;
-        pos = translate(0.0, 0., 1.5) * xRotate(pi*0.125) * translate(0.0, 0., -1.5) * pos;
+        pos = translate(0.0, 0., 1.5) * xRotate(pi*0.0625) * translate(0.0, 0., -1.5) * pos;
 // pos = translate(0.0, 0., 0.5) * yRotate(time*2e-2) * xRotate(time*2e-2) * translate(0.0, 0., -0.5) * pos;
         // pos.xyz *= map(sin(time *1e-1+pos.y*2.), -1., 1., 0.95, 1.0);
         // pos = yRotate(-time*0.5e-2) * pos;
-        // pos = xRotate(-time*0.5e-2) * pos;
+        // pos = zRotate(sin(time*1e-2)*0.5) * pos;
+        // pos = xRotate(cos(time*1e-1)*0.5) * pos;
         // pos = translate(sin(time*0.25+pos.z*100.)*0.01, fract(time*-0.125e-2+pos.z*1.)*1., 0.0) * pos;
         // pos = translate(sin(time*1e-1+pos.z*10.)*0.01, 0.0, 0.0) * pos;
         // pos = rotate()
         // pos.z -= 0.5;
         pos.x *= ratio;
         gl_Position = vec4(pos.x, pos.y, 0.0, pos.z);
-        gl_PointSize = min(10., 2. / pos.z) * 4.;
+        gl_PointSize = min(10., 2. / pos.z) * 6. * coordinates.w;
+        if (dot(posUnit, posUnit) > 0.85) {
+            gl_PointSize = 0.;
+        }
         // gl_PointSize += (sin((length(coordinates*20.)*0.2-time*2e-1))*0.5+0.5)*14.;
     }
     // endGLSL
@@ -1302,14 +1306,19 @@ smoothDots3D.fragText = `
         // halo = smoothstep(0., 1., halo);
         l = smoothstep(0., 1., l);
         l = pow(l, 3.);
+        halo *= 0.;
         float noise = rand(pos - vec2(cos(t), sin(t))) * 0.02;
         gl_FragColor = vec4(vec3(1.0, 0.25, 0.25), (l+halo-noise)*0.5*3.);
         gl_FragColor.rgb = gl_FragColor.bgr;
                 vec3 light = posUnit - vec3(0.0, 0., 0.);
-        float distSquared2 = 1.0 - dot(light, light) * 1.5;
+        float distSquared2 = 1.0 - dot(light, light) * 1.;
+        // distSquared2 = 1.0 - length(light) * 1.2;
         // gl_FragColor.rgb *= 1.0 - posUnit.z;
+        distSquared2 = smoothstep(0.3, 1., distSquared2);
+        // distSquared2 = smoothstep(0., 1., distSquared2);
+        // distSquared2 = smoothstep(0., 1., distSquared2);
         // distSquared2 = mix(distSquared, pow(max(0.0, distSquared2), 4.0) * 12., 0.5);
-        gl_FragColor.a *= max(0.0,distSquared2) * 1.;
+        gl_FragColor.a *= max(0.0,distSquared2)*0.25;
     }
     // endGLSL
 `;

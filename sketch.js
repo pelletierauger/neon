@@ -16,6 +16,10 @@ let vertex_bufferA, vertex_bufferB;
 let field = [];
 let makeField;
 let reached, unreached;
+let vbuffer;
+
+let texture, texture2, framebuf, framebuf2;
+let resolutionScalar = 0.5;
 
 function setup() {
     socket = io.connect('http://localhost:8080');
@@ -41,8 +45,16 @@ function setup() {
     dots_buffer = gl.createBuffer();
     vertex_bufferA = gl.createBuffer();
     vertex_bufferB = gl.createBuffer();
+    vbuffer = gl.createBuffer();
+
     shadersReadyToInitiate = true;
     initializeShaders();
+
+    texture = createTexture();
+    framebuf = createFrameBuffer(texture);
+    texture2 = createTexture();
+    framebuf2 = createFrameBuffer(texture2);
+
     currentProgram = getProgram("smooth-line");
     gl.useProgram(currentProgram);
 
@@ -275,10 +287,10 @@ makeTree3D = function() {
 blades = [];
 for (let i = 0; i < 1500; i++) {
     let x = Math.random() * 2 - 1;
-    do {x = Math.random() * 2 - 1} while (Math.abs(x) < 0.1);
+    do {x = Math.random() * 2 - 1} while (Math.abs(x) < 0.15);
     let y = 0.5 * Math.random() + 0.05;
     let z = Math.random() * 1.5;
-    blades.push([x, y, z])
+    blades.push([x, y * 1, z])
 }
 blades.sort((a, b) => b[2] - a[2]);
 
@@ -286,12 +298,13 @@ flakes = [];
 maps = function(n,sa1,so1,sa2,so2) {
     return (n-sa1)/(so1-sa1)*(so2-sa2)+sa2;
 };
-for (let i = 0; i < 1500; i++) {
+for (let i = 0; i < 21500; i++) {
     let x = Math.random() * 2 - 1;
     // do {x = Math.random() * 2 - 1} while (Math.abs(x) < 0.1);
     let y = maps(Math.random(), 0, 1, -0.5, 1);
     let z = Math.random() * 1.5;
-    flakes.push([x, y, z, i])
+    let s = 0.5+Math.random();
+    flakes.push([x, y*0, z, i, s*3])
 }
 flakes.sort((a, b) => b[2] - a[2]);
 
@@ -299,6 +312,9 @@ sc = 0.75;
 clearPath = true;
 clearPathCounter = 0;
 draw = function() {
+    // gl.clear(gl.COLOR_BUFFER_BIT);
+        gl.clear(gl.COLOR_BUFFER_BIT);
+    bindFrameBuffer(texture, framebuf);
     gl.clear(gl.COLOR_BUFFER_BIT);
     reset3DLines();
     clearPathCounter++;
@@ -306,6 +322,7 @@ draw = function() {
         clearPath = !clearPath;
         clearPathCounter = 0;
     }
+    clearPath = true;
     // add3DLine(
     //     0, 0, 2,
     //     0, 0.5, 2,
@@ -316,17 +333,18 @@ draw = function() {
     for (let i = 0; i < blades.length; i++) {
         blades[i][2] -= 0.0025 * 0.75;
         if (blades[i][2] < -0.01) {
-            blades[i][2] = 1.5;
+            blades[i][2] = 1.5 + (Math.random()*2-1)*0.1;
             let x = Math.random() * 2 - 1;
             if (clearPath) {
                 do {x = Math.random() * 2 - 1} while (Math.abs(x) < 0.1);
             }
             blades[i][0] = x;
         }
-        
-        flakes[i][2] -= 0.005 * 0.75;
-        flakes[i][1] -= 0.0025 * 0.75;
-        flakes[i][0] += Math.sin(flakes[i][3]*1e1)*0.5e-3;
+    }
+    for (let i = 0; i < flakes.length; i++) {
+        flakes[i][2] -= 0.0025 * 0.75;
+        // flakes[i][1] -= 0.0025 * 0.75;
+        // flakes[i][0] += Math.sin(flakes[i][3]*1e1)*2e-3*0.5;
 //         if (flakes[i][2] < -0.1) {
 //             flakes[i][2] = 2;
 //             let x = Math.random() * 2 - 1;
@@ -337,18 +355,20 @@ draw = function() {
 //             flakes[i][1] = y;
             
 //         }
-        if (flakes[i][2] < -0.1 || flakes[i][1] < -0.5) {
-            flakes[i][2] = 1.5;
+        // if (flakes[i][2] < 0 || flakes[i][1] < -0.5) {
+        if (flakes[i][2] <= 0) {
+            flakes[i][2] += 1.5;
             let x = Math.random() * 2 - 1;
             flakes[i][0] = x;
-            let y = map(Math.random(), 0, 1, 0.5, 1.25);
-            flakes[i][1] = y;
+            // let y = map(Math.random(), 0, 1, 0.5, 1.25);
+            // flakes[i][1] = y;
             
         }
     }
     blades.sort((a, b) => b[2] - a[2]);
-    flakes.sort((a, b) => b[2] - a[2]);
-    for (let i = 700; i < blades.length; i++) {
+    // blades.sort((a, b) => dist(0,0,0,b[0],b[1],b[2]) - dist(0,0,0,a[0],a[1],a[2]));
+    // flakes.sort((a, b) => b[2] - a[2]);
+    for (let i = 600; i < blades.length; i++) {
         let b = blades[i];
         // let f = flakes[i];
         // let alpha = map(b[2], 5, 0, 0.0, 1);
@@ -358,26 +378,28 @@ draw = function() {
             add3DLine(
                 b[0], 0,    b[2],
                 b[0], b[1], b[2],
-                0.25,
-                1, 0, 0, 0.35
-            );
-            add3DLine(
-                b[0], 0,    b[2],
-                b[0], b[1], b[2],
-                0.03125,
+                0.1,
                 1, 0, 0, 1
             );
+            // add3DLine(
+            //     b[0], 0,    b[2],
+            //     b[0], b[1], b[2],
+            //     0.03125,
+            //     1, 0, 0, 1
+            // );
         }
     }
-    for (let i = 400; i < flakes.length; i++) {
-        vertices.push(flakes[i][0], flakes[i][1], flakes[i][2]);
+    for (let i = 0; i < flakes.length; i++) {
+        vertices.push(flakes[i][0], flakes[i][1], flakes[i][2], flakes[i][4]);
     }
-    currentProgram = getProgram("smooth-line-3D");
-    gl.useProgram(currentProgram);
-    draw3DLines();
     currentProgram = getProgram("smooth-dots-3D");
     gl.useProgram(currentProgram);
     draw3DDots(currentProgram);
+    currentProgram = getProgram("smooth-line-3D");
+    gl.useProgram(currentProgram);
+    draw3DLines();
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+    drawTexture(textureShader.program, texture);
     if (exporting && frameCount < maxFrames) {
         frameExport();
     }
@@ -749,12 +771,12 @@ draw3DDots = function(selectedProgram) {
     // Get the attribute location
     var coord = gl.getAttribLocation(selectedProgram, "coordinates");
     // Point an attribute to the currently bound VBO
-    gl.vertexAttribPointer(coord, 3, gl.FLOAT, false, 0, 0);
+    gl.vertexAttribPointer(coord, 4, gl.FLOAT, false, 0, 0);
     // Enable the attribute
     gl.enableVertexAttribArray(coord);
     let timeUniformLocation = gl.getUniformLocation(selectedProgram, "time");
     gl.uniform1f(timeUniformLocation, drawCount);
     let resolutionUniformLocation = gl.getUniformLocation(selectedProgram, "resolution");
     gl.uniform2f(resolutionUniformLocation, cnvs.width, cnvs.height);
-    gl.drawArrays(gl.POINTS, 0, vertices.length / 3);
+    gl.drawArrays(gl.POINTS, 0, vertices.length / 4);
 };
