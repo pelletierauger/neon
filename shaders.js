@@ -621,11 +621,11 @@ smoothLine3D.vertText = `
         // pos0.xyz *= 0.15
         // pos1.xyz *= 0.1;
         pos0 = yRotate(-time*0.5e-2) * pos0;
-        // pos0 = xRotate(-time*0.5e-2) * pos0;
-        pos0 = translate(0.0, 0.0, 1.5) * pos0;
+        pos0 = xRotate(-time*0.5e-2) * pos0;
+        pos0 = translate(0.0, 0.0, 2.) * pos0;
         pos1 = yRotate(-time*0.5e-2) * pos1;
-        // pos1 = xRotate(-time*0.5e-2) * pos1;
-        pos1 = translate(0.0, 0.0, 1.5) * pos1;
+        pos1 = xRotate(-time*0.5e-2) * pos1;
+        pos1 = translate(0.0, 0.0, 2.) * pos1;
         pos0.xy = pos0.xy / pos0.z;
         pos1.xy = pos1.xy / pos1.z;
         float a = atan(pos1.y - pos0.y, pos1.x - pos0.x);
@@ -676,13 +676,17 @@ smoothLine3D.fragText = `
         col = min(col * -1. * (1. / radius), 1.0);
         col = pow(col, 3.) * 0.75 + pow(col, 43.);
         col = smoothstep(0., 1., col);
+        col = pow(col, 0.5);
         // col = mix(pow(col, 10.)*0.25, col, sin(time*0.1+pos.y*0.5e1)*0.5+0.5);
                 // c2l =x(pow(col, 10.)*0.2, col, sin(t*0.1+pos.y*0.5e1)*0.5+0.5);
                 // col = mix(pow(col, 10.)*0.2, col, sin(-t*0.1+length(pos * vec2(16./9.,1.))*0.5e1)*0.5+0.5);
         gl_FragColor = vec4(c.rgb, c.a * (max(col, 0.) - (rando * 0.05)));
         gl_FragColor.g = pow(col, 2.) *  0.2;
         gl_FragColor.b = pow(col, 2.) *  0.2;
-        gl_FragColor.a = min(1., gl_FragColor.a + pow(col, 2.) *  0.25);
+        gl_FragColor.rgb = vec3(143., 0., 255.)/255.;
+        // gl_FragColor.rgb = mix(gl_FragColor.rgb, vec3(143., 0., 255.)/255., (sin(uv.y*4.+t*1e-1)*0.5+0.5));
+        // gl_FragColor.a = min(1., gl_FragColor.a + pow(col, 2.) *  0.25);
+        gl_FragColor.a = min(1., gl_FragColor.a * col * (sin(uv.y*4.+t*1e-1)*0.5+0.5)) * 0.75 - rando*0.05;
         // gl_FragColor.rgb = gl_FragColor.gbr;
     }
     // endGLSL
@@ -1022,9 +1026,12 @@ smoothDots3D.init();
 smoothDots3D.vertText = `
     // beginGLSL
     attribute vec3 coordinates;
+    attribute float size;
     uniform float time;
     uniform vec2 resolution;
     varying float t;
+    varying float s;
+    varying vec3 posUnit;
     float map(float value, float min1, float max1, float min2, float max2) {
         return min2 + (value - min1) * (max2 - min2) / (max1 - min1);
     }
@@ -1063,15 +1070,18 @@ smoothDots3D.vertText = `
     void main(void) {
         float ratio = resolution.y / resolution.x;
         vec4 pos = vec4(coordinates, 1.);
+        s = size;
         // pos = translate(0.0, 0., 0.5) * yRotate(time*2e-2) * xRotate(time*2e-2) * translate(0.0, 0., -0.5) * pos;
         // pos.xyz *= map(sin(time *1e-1+pos.y*2.), -1., 1., 0.95, 1.0);
         pos = yRotate(-time*0.5e-2) * pos;
-        // pos = xRotate(-time*0.5e-2) * pos;
-        pos = translate(0.0, 0.0, 1.5) * pos;
+        pos = xRotate(-time*0.5e-2) * pos;
+        pos = translate(0.0, 0.0, 2.) * pos;
         // pos = rotate()
+        posUnit = pos.xyz;
         pos.x *= ratio;
         gl_Position = vec4(pos.x, pos.y, 0.0, pos.z);
-        gl_PointSize = 45. / pos.z;
+        gl_PointSize = 15. / pos.z * (0.1 + pow(size, 17.)* 4.) + 10.;
+        t = time;
         // gl_PointSize += (sin((length(coordinates*20.)*0.2-time*2e-1))*0.5+0.5)*14.;
     }
     // endGLSL
@@ -1080,7 +1090,10 @@ smoothDots3D.fragText = `
     // beginGLSL
     precision mediump float;
     // uniform float time;
+    ${mapFunction}
     varying float t;
+    varying float s;
+    varying vec3 posUnit;
     float rand(vec2 co){
         return fract(sin(dot(co.xy ,vec2(12.9898,78.233))) * 43758.5453 * (2.0 + sin(co.x)));
     }
@@ -1098,6 +1111,10 @@ smoothDots3D.fragText = `
         float noise = rand(pos - vec2(cos(t), sin(t))) * 0.0625;
         gl_FragColor = vec4(vec3(1.0, pow(l, 2.)*0.25, 0.25), (l+halo-noise)*0.5);
         // gl_FragColor.rgb = gl_FragColor.bgr;
+       float fl = map(sin(s*1000.+t*0.125),-1.,1.,0.1,1.);
+       float fl2 = map(cos(s*1000.+t*0.125),-1.,1.,0.1,1.);
+         gl_FragColor.a *= fl * 2. * (s) / posUnit.z;
+        gl_FragColor.rgb = mix(gl_FragColor.rgb, vec3(143., 0., 255.)/255., 1.) * l*2.;
     }
     // endGLSL
 `;

@@ -39,6 +39,7 @@ function setup() {
     width_buffer = gl.createBuffer();
     uv_buffer = gl.createBuffer();
     dots_buffer = gl.createBuffer();
+    sizes_buffer = gl.createBuffer();
     vertex_bufferA = gl.createBuffer();
     vertex_bufferB = gl.createBuffer();
     shadersReadyToInitiate = true;
@@ -272,242 +273,96 @@ makeTree3D = function() {
 //     makeTree();
 // }
 
+randomPointInTriangle = function(a, b, c) {
+    let r1 = Math.random();
+    let r2 = Math.random();
+    return [
+        (1 - Math.sqrt(r1)) * a[0] + (Math.sqrt(r1) * (1 - r2)) * b[0] + (Math.sqrt(r1) * r2) * c[0],
+        (1 - Math.sqrt(r1)) * a[1] + (Math.sqrt(r1) * (1 - r2)) * b[1] + (Math.sqrt(r1) * r2) * c[1]
+    ]
+};
+
+set3DDots = function(selectedProgram) {
+    vertices = [];
+    num = 0;
+    sizes = [];
+    for (let i = 0; i < 500; i++) {
+        let x = Math.random() * 2 - 1;
+        let y = Math.random() * 2 - 1;
+        vertices.push(x, -1, y);
+        sizes.push(Math.random());
+        num++;
+    }
+    let t = [
+        [[-1, 1], [-1, -1], [1, 0]], //points 0, 3, 4, y and z components
+        [[points[2][0],points[2][1]], [points[3][0],points[3][1]], [points[5][0],points[5][1]]]
+    ];
+    for (let i = 0; i < 500; i++) {
+        let p = randomPointInTriangle(t[0][0], t[0][1], t[0][2]);
+        vertices.push(-1, p[0], p[1]);
+        sizes.push(Math.random());
+        num++;
+    }
+    for (let i = 0; i < 500; i++) {
+        let p = randomPointInTriangle(t[1][0], t[1][1], t[1][2]);
+        vertices.push(p[0], p[1], -1);
+        sizes.push(Math.random());
+        num++;
+    }
+};
+set3DDots();
+
+points = [
+    [-1, -1, 1],
+    [1, -1, 1],
+    [1, -1, -1],
+    [-1, -1, -1],
+    [-1, 1, 0],
+    [0, 1, -1]
+];
+
 sc = 0.75;
 draw = function() {
     gl.clear(gl.COLOR_BUFFER_BIT);
-    // for (let i = 0; i < 5; i++) {
-    makeTree3D();  
-    // }
-    // resetLines();
     reset3DLines();
-    // addLine(0, 0, 1, 0, 0.25);
-    // for (let i = 0; i < 100; i++) {
-    //     addLine(field[i][0], field[i][1], field[i+1][0], field[i+1][1], 1/16);
-    // }    
-    // for (let i = 0; i < pairs.length; i++) {
-    //     addLine(
-    //         pairs[i][0][0], 
-    //         pairs[i][0][1], 
-    //         pairs[i][1][0], 
-    //         pairs[i][1][1], 
-    //         1/5,
-    //         1, 0, 0, 0.25
-    //     );
-    // }
-    // for (let i = 0; i < pairs.length; i++) {
-    // let sc = 0.75;
-    // sc += 0.001;
-    // if (sc > 1) {sc = 0.75};
-    // for (let x = 0; x < 1; x += 1/10) {
-    //     let y = 1;
-    //     addLine(
-    //         (x - 0.5) * 1.5 * sc, 
-    //         y * 0.75 * sc, 
-    //         (x - 0.5) * 1.5 * sc, 
-    //         -y * 0.75 * sc, 
-    //         1/5,
-    //         1, 0, 0, 0.6
-    //     );
-    //     addLine(
-    //         (x - 0.5) * 1.5 * sc, 
-    //         y * 0.75 * sc, 
-    //         (x - 0.5) * 1.5 * sc, 
-    //         -y * 0.75 * sc, 
-    //         1/25,
-    //         1, 0, 0, 1
-    //     );
-    // }
-    // for (let y = 0; y < 1; y += 1/10) {
-    //     let x = 0;
-    //     addLine(
-    //         (x - 1) * 0.75 * sc, 
-    //         (y - 0.5) * 1.5 * sc, 
-    //         (x + 1) * 0.75 * sc, 
-    //         (y - 0.5) * 1.5 * sc, 
-    //         1/5,
-    //         1, 0, 0, 0.6
-    //     );
-    //     addLine(
-    //         (x - 1) * 0.75 * sc, 
-    //         (y - 0.5) * 1.5 * sc, 
-    //         (x + 1) * 0.75 * sc, 
-    //         (y - 0.5) * 1.5 * sc, 
-    //         1/25,
-    //         1, 0, 0, 1
-    //     );
-    // }
-    // for (let y = 0; y < 1; y += 1/10) {
-    //     let x = -0.75;
-    //     let yy = map(y, 0, 1, 0.75, -0.75);
-    //     let y2 = map(y, 0, 1, 1.57, -1.57);
-    //     addLine(
-    //         x * sc, 
-    //         (yy) * sc, 
-    //         (x - 1.75) * sc, 
-    //         (yy+y2) * sc, 
-    //         1/5,
-    //         1, 0, 0, 0.6
-    //     );
-    //     addLine(
-    //         x * sc, 
-    //         (yy) * sc, 
-    //         (x - 1.75) * sc, 
-    //         (yy+y2) * sc, 
-    //         1/25,
-    //         1, 0, 0, 1
-    //     );
-    //     x = 0.75;
-    //     addLine(
-    //         x * sc, 
-    //         (yy) * sc, 
-    //         (x + 1.75) * sc, 
-    //         (yy+y2) * sc, 
-    //         1/5,
-    //         1, 0, 0, 0.6
-    //     );
-    //     addLine(
-    //         x * sc, 
-    //         (yy) * sc, 
-    //         (x + 1.75) * sc, 
-    //         (yy+y2) * sc, 
-    //         1/25,
-    //         1, 0, 0, 1
-    //     );
-    // }
-    // for (let x = 0; x < 1; x += 1/10) {
-    //     let y = -0.75;
-    //     let xx = map(x, 0, 1, 0.75, 1.5);
-    //     xx = Math.pow(xx, 2) + 0.28;
-    //     let yy = map(x, 0, 1, 0.825, 2);
-    //     addLine(
-    //         xx * sc, 
-    //         (yy) * sc, 
-    //         xx * sc, 
-    //         (-yy) * sc, 
-    //         1/5,
-    //         1, 0, 0, 0.6
-    //     );
-    //     addLine(
-    //         xx * sc, 
-    //         (yy) * sc, 
-    //         xx * sc, 
-    //         (-yy) * sc, 
-    //         1/25,
-    //         1, 0, 0, 1
-    //     );
-    //             addLine(
-    //         -xx * sc, 
-    //         (yy) * sc, 
-    //         -xx * sc, 
-    //         (-yy) * sc, 
-    //         1/5,
-    //         1, 0, 0, 0.6
-    //     );
-    //     addLine(
-    //         -xx * sc, 
-    //         (yy) * sc, 
-    //         -xx * sc, 
-    //         (-yy) * sc, 
-    //         1/25,
-    //         1, 0, 0, 1
-    //     );
-    // }
-        //     for (let y = 0; y < 1; y += 1/10) {
-        //     addLine(
-        //         x, 
-        //         y, 
-        //         x, 
-        //         x, 
-        //         1/5,
-        //         1, 0, 0, 1
-        //     );
-        // }
-    // }
-    // addLine(0.9, 0.9, 0.9, -0.9, 1/15);
-    // currentProgram = getProgram("smooth-line");
-    // gl.useProgram(currentProgram);
-    // drawLines();
-    // add3DLine(
-    //     -1, 0.1, 2,
-    //     1, -0.1, 2,
-    //     1/5,
-    //     1, 0, 0, 1
-    // );
-//     for (let x = 0; x < 1; x += 1/10) {
-//         let y = 1;
-//         add3DLine(
-//             (x - 0.5) * 1.5 * sc, 
-//             y * 0.75 * sc, 
-//             1,
-//             (x - 0.5) * 1.5 * sc, 
-//             -y * 0.75 * sc, 
-//             1,
-//             1/3,
-//             1, 0, 0, 0.25
-//         );
-//         add3DLine(
-//             (x - 0.5) * 1.5 * sc, 
-//             y * 0.75 * sc, 
-//             1,
-//             (x - 0.5) * 1.5 * sc, 
-//             -y * 0.75 * sc, 
-//             1,
-//             1/25,
-//             1, 0, 0, 1
-//         );
-//         add3DLine(
-//             (x - 0.5) * 1.5 * sc, 
-//             y * 0.75 * sc, 
-//             1,
-//             (x - 0.5) * 1.5 * sc, 
-//             y * 0.75 * sc, 
-//             2,
-//             1/3,
-//             1, 0, 0, 0.25
-//         );
-//         add3DLine(
-//             (x - 0.5) * 1.5 * sc, 
-//             y * 0.75 * sc, 
-//             1,
-//             (x - 0.5) * 1.5 * sc, 
-//             y * 0.75 * sc, 
-//             2,
-//             1/25,
-//             1, 0, 0, 1
-//         );
-        
-//     }
-    for (let i = 0; i < pairs3D.length; i++) {
+    let pairs = [
+        [0, 1], [1, 2], [2, 3], 
+        [3, 0], [3, 4], [4, 0],
+        [2,5], [3, 5], [1, 5],
+        [1, 4], [4, 5]
+    ];
+    
+    for (let i = 0; i < pairs.length; i++) {
+        let p = points[pairs[i][0]];
+        // let np = (i == points.length-1) ? points[0] : points[i+1];
+        let np = points[pairs[i][1]];
+        // add3DLine(
+        //     p[0], p[1], p[2], 
+        //     np[0], np[1], np[2], 
+        //     1/50,
+        //     1, 0, 0, 1
+        // );
         add3DLine(
-            pairs3D[i][0][0], 
-            pairs3D[i][0][1], 
-            pairs3D[i][0][2], 
-            pairs3D[i][1][0], 
-            pairs3D[i][1][1], 
-            pairs3D[i][1][2], 
-            1/45,
+            p[0], p[1], p[2], 
+            np[0], np[1], np[2], 
+            1/1,
             1, 0, 0, 0.25
         );
     }
-    for (let i = 0; i < pairs3D.length; i++) {
-        add3DLine(
-            pairs3D[i][0][0], 
-            pairs3D[i][0][1], 
-            pairs3D[i][0][2], 
-            pairs3D[i][1][0], 
-            pairs3D[i][1][1], 
-            pairs3D[i][1][2], 
-            1/5,
-            1, 0, 0, 0.00001
-        );
-    }
-    // currentProgram = getProgram("smooth-dots");
-    // gl.useProgram(currentProgram);
-    // drawAlligatorQuiet(currentProgram);
+    // vertices = [];
+    // num = 0;
+    // for (let i = 0; i < points.length; i++) {
+    //     let p = points[i];
+    //     vertices.push(p[0], 
+    //                   p[1], 
+    //                   p[2]
+    //     );
+    //     num++;
+    // };
     currentProgram = getProgram("smooth-dots-3D");
     gl.useProgram(currentProgram);
     draw3DDots(currentProgram);
-        currentProgram = getProgram("smooth-line-3D");
+    currentProgram = getProgram("smooth-line-3D");
     gl.useProgram(currentProgram);
     draw3DLines();
     if (exporting && frameCount < maxFrames) {
@@ -855,6 +710,8 @@ set3DDots = function(selectedProgram) {
 };
 // set3DDots();
 
+
+
 function randomPointInSphere() {
     var d, x, y, z;
     do {
@@ -884,6 +741,15 @@ draw3DDots = function(selectedProgram) {
     gl.vertexAttribPointer(coord, 3, gl.FLOAT, false, 0, 0);
     // Enable the attribute
     gl.enableVertexAttribArray(coord);
+    //     
+    gl.bindBuffer(gl.ARRAY_BUFFER, sizes_buffer);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(sizes), gl.STATIC_DRAW);
+    // Get the attribute location
+    var size = gl.getAttribLocation(selectedProgram, "size");
+    // Point an attribute to the currently bound VBO
+    gl.vertexAttribPointer(size, 1, gl.FLOAT, false, 0, 0);
+    // Enable the attribute
+    gl.enableVertexAttribArray(size);
     let timeUniformLocation = gl.getUniformLocation(selectedProgram, "time");
     gl.uniform1f(timeUniformLocation, drawCount);
     let resolutionUniformLocation = gl.getUniformLocation(selectedProgram, "resolution");
