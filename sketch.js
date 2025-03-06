@@ -291,22 +291,26 @@ draw = function() {
     // makeTree3D();
     reset3DLines();
     let count = 0;
-    let list = [126, 79, 93, 144, 98, 82, 185, 176, 115, 154];
-    for (let y = 0; y < 15; y++) {
-        for (let x = 0; x < 15; x++) {
+    let list = [126, 79, 93, 144, 98, 
+                82, 185, 176, 115, 154,
+               230, 248, 210, 193, 215,
+               223, 244];
+    for (let y = 0; y < 17; y++) {
+        for (let x = 0; x < 20; x++) {
             let purple = false;
             for (let i = 0; i < list.length; i++) {
                 if (count == list[i]) {purple = true};
             }
             let w = 0.25;
-            let xx = map(x, 0, 15, -4.5, 4.5);
+            let xx = map(x, 0, 15, -5.5, 3.5);
             let yy = map(y, 0, 15, -3.5, 3.5);
             xx += (y%2==0)?0:w*1.2;
             // if ((x %5 !== 0) || (y %9 !== 0)) {
             let b = (purple)?1:0;
+            let fluc = map(Math.cos(count * 141), -1,1,0, 0.02);
             add3DLine(
-                xx, (yy-(w*1.5))*map(Math.abs(Math.cos(xx/4.5)),0,1,0.2*(Math.pow(Math.abs(yy),1.75)+1),1.2), 2, 
-                xx * 0.99, (yy+(w*1.5)), 2,
+                xx, (yy-(w*1.5))+fluc, 2, 
+                xx, (yy+(w*1.5)), 2,
                 0.25,
                 1, 0, b, 0.25
             );
