@@ -568,6 +568,7 @@ smoothLine3D.vertText = `
     varying vec2 uvs;
     varying vec2 wh;
     varying float t;
+    varying vec2 oriPos;
     float map(float value, float min1, float max1, float min2, float max2) {
         return min2 + (value - min1) * (max2 - min2) / (max1 - min1);
     }
@@ -614,18 +615,19 @@ smoothLine3D.vertText = `
         vec2 pos = vec2(0., 0.);
         vec4 pos0 = vec4(coordinatesA, 1.);
         vec4 pos1 = vec4(coordinatesB, 1.);
+        oriPos = pos0.xy;
         // pos0 = translate(0.0, 0., 1.5) * yRotate(time*2e-2) * xRotate(time*2e-2) * translate(0.0, 0., -1.5) * pos0;
         // pos1 = translate(0.0, 0., 1.5) * yRotate(time*2e-2) * xRotate(time*2e-2) * translate(0.0, 0., -1.5) * pos1;
         // pos0.xyz *= map(sin(time *1e-1+pos0.y*2.), -1., 1., 0.95, 1.0);
         // pos1.xyz *= map(sin(time *1e-1+pos1.y*2.), -1., 1., 0.95, 1.0);
         // pos0.xyz *= 0.15
         // pos1.xyz *= 0.1;
-        pos0 = yRotate(-time*0.5e-2) * pos0;
+        // pos0 = yRotate(-time*0.5e-2) * pos0;
         // pos0 = xRotate(-time*0.5e-2) * pos0;
-        pos0 = translate(0.0, 0.0, 1.5) * pos0;
-        pos1 = yRotate(-time*0.5e-2) * pos1;
+        pos0 = translate(cos(time*1e-2)*0.25, sin(time*1e-2)*0.25, 0.0) * pos0;
+        // pos1 = yRotate(-time*0.5e-2) * pos1;
         // pos1 = xRotate(-time*0.5e-2) * pos1;
-        pos1 = translate(0.0, 0.0, 1.5) * pos1;
+        pos1 = translate(cos(time*1e-2)*0.25, sin(time*1e-2)*0.25, 0.0) * pos1;
         pos0.xy = pos0.xy / pos0.z;
         pos1.xy = pos1.xy / pos1.z;
         float a = atan(pos1.y - pos0.y, pos1.x - pos0.x);
@@ -656,17 +658,36 @@ smoothLine3D.fragText = `
     varying vec2 uvs;
     varying vec2 wh;
     varying float t;
+    varying vec2 oriPos;
+    ${blendingMath}
     float rand(vec2 co){
         return fract(sin(dot(co.xy ,vec2(12.9898,78.233))) * 43758.5453 * (2.0 + sin(co.x)));
     }
     float map(float value, float min1, float max1, float min2, float max2) {
         return min2 + (value - min1) * (max2 - min2) / (max1 - min1);
     }
+    vec2 hash(vec2 p) {
+      p = vec2(dot(p, vec2(127.1, 311.7)), dot(p, vec2(269.5, 183.3)));
+      return -1.0 + 2.0 * fract(sin(p) * 43758.5453123);
+    }
+    float noise( in vec2 p ) {
+        const float K1 = 0.366025404; // (sqrt(3)-1)/2;
+        const float K2 = 0.211324865; // (3-sqrt(3))/6;
+        vec2  i = floor(p + (p.x + p.y) * K1 );
+        vec2  a = p - i + (i.x + i.y) * K2;
+        float m = step(a.y, a.x); 
+        vec2  o = vec2(m, 1.0 - m);
+        vec2  b = a - o + K2;
+        vec2  c = a - 1.0 + 2.0 * K2;
+        vec3  h = max(0.5 - vec3(dot(a,a), dot(b,b), dot(c,c)), 0.0);
+        vec3  n = h * h * h * h * vec3(dot(a, hash(i + 0.0)), dot(b, hash(i + o)), dot(c, hash(i + 1.0)));
+        return dot(n, vec3(70.0));
+    }
     void main(void) {
         vec2 fc = gl_FragCoord.xy;
         vec2 pos = gl_PointCoord;
         float rando = rand(pos);
-        vec2 fwh = vec2(wh.x*2., wh.y+(wh.x*2.));
+        vec2 fwh = vec2(wh.x*7., wh.y+(wh.x*7.));
         vec2 uv = uvs * fwh;
         uv -= fwh * 0.5;
         float radius = wh.x;
@@ -679,11 +700,31 @@ smoothLine3D.fragText = `
         // col = mix(pow(col, 10.)*0.25, col, sin(time*0.1+pos.y*0.5e1)*0.5+0.5);
                 // c2l =x(pow(col, 10.)*0.2, col, sin(t*0.1+pos.y*0.5e1)*0.5+0.5);
                 // col = mix(pow(col, 10.)*0.2, col, sin(-t*0.1+length(pos * vec2(16./9.,1.))*0.5e1)*0.5+0.5);
-        gl_FragColor = vec4(c.rgb, c.a * (max(col, 0.) - (rando * 0.05)));
+        vec2 ffc = fc / vec2(1280., 720.)-0.5;
+        ffc.x *= 16./9.;
+        ffc += vec2(cos(t*1e-2)*0.25, sin(t*1e-2)*0.25);
+        float mask = max(0., 1.-length(ffc * 1.95));
+        mask = pow(mask, 4.)*1.5;
+        mask = max(mask,min(0.9,1./length(ffc*2.) *0.1));
+        // col += (mask*0.1);
+        gl_FragColor = vec4(c.rgb * (pow(col, 14.)), c.a * (max(col, 0.) - (rando * 0.05)));
         gl_FragColor.g = pow(col, 2.) *  0.2;
         gl_FragColor.b = pow(col, 2.) *  0.2;
-        gl_FragColor.a = min(1., gl_FragColor.a + pow(col, 2.) *  0.25);
-        // gl_FragColor.rgb = gl_FragColor.gbr;
+        gl_FragColor.rgb *= 1.-noise(vec2(uv.x * 15., uv.y * 0.5) * 2. + oriPos.x * 1232. + oriPos.y * 0.3)*0.4;
+        gl_FragColor.rgb = gl_FragColor.bgr;
+        gl_FragColor.a = min(1., gl_FragColor.a + pow(col, 2.)) + 0.;
+        gl_FragColor.rgb *= mask * (1.0-rando*0.2);
+        gl_FragColor.rgb *= 1.0-uvs.y*0.75;
+        if (c.b == 1.) {
+        gl_FragColor.rgb = gl_FragColor.bgr * vec3(1., 1., 2.);
+            gl_FragColor.rgb = hueShift2(gl_FragColor.rgb, 1.6) * 1.;
+            gl_FragColor.rgb = Desaturate(gl_FragColor.rgb, -0.3).rgb * 0.85;
+        } else {
+            // gl_FragColor.rgb = Desaturate(gl_FragColor.rgb, uvs.y*0.75).rgb;
+            
+            // gl_FragColor.rgb = Desaturate(gl_FragColor.rgb, -0.3).rgb * 0.85;
+        }
+        // gl_FragColor.g += pow(mask, 1.) * 0.2 * col;
     }
     // endGLSL
 `;
@@ -1065,9 +1106,9 @@ smoothDots3D.vertText = `
         vec4 pos = vec4(coordinates, 1.);
         // pos = translate(0.0, 0., 0.5) * yRotate(time*2e-2) * xRotate(time*2e-2) * translate(0.0, 0., -0.5) * pos;
         // pos.xyz *= map(sin(time *1e-1+pos.y*2.), -1., 1., 0.95, 1.0);
-        pos = yRotate(-time*0.5e-2) * pos;
+        // pos = yRotate(-time*0.5e-2) * pos;
         // pos = xRotate(-time*0.5e-2) * pos;
-        pos = translate(0.0, 0.0, 1.5) * pos;
+        // pos = translate(0.0, 0.0, 1.5) * pos;
         // pos = rotate()
         pos.x *= ratio;
         gl_Position = vec4(pos.x, pos.y, 0.0, pos.z);

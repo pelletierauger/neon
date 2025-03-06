@@ -272,244 +272,88 @@ makeTree3D = function() {
 //     makeTree();
 // }
 
+flakes = [];
+maps = function(n,sa1,so1,sa2,so2) {
+    return (n-sa1)/(so1-sa1)*(so2-sa2)+sa2;
+};
+for (let i = 0; i < 2500; i++) {
+    let x = Math.random() * 2 - 1;
+    // do {x = Math.random() * 2 - 1} while (Math.abs(x) < 0.1);
+    let y = maps(Math.random(), 0, 1, -1, 1);
+    let z = Math.random() * 2 - 1;
+    flakes.push([x, y, z, i])
+}
+flakes.sort((a, b) => b[2] - a[2]);
+
 sc = 0.75;
 draw = function() {
     gl.clear(gl.COLOR_BUFFER_BIT);
-    // for (let i = 0; i < 5; i++) {
-    makeTree3D();  
-    // }
-    // resetLines();
+    // makeTree3D();
     reset3DLines();
-    // addLine(0, 0, 1, 0, 0.25);
-    // for (let i = 0; i < 100; i++) {
-    //     addLine(field[i][0], field[i][1], field[i+1][0], field[i+1][1], 1/16);
-    // }    
-    // for (let i = 0; i < pairs.length; i++) {
-    //     addLine(
-    //         pairs[i][0][0], 
-    //         pairs[i][0][1], 
-    //         pairs[i][1][0], 
-    //         pairs[i][1][1], 
-    //         1/5,
-    //         1, 0, 0, 0.25
-    //     );
-    // }
-    // for (let i = 0; i < pairs.length; i++) {
-    // let sc = 0.75;
-    // sc += 0.001;
-    // if (sc > 1) {sc = 0.75};
-    // for (let x = 0; x < 1; x += 1/10) {
-    //     let y = 1;
-    //     addLine(
-    //         (x - 0.5) * 1.5 * sc, 
-    //         y * 0.75 * sc, 
-    //         (x - 0.5) * 1.5 * sc, 
-    //         -y * 0.75 * sc, 
-    //         1/5,
-    //         1, 0, 0, 0.6
-    //     );
-    //     addLine(
-    //         (x - 0.5) * 1.5 * sc, 
-    //         y * 0.75 * sc, 
-    //         (x - 0.5) * 1.5 * sc, 
-    //         -y * 0.75 * sc, 
-    //         1/25,
-    //         1, 0, 0, 1
-    //     );
-    // }
-    // for (let y = 0; y < 1; y += 1/10) {
-    //     let x = 0;
-    //     addLine(
-    //         (x - 1) * 0.75 * sc, 
-    //         (y - 0.5) * 1.5 * sc, 
-    //         (x + 1) * 0.75 * sc, 
-    //         (y - 0.5) * 1.5 * sc, 
-    //         1/5,
-    //         1, 0, 0, 0.6
-    //     );
-    //     addLine(
-    //         (x - 1) * 0.75 * sc, 
-    //         (y - 0.5) * 1.5 * sc, 
-    //         (x + 1) * 0.75 * sc, 
-    //         (y - 0.5) * 1.5 * sc, 
-    //         1/25,
-    //         1, 0, 0, 1
-    //     );
-    // }
-    // for (let y = 0; y < 1; y += 1/10) {
-    //     let x = -0.75;
-    //     let yy = map(y, 0, 1, 0.75, -0.75);
-    //     let y2 = map(y, 0, 1, 1.57, -1.57);
-    //     addLine(
-    //         x * sc, 
-    //         (yy) * sc, 
-    //         (x - 1.75) * sc, 
-    //         (yy+y2) * sc, 
-    //         1/5,
-    //         1, 0, 0, 0.6
-    //     );
-    //     addLine(
-    //         x * sc, 
-    //         (yy) * sc, 
-    //         (x - 1.75) * sc, 
-    //         (yy+y2) * sc, 
-    //         1/25,
-    //         1, 0, 0, 1
-    //     );
-    //     x = 0.75;
-    //     addLine(
-    //         x * sc, 
-    //         (yy) * sc, 
-    //         (x + 1.75) * sc, 
-    //         (yy+y2) * sc, 
-    //         1/5,
-    //         1, 0, 0, 0.6
-    //     );
-    //     addLine(
-    //         x * sc, 
-    //         (yy) * sc, 
-    //         (x + 1.75) * sc, 
-    //         (yy+y2) * sc, 
-    //         1/25,
-    //         1, 0, 0, 1
-    //     );
-    // }
-    // for (let x = 0; x < 1; x += 1/10) {
-    //     let y = -0.75;
-    //     let xx = map(x, 0, 1, 0.75, 1.5);
-    //     xx = Math.pow(xx, 2) + 0.28;
-    //     let yy = map(x, 0, 1, 0.825, 2);
-    //     addLine(
-    //         xx * sc, 
-    //         (yy) * sc, 
-    //         xx * sc, 
-    //         (-yy) * sc, 
-    //         1/5,
-    //         1, 0, 0, 0.6
-    //     );
-    //     addLine(
-    //         xx * sc, 
-    //         (yy) * sc, 
-    //         xx * sc, 
-    //         (-yy) * sc, 
-    //         1/25,
-    //         1, 0, 0, 1
-    //     );
-    //             addLine(
-    //         -xx * sc, 
-    //         (yy) * sc, 
-    //         -xx * sc, 
-    //         (-yy) * sc, 
-    //         1/5,
-    //         1, 0, 0, 0.6
-    //     );
-    //     addLine(
-    //         -xx * sc, 
-    //         (yy) * sc, 
-    //         -xx * sc, 
-    //         (-yy) * sc, 
-    //         1/25,
-    //         1, 0, 0, 1
-    //     );
-    // }
-        //     for (let y = 0; y < 1; y += 1/10) {
-        //     addLine(
-        //         x, 
-        //         y, 
-        //         x, 
-        //         x, 
-        //         1/5,
-        //         1, 0, 0, 1
-        //     );
-        // }
-    // }
-    // addLine(0.9, 0.9, 0.9, -0.9, 1/15);
-    // currentProgram = getProgram("smooth-line");
-    // gl.useProgram(currentProgram);
-    // drawLines();
-    // add3DLine(
-    //     -1, 0.1, 2,
-    //     1, -0.1, 2,
-    //     1/5,
-    //     1, 0, 0, 1
-    // );
-//     for (let x = 0; x < 1; x += 1/10) {
-//         let y = 1;
-//         add3DLine(
-//             (x - 0.5) * 1.5 * sc, 
-//             y * 0.75 * sc, 
-//             1,
-//             (x - 0.5) * 1.5 * sc, 
-//             -y * 0.75 * sc, 
-//             1,
-//             1/3,
-//             1, 0, 0, 0.25
-//         );
-//         add3DLine(
-//             (x - 0.5) * 1.5 * sc, 
-//             y * 0.75 * sc, 
-//             1,
-//             (x - 0.5) * 1.5 * sc, 
-//             -y * 0.75 * sc, 
-//             1,
-//             1/25,
-//             1, 0, 0, 1
-//         );
-//         add3DLine(
-//             (x - 0.5) * 1.5 * sc, 
-//             y * 0.75 * sc, 
-//             1,
-//             (x - 0.5) * 1.5 * sc, 
-//             y * 0.75 * sc, 
-//             2,
-//             1/3,
-//             1, 0, 0, 0.25
-//         );
-//         add3DLine(
-//             (x - 0.5) * 1.5 * sc, 
-//             y * 0.75 * sc, 
-//             1,
-//             (x - 0.5) * 1.5 * sc, 
-//             y * 0.75 * sc, 
-//             2,
-//             1/25,
-//             1, 0, 0, 1
-//         );
+    let count = 0;
+    let list = [126, 79, 93, 144, 98, 82, 185, 176, 115, 154];
+    for (let y = 0; y < 15; y++) {
+        for (let x = 0; x < 15; x++) {
+            let purple = false;
+            for (let i = 0; i < list.length; i++) {
+                if (count == list[i]) {purple = true};
+            }
+            let w = 0.25;
+            let xx = map(x, 0, 15, -4.5, 4.5);
+            let yy = map(y, 0, 15, -3.5, 3.5);
+            xx += (y%2==0)?0:w*1.2;
+            // if ((x %5 !== 0) || (y %9 !== 0)) {
+            let b = (purple)?1:0;
+            add3DLine(
+                xx, (yy-(w*1.5))*map(Math.abs(Math.cos(xx/4.5)),0,1,0.2*(Math.pow(Math.abs(yy),1.75)+1),1.2), 2, 
+                xx * 0.99, (yy+(w*1.5)), 2,
+                0.25,
+                1, 0, b, 0.25
+            );
+            // }
+            count++;
+        }
         
-//     }
-    for (let i = 0; i < pairs3D.length; i++) {
-        add3DLine(
-            pairs3D[i][0][0], 
-            pairs3D[i][0][1], 
-            pairs3D[i][0][2], 
-            pairs3D[i][1][0], 
-            pairs3D[i][1][1], 
-            pairs3D[i][1][2], 
-            1/45,
-            1, 0, 0, 0.25
-        );
-    }
-    for (let i = 0; i < pairs3D.length; i++) {
-        add3DLine(
-            pairs3D[i][0][0], 
-            pairs3D[i][0][1], 
-            pairs3D[i][0][2], 
-            pairs3D[i][1][0], 
-            pairs3D[i][1][1], 
-            pairs3D[i][1][2], 
-            1/5,
-            1, 0, 0, 0.00001
-        );
     }
     // currentProgram = getProgram("smooth-dots");
     // gl.useProgram(currentProgram);
     // drawAlligatorQuiet(currentProgram);
-    currentProgram = getProgram("smooth-dots-3D");
-    gl.useProgram(currentProgram);
-    draw3DDots(currentProgram);
-        currentProgram = getProgram("smooth-line-3D");
+    currentProgram = getProgram("smooth-line-3D");
     gl.useProgram(currentProgram);
     draw3DLines();
+//     vertices = [];
+//     for (let i = 0; i < flakes.length; i++) {
+        
+//         // flakes[i][0] += 0.0025 * 0.75;
+//         flakes[i][1] -= 0.005 * 0.5;
+//         flakes[i][0] += Math.sin(flakes[i][3]*0.25e1)*2e-3;
+// //         if (flakes[i][2] < -0.1) {
+// //             flakes[i][2] = 2;
+// //             let x = Math.random() * 2 - 1;
+// //             flakes[i][0] = x;
+// //         }
+// //         if (flakes[i][1] < -0.5) {
+// //             let y = 0.75;
+// //             flakes[i][1] = y;
+            
+// //         }
+//         if (flakes[i][1] < -1) {
+//             let x = Math.random() * 2 - 1;
+//             flakes[i][0] = x;
+//             let y = 1;
+//             flakes[i][1] = y;
+//             let z = Math.random() * 2 - 1;
+//             flakes[i][2] = z;
+            
+//         }
+//     }
+//     flakes.sort((a, b) => b[2] - a[2]);
+//     for (let i = 0; i < flakes.length; i++) {
+//         vertices.push(flakes[i][0], flakes[i][1], flakes[i][2]);
+//     }
+//     // currentProgram = getProgram("smooth-dots-3D");
+    // gl.useProgram(currentProgram);
+    // draw3DDots(currentProgram);
     if (exporting && frameCount < maxFrames) {
         frameExport();
     }
