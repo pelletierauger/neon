@@ -311,7 +311,7 @@ draw = function() {
             add3DLine(
                 xx, (yy-(w*1.5))+fluc, 2, 
                 xx, (yy+(w*1.5)), 2,
-                0.25,
+                0.27,
                 1, 0, b, 0.25
             );
             // }
